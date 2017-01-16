@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta name="author" content="Joris Chau" />
+
+<meta name="date" content="2017-01-16" />
+
+<title>The pdSpecEst package</title>
+
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+</style>
+
+
+
+<link href="data:text/css;charset=utf-8,body%20%7B%0Abackground%2Dcolor%3A%20%23fff%3B%0Amargin%3A%201em%20auto%3B%0Amax%2Dwidth%3A%20700px%3B%0Aoverflow%3A%20visible%3B%0Apadding%2Dleft%3A%202em%3B%0Apadding%2Dright%3A%202em%3B%0Afont%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0Afont%2Dsize%3A%2014px%3B%0Aline%2Dheight%3A%201%2E35%3B%0A%7D%0A%23header%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0A%23TOC%20%7B%0Aclear%3A%20both%3B%0Amargin%3A%200%200%2010px%2010px%3B%0Apadding%3A%204px%3B%0Awidth%3A%20400px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Aborder%2Dradius%3A%205px%3B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%201%2E3%3B%0A%7D%0A%23TOC%20%2Etoctitle%20%7B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dsize%3A%2015px%3B%0Amargin%2Dleft%3A%205px%3B%0A%7D%0A%23TOC%20ul%20%7B%0Apadding%2Dleft%3A%2040px%3B%0Amargin%2Dleft%3A%20%2D1%2E5em%3B%0Amargin%2Dtop%3A%205px%3B%0Amargin%2Dbottom%3A%205px%3B%0A%7D%0A%23TOC%20ul%20ul%20%7B%0Amargin%2Dleft%3A%20%2D2em%3B%0A%7D%0A%23TOC%20li%20%7B%0Aline%2Dheight%3A%2016px%3B%0A%7D%0Atable%20%7B%0Amargin%3A%201em%20auto%3B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dcolor%3A%20%23DDDDDD%3B%0Aborder%2Dstyle%3A%20outset%3B%0Aborder%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0Aborder%2Dwidth%3A%202px%3B%0Apadding%3A%205px%3B%0Aborder%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dstyle%3A%20inset%3B%0Aline%2Dheight%3A%2018px%3B%0Apadding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0Aborder%2Dleft%2Dstyle%3A%20none%3B%0Aborder%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Ap%20%7B%0Amargin%3A%200%2E5em%200%3B%0A%7D%0Ablockquote%20%7B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Apadding%3A%200%2E25em%200%2E75em%3B%0A%7D%0Ahr%20%7B%0Aborder%2Dstyle%3A%20solid%3B%0Aborder%3A%20none%3B%0Aborder%2Dtop%3A%201px%20solid%20%23777%3B%0Amargin%3A%2028px%200%3B%0A%7D%0Adl%20%7B%0Amargin%2Dleft%3A%200%3B%0A%7D%0Adl%20dd%20%7B%0Amargin%2Dbottom%3A%2013px%3B%0Amargin%2Dleft%3A%2013px%3B%0A%7D%0Adl%20dt%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Aul%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Aul%20li%20%7B%0Alist%2Dstyle%3A%20circle%20outside%3B%0A%7D%0Aul%20ul%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Apre%2C%20code%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0Aborder%2Dradius%3A%203px%3B%0Acolor%3A%20%23333%3B%0Awhite%2Dspace%3A%20pre%2Dwrap%3B%20%0A%7D%0Apre%20%7B%0Aborder%2Dradius%3A%203px%3B%0Amargin%3A%205px%200px%2010px%200px%3B%0Apadding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Acode%20%7B%0Afont%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0Afont%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0Apadding%3A%202px%200px%3B%0A%7D%0Adiv%2Efigure%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0Abackground%2Dcolor%3A%20%23FFFFFF%3B%0Apadding%3A%202px%3B%0Aborder%3A%201px%20solid%20%23DDDDDD%3B%0Aborder%2Dradius%3A%203px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Amargin%3A%200%205px%3B%0A%7D%0Ah1%20%7B%0Amargin%2Dtop%3A%200%3B%0Afont%2Dsize%3A%2035px%3B%0Aline%2Dheight%3A%2040px%3B%0A%7D%0Ah2%20%7B%0Aborder%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Apadding%2Dbottom%3A%202px%3B%0Afont%2Dsize%3A%20145%25%3B%0A%7D%0Ah3%20%7B%0Aborder%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Afont%2Dsize%3A%20120%25%3B%0A%7D%0Ah4%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0Amargin%2Dleft%3A%208px%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Ah5%2C%20h6%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23ccc%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%230033dd%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%3Ahover%20%7B%0Acolor%3A%20%236666ff%3B%20%7D%0Aa%3Avisited%20%7B%0Acolor%3A%20%23800080%3B%20%7D%0Aa%3Avisited%3Ahover%20%7B%0Acolor%3A%20%23BB00BB%3B%20%7D%0Aa%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0Aa%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%20code%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%0A" rel="stylesheet" type="text/css" />
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">The <code>pdSpecEst</code> package</h1>
+<h4 class="author"><em>Joris Chau</em></h4>
+<h4 class="date"><em>2017-01-16</em></h4>
+
+
+
+<div id="introduction" class="section level2">
+<h2>Introduction</h2>
+<p>In nonparametric estimation of the autocovariance matrices or the spectral density matrix of a second-order stationary multivariate time series, it is important to preserve positive-definiteness of the estimator. This in order to ensure interpretability of the estimator as an estimated covariance or spectral matrix, but also to avoid computational issues in e.g. simulation or bootstrapping procedures.</p>
+<p>For this purpose, in <span class="citation">(Chau and von Sachs 2017)</span> we considered multivariate spectral estimation in the Riemannian manifold of Hermitian and positive-definite matrices based on a geometric wavelet approach. Nonlinear wavelet curve denoising in the Riemannian manifold allows one to capture local smoothness behavior of the spectral matrix across frequency, but also varying degrees of smoothness across components of the spectral matrix. Moreover, and in contrast to existing approaches, due to its geometric nature the wavelet-based spectral estimator enjoys the important property that it is invariant to permutations of the components of the time series.</p>
+<p>In addition to spectral estimation, we proposed computationally fast clustering of spectral matrices based on their representations in the wavelet domain, exploiting the fact that smooth curves in the Riemannian manifold are summarized by few high-energy wavelet coefficients.</p>
+<p>In this vignette we demonstrate the wavelet-based multivariate spectral estimation and clustering procedures of <span class="citation">(Chau and von Sachs 2017)</span> by means of simulated time series data using the functions in the <code>pdSpecEst</code> package.</p>
+</div>
+<div id="simulate-time-series-data-with-rarma" class="section level2">
+<h2>Simulate time series data with <code>rARMA()</code></h2>
+<p>With <code>rARMA()</code> we simulate multivariate time series observations from a vector ARMA(2,2) process based on Gaussian white noise (i.e. a simulated autoregressive moving average process). By including a vector of frequencies <code>freq</code>, the function <code>rARMA()</code> also returns the generating spectrum of the time series.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(pdSpecEst)
+## Fix parameters
+freq &lt;-<span class="st"> </span><span class="kw">seq</span>(<span class="dt">from =</span> pi /<span class="st"> </span><span class="dv">2</span>^<span class="dv">9</span>, <span class="dt">to =</span> pi, <span class="dt">length =</span> <span class="dv">2</span>^<span class="dv">9</span>)
+d &lt;-<span class="st"> </span><span class="dv">2</span>
+Phi &lt;-<span class="st"> </span><span class="kw">array</span>(<span class="kw">c</span>(<span class="fl">0.5</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="fl">0.2</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, -<span class="fl">0.9</span>), <span class="dt">dim =</span> <span class="kw">c</span>(d, d, <span class="dv">2</span>))
+Theta &lt;-<span class="st"> </span><span class="kw">array</span>(<span class="kw">c</span>(<span class="dv">0</span>, <span class="fl">0.1</span>, <span class="fl">0.1</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="fl">0.5</span>), <span class="dt">dim =</span> <span class="kw">c</span>(d, d, <span class="dv">2</span>))
+Sigma &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="fl">0.25</span>), <span class="dt">nrow =</span> d)
+
+## Generate time series
+<span class="kw">set.seed</span>(<span class="dv">0</span>)
+ts.sim &lt;-<span class="st"> </span><span class="kw">rARMA</span>(<span class="dv">2</span>^<span class="dv">11</span>, d, Phi, Theta, Sigma, <span class="dt">freq =</span> freq)
+<span class="kw">str</span>(ts.sim)
+<span class="co">#&gt; List of 2</span>
+<span class="co">#&gt;  $ X: num [1:2048, 1:2] -1.79 0.856 1.554 0.338 0.124 ...</span>
+<span class="co">#&gt;  $ f: cplx [1:2, 1:2, 1:512] 1.2747+0i 0.0421+0.0003i 0.0421-0.0003i ...</span></code></pre></div>
+<p>The autoregressive (AR) and moving average (MA) parameters are chosen in such a way that the spectral matrix displays different degrees of (local) smoothness across different components of the spectral matrix. The code below can be used to plot the simulated time series data and the underlying spectral matrix in the frequency domain.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## Plot time series observations
+<span class="kw">par</span>(<span class="dt">mfrow =</span> <span class="kw">c</span>(<span class="dv">2</span>,<span class="dv">1</span>), <span class="dt">mar =</span> <span class="kw">c</span>(<span class="fl">4.5</span>, <span class="dv">3</span>, <span class="dv">2</span>, <span class="dv">2</span>))
+<span class="kw">invisible</span>(<span class="kw">sapply</span>(<span class="dv">1</span>:d, function(i) <span class="kw">plot</span>(ts.sim$X[, i], <span class="dt">main =</span> <span class="kw">paste0</span>(<span class="st">&quot;Component &quot;</span>, i), <span class="dt">type =</span> <span class="st">&quot;l&quot;</span>, <span class="dt">xlab =</span> <span class="st">&quot;Time&quot;</span>, <span class="dt">ylab =</span> <span class="st">&quot;&quot;</span>)))
+
+## Plot spectral matrix
+<span class="kw">layout</span>(<span class="dt">mat =</span> <span class="kw">matrix</span>(<span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>,<span class="dv">5</span>,<span class="dv">6</span>,<span class="dv">6</span>), <span class="dt">nrow =</span> <span class="dv">4</span>))
+plotspec &lt;-<span class="st"> </span>function(i){
+  if(i[<span class="dv">1</span>] ==<span class="st"> </span>i[<span class="dv">2</span>]){
+    <span class="kw">plot</span>(freq, <span class="kw">Re</span>(ts.sim$f[i[<span class="dv">1</span>], i[<span class="dv">1</span>], ]), <span class="dt">main =</span> <span class="kw">paste0</span>(<span class="st">&quot;Auto-spectrum (&quot;</span>, i[<span class="dv">1</span>], <span class="st">&quot;, &quot;</span>, i[<span class="dv">1</span>], <span class="st">&quot;)&quot;</span>), <span class="dt">type =</span> <span class="st">&quot;l&quot;</span>, <span class="dt">xlab =</span> <span class="st">&quot;Frequency&quot;</span>, <span class="dt">ylab =</span> <span class="st">&quot;&quot;</span>)
+  } else{
+    <span class="kw">plot</span>(freq, <span class="kw">Re</span>(ts.sim$f[i[<span class="dv">1</span>], i[<span class="dv">2</span>], ]), <span class="dt">main =</span> <span class="kw">paste0</span>(<span class="st">&quot;Real cross-spectrum (&quot;</span>, i[<span class="dv">1</span>], <span class="st">&quot;, &quot;</span>, i[<span class="dv">2</span>], <span class="st">&quot;)&quot;</span>), <span class="dt">type =</span> <span class="st">&quot;l&quot;</span>, <span class="dt">xlab =</span> <span class="st">&quot;Frequency&quot;</span>, <span class="dt">ylab =</span> <span class="st">&quot;&quot;</span>)
+    <span class="kw">plot</span>(freq, <span class="kw">Im</span>(ts.sim$f[i[<span class="dv">1</span>], i[<span class="dv">2</span>], ]), <span class="dt">main =</span> <span class="kw">paste0</span>(<span class="st">&quot;Imag. cross-spectrum (&quot;</span>, i[<span class="dv">1</span>], <span class="st">&quot;, &quot;</span>, i[<span class="dv">2</span>], <span class="st">&quot;)&quot;</span>), <span class="dt">type =</span> <span class="st">&quot;l&quot;</span>, <span class="dt">xlab =</span> <span class="st">&quot;Frequency&quot;</span>, <span class="dt">ylab =</span> <span class="st">&quot;&quot;</span>)
+  }
+}
+<span class="kw">invisible</span>(<span class="kw">apply</span>(<span class="kw">expand.grid</span>(<span class="dv">1</span>:d, <span class="dv">1</span>:d), <span class="dv">1</span>, plotspec))</code></pre></div>
+</div>
+<div id="bias-corrected-periodogram-with-pdpgram" class="section level2">
+<h2>Bias-corrected periodogram with <code>pdPgram()</code></h2>
+<p><code>pdPgram()</code> computes an initial noisy spectral estimator based on an averaged periodogram matrix, rescaled by the manifold bias-correction described in <span class="citation">(Chau and von Sachs 2017)</span>. If <code>B &gt;= d</code>, i.e. the number of segments over which the averaged periodogram is computed is larger than or equal to the dimension of the time series, then the initial spectral estimator is guaranteed to be Hermitian positive-definite (HPD).</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">pgram &lt;-<span class="st"> </span><span class="kw">pdPgram</span>(ts.sim$X)
+<span class="kw">str</span>(pgram)
+<span class="co">#&gt; List of 2</span>
+<span class="co">#&gt;  $ freq: num [1:512] 0.00614 0.01227 0.01841 0.02454 0.03068 ...</span>
+<span class="co">#&gt;  $ P   : cplx [1:2, 1:2, 1:512] 0.6829+0i 0.0197+0.0164i 0.0197-0.0164i ...</span></code></pre></div>
+</div>
+<div id="wavelet-denoised-spectral-estimator-with-pdspecest" class="section level2">
+<h2>Wavelet-denoised spectral estimator with <code>pdSpecEst()</code></h2>
+<p><code>pdSpecEst()</code> computes the HPD wavelet-denoised spectral estimator by thresholding the wavelet coefficients of an initial noisy HPD spectral estimator in the manifold wavelet domain. The components of the wavelet coefficients are thresholded based on the hard (keep-or-kill) threshold <code>lam</code>. If <code>lam</code> is unspecified, the threshold is determined data-adaptively by a twofold cross-validation procedure.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">f.hat &lt;-<span class="st"> </span><span class="kw">pdSpecEst</span>(pgram$P)
+<span class="kw">str</span>(f.hat)
+<span class="co">#&gt; List of 4</span>
+<span class="co">#&gt;  $ f         : cplx [1:2, 1:2, 1:512] 1.121+0i 0.041-0.0111i 0.041+0.0111i ...</span>
+<span class="co">#&gt;  $ D         :List of 9</span>
+<span class="co">#&gt;   ..$ M.scale1: cplx [1:2, 1:2, 1:2] 0.5312+0i 0.0332+0.004i 0.0332-0.004i ...</span>
+<span class="co">#&gt;   ..$ D.scale1: cplx [1:2, 1:2, 1:2] -0.1187+0i 0.0458+0.0148i 0.0458-0.0148i ...</span>
+<span class="co">#&gt;   ..$ D.scale2: cplx [1:2, 1:2, 1:4] 0.0601+0i 0.1045+0.096i 0.1045-0.096i ...</span>
+<span class="co">#&gt;   ..$ D.scale3: cplx [1:2, 1:2, 1:8] 0+0i 0+0i 0+0i ...</span>
+<span class="co">#&gt;   ..$ D.scale4: cplx [1:2, 1:2, 1:16] 0+0i 0+0i 0+0i ...</span>
+<span class="co">#&gt;   ..$ D.scale5: cplx [1:2, 1:2, 1:32] 0+0i 0+0i 0+0i ...</span>
+<span class="co">#&gt;   ..$ D.scale6: cplx [1:2, 1:2, 1:64] 0+0i 0+0i 0+0i ...</span>
+<span class="co">#&gt;   ..$ D.scale7: cplx [1:2, 1:2, 1:128] 0+0i 0+0i 0+0i ...</span>
+<span class="co">#&gt;   ..$ D.scale8: cplx [1:2, 1:2, 1:256] 0+0i 0+0i 0+0i ...</span>
+<span class="co">#&gt;  $ lam       : num 3.02</span>
+<span class="co">#&gt;  $ components:List of 8</span>
+<span class="co">#&gt;   ..$ : num [1:4, 1:2] -0.1187 -0.021 0.0647 1.5242 0.1656 ...</span>
+<span class="co">#&gt;   ..$ : num [1:4, 1:4] 0.0601 -0.1364 0.1477 -0.4068 -0.1262 ...</span>
+<span class="co">#&gt;   ..$ : num [1:4, 1:8] 0 0 0 0 0 0 0 0 0 0 ...</span>
+<span class="co">#&gt;   ..$ : num [1:4, 1:16] 0 0 0 0 0 0 0 0 0 0 ...</span>
+<span class="co">#&gt;   ..$ : num [1:4, 1:32] 0 0 0 0 0 0 0 0 0 0 ...</span>
+<span class="co">#&gt;   ..$ : num [1:4, 1:64] 0 0 0 0 0 0 0 0 0 0 ...</span>
+<span class="co">#&gt;   ..$ : num [1:4, 1:128] 0 0 0 0 0 0 0 0 0 0 ...</span>
+<span class="co">#&gt;   ..$ : num [1:4, 1:256] 0 0 0 0 0 0 0 0 0 0 ...</span></code></pre></div>
+<p>The figure below shows the true underlying spectral matrix given by <code>ts.sim$f</code> and the estimated spectral matrix obtained from <code>f.hat$f</code> at the frequencies <code>freq</code>. The spectral estimator is able to capture both the very smooth curve behavior in the first auto-spectral component of the matrix and the localized peak in the second auto-spectral component of the matrix, while guaranteeing positive-definiteness of the estimator. <br> <br></p>
+<div class="figure">
+<img src="data:image/png;base64,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" alt="Figure: True (left) and estimated (right) spectral matrices in the frequency domain." width="35%" /><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASAAAAEgCAMAAAAjXV6yAAAAVFBMVEUAAAAAADoAAGYAOpAAZpAAZrY6AAA6OpA6kNtmAABmAGZmtrZmtv+QOgCQOjqQtpCQ2/+2ZgC2/9u2///bkDrb////AAD/tmb/25D//7b//9v///93GGyxAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAG4klEQVR4nO2dgXbaOBRERVpYaJNtsiEOif7/P1eybDCEMLakZ55f557jIAitp9e2bJ+QqfPkJu7eAbRDQQAKAlAQgIIAFASgIAAFAaYI+ti5wOp5+Mqj3zu3jY/evzy89t+Iw323iDE6z0t422NmnmmC1vHLj7fjK/vVc/s8PPrPJ9evPQ0Pm227iDE2zz7YeVk95+WZLCiuqn/h8+nHWwyUHl0fqBvGV+MyMVH9PJF3t83Lkycorj2s6bBZh+3kVn82a//x67+nXlA3jO98GR4BlRmbJ9LtRdPzZB1i/RI2i+8f4/Y7BkrDGCouUozPE16NE1BOnumTdNhSbYBwnMe1xUBprV8ExbelrDKMzxOm6cfMPFP3oL1bx12j5fHugsbm2bcpZhEUjvHTWhQIGpXnPVqcSVCYCB9e05ni4fXKMZ9SzTgHjcjzsUsz8wxzUHvWCJujO4ce4tkiBIqPVwTNdBaDedIRuJU/i32hv6oYXl0c/nkbfFf0OmiWPGX3Yv2V++kK/vPf4xb62G3bZUYE8pQJSvc8p8cz3kPKd8l7sVny8G4eQEEACgI471ThteVxuvYhp2yfpiAABQEoCEBBAAoCUBCAggAUBKAgAAUBKAhAQQAKAlAQgIIAFASgIAAFASgIQEEACgJQEICCABQEoCAABQEoCEBBAAoCUBCAggAUBKAgAAUBKAhAQQAKAlAQwKKgJlAlS0StoCYfX9ORSkFVlqYpX9q/S6Gge2cYQkEAlYJUoVCQMigIQEEACgJQEICCABQEoCAABQEoCLBoQWcVgemF6r2OtgQJ9DqaEiTR67h4QYfNzyfnfu9iGalEr6MBQQ+vh83q+ZsOs0RBp5oBQam3LJWV1W/loyCYiIJAIkOCJHodTQmS6HVctKBLZHoUDQmS6VG0JEikR9GSIAEoCEBBAH2C7v3D5nM0Crp3hiEUBKAgAAUBKAhAQQAKAlAQgIIAR0EVP5xehFpBvubn9wvQK0iJIs2CVCjSLUiBIu2C/L0dLUBQ5V+4msgiBPnu17VmT+OXIyhyF0dLEuTv4Whhgvzsc/byBM08Hy1RUGQ2SUsVFJlF0ZIF+TkcLVyQF3e0fEHCiiwI8pKOjAiSu4Q0I8gLObIkyB8rSOrlsSaoo6knyqagnqktNlcDWRY0hW+UURCAggAqBbWfC1S03FvKEO5BAAoCUBDAoqCql/fmBB3VjL40RXkUCmqXou7DSt2Knj2KEAoCpAtFTXhteVRtL41QEICCABQEoCAABQEoCEBBAAoCUBBgiqDYJufcsF9m2Fv44typmye/t1AiTxrm9ihOCbS+qOYb9BbG5qK+nKekt1AgTzfM7VGcGGhYUTTsLYzPu/6rot5CgTzdMLc/KCdQVBDWNOwtjHT9V0W9hQJ5+mFmA9XEQHEL9ct5Z1gYnrpBszvDRPKkYWaH2ZRAcVIMW6oN0B3np9a5MBf2Ky9onRPJk4aZLXhTAq3DFljHXaPl8TzQ/rTuuQSNzZOGswgKx/hpLWeB3t36+M75BI3K0w1nEeRjd+q13sKPXTv9FfcWCuTphnPMQe1Zw637E/mwtzDt5tvi3kKBPN1Q/iz2BYneQm15yu7FBHoLteUpEyTQW6gtD+/mARQEoCAAf/R8G3544TYUBKAggE1BFX/9yKigv+A/wy6CggAUBKCg2zQVZ2kKAlAQgIIAFASgIAAFASgIYFRQPUMUBLAoqPEUdBMKAlAQgIIAFASgIAAFASgIQEEACgJQEICCABQEoCAABQEoCEBBAAoCNMcvFaAgAAUBagiq2kleLqgZfC3nKGhSV/aXesKaxY4KBbWfbi9dcnsPr3Qglv2ThPYgLVAQQKUgVSgUpA0KAlAQgIIAFASgIAAFASgIQEEACgIsWdBZJV96oXpvoS1BAr2FpgRJ9BYuXtBh8/PJud+7eBBJ9BYaEPTwetisni87w3yl3kIDglJPWCoHq99bWEdQLUNVBdXpLbQrqFJvoSlBEr2FpgRJ9BYWCmouHgspvNUQ6VG0JEikR9GUIIkeRVOCJKAgAAUB1Am634+Zr6FRUJ2/qg4UBKAgAAUBKAhAQQAKAlAQgIIAFASoJqiSIQoCmBPUXBmVQEEACgJQEICCABQEoCAABQEoCGBNUHN1WAAFAQwLqmOIggAUBDAmqPn2SS4UBLAl6KIfo4YhY4JuPs3ClKDLgpUahSuWBH31QUFHrvfzVNiFbAj6vr2oWJEBQaDb6dQClZlnSYK+K8AaQe6fVCmoXW40VFVbRjViKRR07wxDKAhAQQAKAiBB004VVQIpFHRzRm9n8jGzvZYexbpUOMQmXpDAQOYE+Tq3zR0qBanCa8ujantp5H9UFFf6ffQRJAAAAABJRU5ErkJggg==" alt="Figure: True (left) and estimated (right) spectral matrices in the frequency domain." width="35%" />
+<p class="caption">
+Figure: True (left) and estimated (right) spectral matrices in the frequency domain.
+</p>
+</div>
+</div>
+<div id="wavelet-based-spectral-clustering-with-pdspecclust" class="section level2">
+<h2>Wavelet-based spectral clustering with <code>pdSpecClust()</code></h2>
+<p><code>pdSpecClust()</code> performs clustering of multivariate spectral matrices via a two-step fuzzy clustering algorithm in the manifold wavelet domain. Below we simulate time series data for ten different subjects from two slightly different vARMA(2,2) processes. Here, the first group of five subjects shares the same spectrum and the second group of five subjects share a slightly different spectrum. We use <code>pdSpecClust()</code> to assign the different subjects to <code>K=2</code> clusters in a probabilistic fashion. Note that the true clusters are formed by the first group of five subjects and the last group of five subjects.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">Phi1 &lt;-<span class="st"> </span><span class="kw">array</span>(<span class="kw">c</span>(<span class="fl">0.5</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="fl">0.1</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, -<span class="fl">0.9</span>), <span class="dt">dim =</span> <span class="kw">c</span>(d, d, <span class="dv">2</span>))
+Phi2 &lt;-<span class="st"> </span><span class="kw">array</span>(<span class="kw">c</span>(<span class="fl">0.5</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="fl">0.3</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, -<span class="fl">0.9</span>), <span class="dt">dim =</span> <span class="kw">c</span>(d, d, <span class="dv">2</span>))
+pgram &lt;-<span class="st"> </span>function(Phi) <span class="kw">pdPgram</span>(<span class="kw">rARMA</span>(<span class="dv">2</span>^<span class="dv">10</span>, d, Phi, Theta, Sigma)$X)$P
+P &lt;-<span class="st"> </span><span class="kw">array</span>(<span class="kw">c</span>(<span class="kw">replicate</span>(<span class="dv">5</span>, <span class="kw">pgram</span>(Phi1)), <span class="kw">replicate</span>(<span class="dv">5</span>, <span class="kw">pgram</span>(Phi2))), <span class="dt">dim=</span><span class="kw">c</span>(d, d, <span class="dv">2</span>^<span class="dv">8</span>, <span class="dv">10</span>))
+<span class="kw">pdSpecClust</span>(P, <span class="dt">K =</span> <span class="dv">2</span>, <span class="dt">lam =</span> <span class="dv">3</span>)
+<span class="co">#&gt;             Cluster1   Cluster2</span>
+<span class="co">#&gt; Subject1  0.10322249 0.89677751</span>
+<span class="co">#&gt; Subject2  0.01652825 0.98347175</span>
+<span class="co">#&gt; Subject3  0.01238007 0.98761993</span>
+<span class="co">#&gt; Subject4  0.02648990 0.97351010</span>
+<span class="co">#&gt; Subject5  0.02075077 0.97924923</span>
+<span class="co">#&gt; Subject6  0.98172448 0.01827552</span>
+<span class="co">#&gt; Subject7  0.98967170 0.01032830</span>
+<span class="co">#&gt; Subject8  0.97642216 0.02357784</span>
+<span class="co">#&gt; Subject9  0.93595864 0.06404136</span>
+<span class="co">#&gt; Subject10 0.94940943 0.05059057</span></code></pre></div>
+</div>
+<div id="references" class="section level2 unnumbered">
+<h2>References</h2>
+<div id="refs" class="references">
+<div id="ref-CvS17">
+<p>Chau, J., and R. von Sachs. 2017. “Positive-Definite Multivariate Spectral Estimation: A Geometric Wavelet Approach.” <a href="http://arxiv.org/abs/1701.03314" class="uri">http://arxiv.org/abs/1701.03314</a>.</p>
+</div>
+</div>
+</div>
+
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
