@@ -7,7 +7,7 @@
 //' \code{Mid} calculates the geodesic midpoint between two Hermitian PD matrices as in
 //' (Bhatia, 2009, Chapter 6).
 //'
-//' @param A,B Hermitian positive-definite matrices (of equal dimension).
+//' @param A,B Hermitian positive definite matrices (of equal dimension).
 //'
 //' @examples
 //'  a <- matrix(complex(real = rnorm(9), imaginary = rnorm(9)), nrow = 3)

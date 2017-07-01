@@ -1,22 +1,29 @@
 Package: pdSpecEst
 Type: Package
-Title: Positive-Definite Wavelet-Based Multivariate Spectral Analysis
-Version: 1.0.0
+Title: An Analysis Toolbox for Hermitian Positive Definite Matrices
+Version: 1.1.0
 Authors@R: person("Joris", "Chau", email = "j.chau@uclouvain.be", role = c("aut", "cre"))
-Description: Implementation of wavelet-based multivariate spectral density estimation and clustering methods in the Riemannian manifold of Hermitian and positive-definite matrices.
-URL: https://github.com/JorisChau/pdSpecEst
+Description: An implementation of data analysis tools for samples of symmetric or 
+  Hermitian positive definite matrices, such as collections of covariance matrices 
+  or spectral density matrices. The tools in this package can be used to perform (i) 
+  manifold wavelet regression and clustering for curves of Hermitian positive definite 
+  matrices, and (ii) exploratory data analysis and inference for samples of (curves of) 
+  Hermitian positive definite matrices by means of manifold data depth and manifold 
+  rank-based hypothesis tests.
+URL: https://github.com/JorisChau/pdSpecEst,
+        https://jchau.shinyapps.io/pdspecest/
 Depends: R (>= 3.3.1)
 License: GPL (>= 2)
 LazyData: TRUE
-Imports: astsa, Rcpp,
-RoxygenNote: 5.0.1
+Imports: astsa, multitaper, Rcpp, ddalpha, shapes
+RoxygenNote: 6.0.1
 LinkingTo: Rcpp, RcppArmadillo (>= 0.7.500.0.0)
 SystemRequirements: GNU make, C++11
 Suggests: knitr, rmarkdown, testthat
 VignetteBuilder: knitr
 NeedsCompilation: yes
-Packaged: 2017-01-16 11:53:51 UTC; jchau
+Packaged: 2017-07-01 16:05:04 UTC; jchau
 Author: Joris Chau [aut, cre]
 Maintainer: Joris Chau <j.chau@uclouvain.be>
 Repository: CRAN
-Date/Publication: 2017-01-16 14:16:01
+Date/Publication: 2017-07-01 16:25:04 UTC

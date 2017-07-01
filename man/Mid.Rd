@@ -7,7 +7,7 @@
 Mid(A, B)
 }
 \arguments{
-\item{A, B}{Hermitian positive-definite matrices (of equal dimension).}
+\item{A, B}{Hermitian positive definite matrices (of equal dimension).}
 }
 \description{
 \code{Mid} calculates the geodesic midpoint between two Hermitian PD matrices as in
@@ -26,4 +26,3 @@ Bhatia, R. (2009). \emph{Positive Definite Matrices}. New Jersey: Princeton Univ
 \seealso{
 \code{\link{KarchMean}}
 }
-

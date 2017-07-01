@@ -2,7 +2,7 @@
 % Please edit documentation in R/estimation.R
 \name{pdSpecEst}
 \alias{pdSpecEst}
-\title{Wavelet-thresholded multivariate spectral estimator.}
+\title{Wavelet-thresholded multivariate spectral estimator}
 \usage{
 pdSpecEst(P, lam = NULL, order = 5, return = "f", alpha = 0.75)
 }
@@ -26,19 +26,20 @@ The function returns a list with four components:
 spectral estimate at the \code{m} different frequencies. If \code{!(return == 'f')}, the inverse wavelet transform
 of the thresholded wavelet coefficients is not computed and \code{f} is set equal to \code{NULL}.}
 \item{D }{a list of arrays, each (\eqn{d, d, 2^j})-dimensional array contains the thresholded
-(\eqn{d \times d})-dimensional wavelet coefficents at the \eqn{2^j} different locations in the given wavelet scale
+(\eqn{d \times d})-dimensional wavelet coefficients at the \eqn{2^j} different locations in the given wavelet scale
 \eqn{j}. The first list element contains the midpoints at the coarsest scale in the
 midpoint pyramid \eqn{j=1}, see (Chau and von Sachs, 2017) for more details.}
 \item{lam }{the hard threshold used to threshold the components of the wavelet coefficients.}
-\item{components }{a list of arrays, each (\eqn{d^2, 2^j})-dimensional array contains the components
-of the thresholded (\eqn{d \times d})-dimensional wavelet coefficients in terms of an orthonormal basis of the
-space of (\eqn{d \times d})-dimensional Hermitian matrices. The columns correspond to the \eqn{d^2} basis components
-at each of the \eqn{2^j} different locations at wavelet scale \eqn{j}.}
+\item{components }{a list with two elements. The first element \code{thresholded} is a list of arrays; each (\eqn{d^2, 2^j})-dimensional
+array contains the components of the thresholded (\eqn{d \times d})-dimensional wavelet coefficients in terms of an
+orthonormal basis of the space of (\eqn{d \times d})-dimensional Hermitian matrices. The columns correspond to the
+\eqn{d^2} basis components at each of the \eqn{2^j} different locations at wavelet scale \eqn{j}.  Analogous, for the second element
+\code{non-thresholded}, but containing the components of the non-thresholded wavelet coefficients.}
 }
 \description{
 \code{pdSpecEst} calculates a \eqn{(d \times d)}-dimensional Hermitian PD wavelet-denoised multivariate
 spectral estimator by thresholding wavelet coefficients in the manifold wavelet domain. The
-estimation procedure is described in detail (Chau and von Sachs, 2017).
+estimation procedure is described in detail (Chau and von Sachs, 2017a).
 }
 \details{
 The input array \code{P} corresponds to an initial noisy Hermitian PD spectral estimate of the
@@ -70,7 +71,7 @@ f <- pdSpecEst(pgram$P)
 
 }
 \references{
-Chau, J. and von Sachs, R. (2017). \emph{Positive-definite multivariate spectral
+Chau, J. and von Sachs, R. (2017a). \emph{Positive definite multivariate spectral
 estimation: a geometric wavelet approach}. Available at \url{http://arxiv.org/abs/1701.03314}.
 
 Brockwell, P.J. and Davis, R.A. (1991). \emph{Time series: Theory and Methods}. New York: Springer.
@@ -78,4 +79,3 @@ Brockwell, P.J. and Davis, R.A. (1991). \emph{Time series: Theory and Methods}. 
 \seealso{
 \code{\link{pdPgram}}, \code{\link{WavTransf}}, \code{\link{InvWavTransf}}
 }
-

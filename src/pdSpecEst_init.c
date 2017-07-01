@@ -6,8 +6,6 @@
 #include <R_ext/Rdynload.h>
 
 SEXP pdSpecEst_ARMA(SEXP PhiSEXP, SEXP ThetaSEXP, SEXP ZSEXP, SEXP lenSEXP);
-SEXP pdSpecEst_E_coeff(SEXP HSEXP, SEXP ESEXP);
-SEXP pdSpecEst_E_coeff_inv(SEXP coeffSEXP, SEXP ESEXP);
 SEXP pdSpecEst_Expm(SEXP PSEXP, SEXP HSEXP);
 SEXP pdSpecEst_iSqrt(SEXP MSEXP);
 SEXP pdSpecEst_kMean(SEXP MSEXP, SEXP muSEXP);
@@ -17,11 +15,14 @@ SEXP pdSpecEst_NormF(SEXP MSEXP);
 SEXP pdSpecEst_RiemmDist(SEXP ASEXP, SEXP BSEXP);
 SEXP pdSpecEst_solveMid(SEXP BSEXP, SEXP CSEXP);
 SEXP pdSpecEst_Sqrt(SEXP MSEXP);
+SEXP pdSpecEst_Chol(SEXP MSEXP);
+SEXP pdSpecEst_E_coeff(SEXP HSEXP);
+SEXP pdSpecEst_T_coeff(SEXP HSEXP, SEXP ySEXP);
+SEXP pdSpecEst_E_coeff_inv(SEXP coeffSEXP);
+SEXP pdSpecEst_T_coeff_inv(SEXP coeffSEXP, SEXP ySEXP);
 
 R_CallMethodDef callMethods[]  = {
   {"pdSpecEst_ARMA", (DL_FUNC) &pdSpecEst_ARMA, 4},
-  {"pdSpecEst_E_coeff", (DL_FUNC) &pdSpecEst_E_coeff, 2},
-  {"pdSpecEst_E_coeff_inv", (DL_FUNC) &pdSpecEst_E_coeff_inv, 2},
   {"pdSpecEst_Expm", (DL_FUNC) &pdSpecEst_Expm, 2},
   {"pdSpecEst_iSqrt", (DL_FUNC) &pdSpecEst_iSqrt, 1},
   {"pdSpecEst_kMean", (DL_FUNC) &pdSpecEst_kMean, 2},
@@ -31,6 +32,11 @@ R_CallMethodDef callMethods[]  = {
   {"pdSpecEst_RiemmDist", (DL_FUNC) &pdSpecEst_RiemmDist, 2},
   {"pdSpecEst_solveMid", (DL_FUNC) &pdSpecEst_solveMid, 2},
   {"pdSpecEst_Sqrt", (DL_FUNC) &pdSpecEst_Sqrt, 1},
+  {"pdSpecEst_Chol", (DL_FUNC) &pdSpecEst_Chol, 1},
+  {"pdSpecEst_E_coeff", (DL_FUNC) &pdSpecEst_E_coeff, 1},
+  {"pdSpecEst_T_coeff", (DL_FUNC) &pdSpecEst_T_coeff, 2},
+  {"pdSpecEst_E_coeff_inv", (DL_FUNC) &pdSpecEst_E_coeff_inv, 1},
+  {"pdSpecEst_T_coeff_inv", (DL_FUNC) &pdSpecEst_T_coeff_inv, 2},
   {NULL, NULL, 0}
 };
 

@@ -8,7 +8,7 @@
 //' PD matrix \code{P} to the Riemannian manifold of Hermitian PD matrices via the
 //' exponential map as in (Pennec, 2006). This is the unique inverse of the logarithmic map \code{\link{Logm}}.
 //'
-//' @param P a Hermitian positive-definite matrix.
+//' @param P a Hermitian positive definite matrix.
 //' @param H a Hermitian matrix (of equal dimension as \code{P}).
 //'
 //' @examples

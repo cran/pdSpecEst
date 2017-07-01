@@ -3,20 +3,32 @@
 The `pdSpecEst` package
 =======================
 
-[![Travis-CI Build Status](https://travis-ci.org/JorisChau/pdSpecEst.svg?branch=master)](https://travis-ci.org/JorisChau/pdSpecEst)
+<!-- [![CRAN version](http://www.r-pkg.org/badges/version/pdSpecEst)](https://cran.r-project.org/package=pdSpecEst) -->
+<!-- [![Travis-CI Build Status](https://travis-ci.org/JorisChau/pdSpecEst.svg?branch=master)](https://travis-ci.org/JorisChau/pdSpecEst) -->
+This package provides data analysis tools for samples of symmetric or Hermitian positive definite matrices, such as collections of (non-degenerate) covariance matrices or spectral density matrices.
 
-This package provides the tools to perform wavelet-based multivariate spectral density estimation and clustering in the Riemannian manifold of Hermitian and positive-definite matrices. The methodology is based on the paper (Chau and von Sachs 2017) available at <http://arxiv.org/abs/1701.03314>.
+The tools in this package can be used to perform:
 
-For more details and examples on how to use the package see the accompanying vignette in the vignettes folder.
+-   *Manifold wavelet regression* and *clustering* for curves of Hermitian positive definite matrices. These implementations are based on the paper (Chau and von Sachs 2017).
+
+-   Exploratory data analysis and inference for samples of Hermitian positive definite matrices by means of *generalized data depth* and *generalized rank-based hypothesis tests*. These implementations are based on the paper (Chau, Ombao, and von Sachs 2017).
+
+For more details and examples on how to use the package see the accompanying vignettes in the vignettes folder.
+
+A demo Shiny app to test out the implemented functions in the package is available [here](https://jchau.shinyapps.io/pdspecest/).
 
 *Author and maintainer:* Joris Chau (<j.chau@uclouvain.be>).
 
 Installation
 ------------
 
-**Current development version:** install via `devtools::install_github("JorisChau/pdSpecEst")`, (requires R package `devtools`).
+-   **Stable CRAN version:** install from within R
+
+-   **Current development version:** install via `devtools::install_github("JorisChau/pdSpecEst")`
 
 References
 ----------
 
-Chau, J., and R. von Sachs. 2017. “Positive-Definite Multivariate Spectral Estimation: A Geometric Wavelet Approach.” <http://arxiv.org/abs/1701.03314>.
+Chau, J., and R. von Sachs. 2017. “Positive Definite Multivariate Spectral Estimation: A Geometric Wavelet Approach.” <http://arxiv.org/abs/1701.03314>.
+
+Chau, J., H. Ombao, and R. von Sachs. 2017. “Data Depth and Rank-Based Tests for Covariance and Spectral Density Matrices.” <http://arxiv.org/abs/1706.08289>.

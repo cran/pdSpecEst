@@ -7,9 +7,9 @@
 Logm(P, Q)
 }
 \arguments{
-\item{P}{a Hermitian positive-definite matrix.}
+\item{P}{a Hermitian positive definite matrix.}
 
-\item{Q}{a Hermitian positive-definite matrix (of equal dimension as \code{P}).}
+\item{Q}{a Hermitian positive definite matrix (of equal dimension as \code{P}).}
 }
 \description{
 \code{Logm(P, Q)} computes the projection of a Hermitian PD matrix \code{Q} on the Riemannian manifold
@@ -31,4 +31,3 @@ measurements. \emph{Journal of Mathematical Imaging and Vision} 25(1), 127-154.
 \seealso{
 \code{\link{Expm}}
 }
-

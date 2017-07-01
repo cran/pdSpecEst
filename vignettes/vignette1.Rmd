@@ -1,0 +1,140 @@
+---
+title: "Wavelet-based multivariate spectral analysis"
+author: "Joris Chau"
+date: "`r Sys.Date()`"
+output: 
+  rmarkdown::html_vignette:
+    fig_caption: yes
+vignette: >
+  %\VignetteIndexEntry{"Wavelet-based multivariate spectral analysis"}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+references:
+- id: CvS17
+  title: 'Positive definite multivariate spectral estimation: a geometric wavelet approach'
+  author:
+  - family: Chau  
+    given: J.
+  - family: von Sachs
+    given: R.
+  URL: 'http://arxiv.org/abs/1701.03314'
+  type: article-journal
+  issued:
+    year: 2017
+---
+
+```{r, echo = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+## Introduction 
+
+In nonparametric estimation of the autocovariance matrices or the spectral density
+matrix of a second-order stationary multivariate time series, it is important to preserve
+positive definiteness of the estimator. This in order to ensure interpretability of the
+estimator as an estimated covariance or spectral matrix, but also to avoid computational
+issues in e.g. simulation or bootstrapping procedures. 
+
+For this purpose, in [@CvS17] we considered multivariate spectral estimation in the Riemannian manifold of Hermitian and positive definite matrices based on a geometric wavelet approach. Nonlinear wavelet curve denoising in the Riemannian manifold allows one to capture local smoothness behavior of the spectral matrix across frequency, but also varying degrees of smoothness across components of the spectral matrix. Moreover, and in contrast to existing approaches, due to its geometric nature the wavelet-based spectral estimator enjoys the important property that it is invariant to permutations of the components of the time series. 
+
+In addition to spectral estimation, we proposed computationally fast clustering of spectral matrices based on their representations in the wavelet domain, exploiting the fact that smooth curves in the Riemannian manifold are summarized by few high-energy wavelet coefficients.
+
+In this vignette we demonstrate the wavelet-based multivariate spectral estimation and clustering procedures of [@CvS17] by means of simulated time series data using the functions in the `pdSpecEst` package. 
+
+## Simulate time series data with `rARMA()`
+
+With `rARMA()` we simulate multivariate time series observations from a vector ARMA(2,2) process based on Gaussian white noise (i.e. a simulated autoregressive moving average process). By including a vector of frequencies `freq`, the function `rARMA()` also returns the generating spectrum of the time series. 
+
+```{r}
+library(pdSpecEst)
+## Fix parameters
+freq <- seq(from = pi / 2^9, to = pi, length = 2^9)
+d <- 2
+Phi <- array(c(0.5, 0, 0, 0.2, 0, 0, 0, -0.9), dim = c(d, d, 2))
+Theta <- array(c(0, 0.1, 0.1, 0, 0, 0, 0, 0.5), dim = c(d, d, 2))
+Sigma <- matrix(c(2, 0, 0, 0.25), nrow = d)
+
+## Generate time series
+set.seed(0)
+ts.sim <- rARMA(2^11, d, Phi, Theta, Sigma, freq = freq)
+str(ts.sim)
+```
+
+The autoregressive (AR) and moving average (MA) parameters are chosen in such a way that the spectral matrix displays different degrees of (local) smoothness across different components of the spectral matrix. The code below can be used to plot the simulated time series data and the underlying spectral matrix in the frequency domain. 
+
+```{r, eval=FALSE}
+## Plot time series observations
+par(mfrow = c(2,1), mar = c(4.5, 3, 2, 2))
+invisible(sapply(1:d, function(i) plot(ts.sim$X[, i], main = paste0("Component ", i), type = "l", xlab = "Time", ylab = "")))
+
+## Plot spectral matrix
+layout(mat = matrix(c(1,1,2,3,4,5,6,6), nrow = 4))
+plotspec <- function(i){
+  if(i[1] == i[2]){
+    plot(freq, Re(ts.sim$f[i[1], i[1], ]), main = paste0("Auto-spectrum (", i[1], ", ", i[1], ")"), type = "l", xlab = "Frequency", ylab = "")
+  } else{
+    plot(freq, Re(ts.sim$f[i[1], i[2], ]), main = paste0("Real cross-spectrum (", i[1], ", ", i[2], ")"), type = "l", xlab = "Frequency", ylab = "")
+    plot(freq, Im(ts.sim$f[i[1], i[2], ]), main = paste0("Imag. cross-spectrum (", i[1], ", ", i[2], ")"), type = "l", xlab = "Frequency", ylab = "")
+  }
+}
+invisible(apply(expand.grid(1:d, 1:d), 1, plotspec))
+```
+
+## Bias-corrected periodogram with `pdPgram()` 
+`pdPgram()` computes an initial noisy spectral estimator based on an averaged periodogram matrix, rescaled by the manifold bias-correction described in [@CvS17]. If `B >= d`, i.e. the number of segments over which the averaged periodogram is computed is larger than or equal to the dimension of the time series, then the initial spectral estimator is guaranteed to be Hermitian positive definite (HPD).
+
+```{r}
+pgram <- pdPgram(ts.sim$X)
+str(pgram)
+```
+
+## Wavelet-denoised spectral estimator with `pdSpecEst()`
+`pdSpecEst()` computes the HPD wavelet-denoised spectral estimator by thresholding the wavelet coefficients of an initial noisy HPD spectral estimator in the manifold wavelet domain. The components of the wavelet coefficients are thresholded based on the hard (keep-or-kill) threshold `lam`. If `lam` is unspecified, the threshold is determined data-adaptively by a twofold cross-validation procedure. 
+
+```{r}
+f.hat <- pdSpecEst(pgram$P)
+str(f.hat)
+```
+
+The figure below shows the true underlying spectral matrix given by `ts.sim$f` and the estimated spectral matrix obtained from `f.hat$f` at the frequencies `freq`. The spectral estimator is able to capture both the very smooth curve behavior in the first auto-spectral component of the matrix and the localized peak in the second auto-spectral component of the matrix, while guaranteeing positive definiteness of the estimator. <br>
+<br>
+
+```{r, echo=FALSE, fig.show='hold', fig.cap='Figure: True (left) and estimated (right) spectral matrices in the frequency domain.', out.width='35%'}
+## Plot spectral matrix
+par(mar = c(0.1,0.1,2,0.1))
+layout(mat = matrix(c(1,1,2,3,4,5,6,6), nrow = 4))
+plotspec <- function(i, data, col){
+  ylim <- range(Re(data$f), Im(data$f))
+  if(i[1] == i[2]){
+    plot(freq, Re(data$f[i[1], i[1], ]), main = paste0("Re(f(", i[1], ",", i[1], "))"), type = "l", xaxt = "n", yaxt = "n", col = col, ylim = ylim)
+    abline(h = 0, lty = 3)
+  } else{
+    plot(freq, Re(data$f[i[1], i[2], ]), main = paste0("Re(f(", i[1], ",", i[2], "))"), type = "l", xaxt = "n", yaxt = "n", col = col, ylim = ylim)
+    abline(h = 0, lty = 3)
+    plot(freq, Im(data$f[i[1], i[2], ]), main = paste0("Im(f(", i[1], ",", i[1], "))"), type = "l", xaxt = "n", yaxt = "n", col = col, ylim = ylim)
+    abline(h = 0, lty = 3)
+  }
+}
+grid <- expand.grid(1:d, 1:d)
+invisible(apply(grid, 1, function(i) plotspec(i, ts.sim, 1)))
+invisible(apply(grid, 1, function(i) plotspec(i, f.hat, 2)))
+```
+
+## Wavelet-based spectral clustering with `pdSpecClust()`
+`pdSpecClust()` performs clustering of multivariate spectral matrices via a two-step fuzzy clustering algorithm in the manifold wavelet domain. Below we simulate time series data for ten different subjects from two slightly different vARMA(2,2) processes. Here, the first group of five subjects shares the same spectrum and the second group of five subjects share a slightly different spectrum. We use `pdSpecClust()` to assign the different subjects to `K=2` clusters in a probabilistic fashion. Note that the true clusters are formed by the first group of five subjects and the last group of five subjects.     
+
+```{r}
+Phi1 <- array(c(0.5, 0, 0, 0.1, 0, 0, 0, -0.9), dim = c(d, d, 2))
+Phi2 <- array(c(0.5, 0, 0, 0.3, 0, 0, 0, -0.9), dim = c(d, d, 2))
+pgram <- function(Phi) pdPgram(rARMA(2^10, d, Phi, Theta, Sigma)$X)$P
+P <- array(c(replicate(5, pgram(Phi1)), replicate(5, pgram(Phi2))), dim=c(d, d, 2^8, 10))
+pdSpecClust(P, K = 2, lam = 3)
+```
+
+## Shiny app
+
+A demo Shiny app for wavelet-based spectral estimation and clustering is available [here](https://jchau.shinyapps.io/pdspecest/). The app allows the user to test the wavelet-based spectral matrix estimation or wavelet-based spectral matrix clustering procedures on simulated multivariate time series data. The estimated spectral matrices and cluster assignments can be compared to the known generating spectral matrices and clusters, or in the case of the wavelet-based spectral estimate with a benchmark multitaper spectral estimate (obtained via `pdPgram()`).
+
+The app also includes a real brain signal data example consisting of local field potential (LFP) time series trials recorded over the course of an associative learning experiment with a male macaque. The goal of the analysis is to study evolving spectral characteristics of the time series trials over the course of the experiment and to this end we perform a fuzzy cluster analysis of the trial-specific spectra via `pdSpecClust()`.
+
+## References
+

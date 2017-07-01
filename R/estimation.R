@@ -1,8 +1,8 @@
-#' Wavelet-thresholded multivariate spectral estimator.
+#' Wavelet-thresholded multivariate spectral estimator
 #'
 #' \code{pdSpecEst} calculates a \eqn{(d \times d)}-dimensional Hermitian PD wavelet-denoised multivariate
 #' spectral estimator by thresholding wavelet coefficients in the manifold wavelet domain. The
-#' estimation procedure is described in detail (Chau and von Sachs, 2017).
+#' estimation procedure is described in detail (Chau and von Sachs, 2017a).
 #'
 #' The input array \code{P} corresponds to an initial noisy Hermitian PD spectral estimate of the
 #' (\eqn{d \times d})-dimensional spectral matrix at \code{m} different frequencies, with \eqn{m = 2^J} for some
@@ -33,14 +33,15 @@
 #' spectral estimate at the \code{m} different frequencies. If \code{!(return == 'f')}, the inverse wavelet transform
 #' of the thresholded wavelet coefficients is not computed and \code{f} is set equal to \code{NULL}.}
 #' \item{D }{a list of arrays, each (\eqn{d, d, 2^j})-dimensional array contains the thresholded
-#' (\eqn{d \times d})-dimensional wavelet coefficents at the \eqn{2^j} different locations in the given wavelet scale
+#' (\eqn{d \times d})-dimensional wavelet coefficients at the \eqn{2^j} different locations in the given wavelet scale
 #' \eqn{j}. The first list element contains the midpoints at the coarsest scale in the
 #' midpoint pyramid \eqn{j=1}, see (Chau and von Sachs, 2017) for more details.}
 #' \item{lam }{the hard threshold used to threshold the components of the wavelet coefficients.}
-#' \item{components }{a list of arrays, each (\eqn{d^2, 2^j})-dimensional array contains the components
-#' of the thresholded (\eqn{d \times d})-dimensional wavelet coefficients in terms of an orthonormal basis of the
-#' space of (\eqn{d \times d})-dimensional Hermitian matrices. The columns correspond to the \eqn{d^2} basis components
-#' at each of the \eqn{2^j} different locations at wavelet scale \eqn{j}.}
+#' \item{components }{a list with two elements. The first element \code{thresholded} is a list of arrays; each (\eqn{d^2, 2^j})-dimensional
+#' array contains the components of the thresholded (\eqn{d \times d})-dimensional wavelet coefficients in terms of an
+#' orthonormal basis of the space of (\eqn{d \times d})-dimensional Hermitian matrices. The columns correspond to the
+#' \eqn{d^2} basis components at each of the \eqn{2^j} different locations at wavelet scale \eqn{j}.  Analogous, for the second element
+#' \code{non-thresholded}, but containing the components of the non-thresholded wavelet coefficients.}
 #'
 #' @examples
 #' ## ARMA(1,1) process: Example 11.4.1 in (Brockwell and Davis, 1991)
@@ -56,7 +57,7 @@
 #'
 #' @seealso \code{\link{pdPgram}}, \code{\link{WavTransf}}, \code{\link{InvWavTransf}}
 #'
-#' @references Chau, J. and von Sachs, R. (2017). \emph{Positive-definite multivariate spectral
+#' @references Chau, J. and von Sachs, R. (2017a). \emph{Positive definite multivariate spectral
 #' estimation: a geometric wavelet approach}. Available at \url{http://arxiv.org/abs/1701.03314}.
 #' @references Brockwell, P.J. and Davis, R.A. (1991). \emph{Time series: Theory and Methods}. New York: Springer.
 #'
@@ -76,7 +77,6 @@ pdSpecEst <- function(P, lam = NULL, order = 5, return = "f", alpha = 0.75) {
     order <- 5
   }
   dim <- dim(P)[1]
-  E <- E_basis(dim)
 
   ## Find optimal threshold
   if (is.null(lam)) {
@@ -86,8 +86,8 @@ pdSpecEst <- function(P, lam = NULL, order = 5, return = "f", alpha = 0.75) {
     D.half <- list(odd = WavTransf(P.half$odd, order)$D, even = WavTransf(P.half$even, order)$D)
     d <- list(odd = list(), even = list())
     for (j in 1:(J - 2)) {
-      d$odd[[j]] <- sapply(1:2^j, function(k) E_coeff(D.half$odd[[j + 1]][, , k], E))
-      d$even[[j]] <- sapply(1:2^j, function(k) E_coeff(D.half$even[[j + 1]][, , k], E))
+      d$odd[[j]] <- sapply(1:2^j, function(k) E_coeff(D.half$odd[[j + 1]][, , k]))
+      d$even[[j]] <- sapply(1:2^j, function(k) E_coeff(D.half$even[[j + 1]][, , k]))
     }
 
     ## Normalize variances wavelet coefficients
@@ -120,9 +120,9 @@ pdSpecEst <- function(P, lam = NULL, order = 5, return = "f", alpha = 0.75) {
         d.lam$even[[j]][zero.even] <- 0
       }
       for (j in 1:(J - 2)) {
-        D.lam$odd[[j + 1]] <- sapply(1:2^j, function(k) E_coeff_inv(d.lam$odd[[j]][, k], E),
+        D.lam$odd[[j + 1]] <- sapply(1:2^j, function(k) E_coeff_inv(d.lam$odd[[j]][, k]),
                                       simplify = "array")
-        D.lam$even[[j + 1]] <- sapply(1:2^j, function(k) E_coeff_inv(d.lam$even[[j]][, k], E),
+        D.lam$even[[j + 1]] <- sapply(1:2^j, function(k) E_coeff_inv(d.lam$even[[j]][, k]),
                                        simplify = "array")
       }
       f.hat <- list(odd = InvWavTransf(D.lam$odd, order), even = InvWavTransf(D.lam$even, order))
@@ -151,7 +151,7 @@ pdSpecEst <- function(P, lam = NULL, order = 5, return = "f", alpha = 0.75) {
   D <- WavTransf(P, order)$D
   d <- list()
   for (j in 1:(J - 1)) {
-    d[[j]] <- sapply(1:2^j, function(k) E_coeff(D[[j + 1]][, , k], E))
+    d[[j]] <- sapply(1:2^j, function(k) E_coeff(D[[j + 1]][, , k]))
   }
 
   ## Normalize variances wavelet coefficients
@@ -167,17 +167,19 @@ pdSpecEst <- function(P, lam = NULL, order = 5, return = "f", alpha = 0.75) {
     d.new[[j]] <- d[[j]]/sd.j(j)
     d.vec <- cbind(d.vec, d.new[[j]])
   }
+  d1 <- d.new
 
   ## Threshold coefficients
   for (j in 3:(J - 1)) {
     zero <- sapply(1:2^j, function(k) (abs(d.new[[j]][, k]) < lam.cv) |
                                        (d[[j - 1]][, ceiling(k/2)] == 0))
+    d.new[[j]][zero] <- 0
     d[[j]][zero] <- 0
   }
 
   ## Inverse transform denoised data
   for (j in 1:(J - 1)) {
-    D[[j + 1]] <- sapply(1:2^j, function(k) E_coeff_inv(d[[j]][, k], E), simplify = "array")
+    D[[j + 1]] <- sapply(1:2^j, function(k) E_coeff_inv(d[[j]][, k]), simplify = "array")
   }
 
   if (return == "f") {
@@ -185,5 +187,5 @@ pdSpecEst <- function(P, lam = NULL, order = 5, return = "f", alpha = 0.75) {
   } else {
     f <- NULL
   }
-  return(list(f = f, D = D, lam = lam.cv, components = d))
+  return(list(f = f, D = D, lam = lam.cv, components = list(thresholded = d.new, not_thresholded = d1)))
 }

@@ -19,9 +19,9 @@
 #' across subjects) is smaller than \code{d.jmax}.\cr
 #' The \eqn{S} subjects are assigned to \eqn{K} different fuzzy clusters according to a two-step procedure.
 #' In the first step, a fuzzy c-medoids algorithm based on the Riemannian distance function as in
-#' \code{\link{RiemmDist}}, with fuzziness parameter \eqn{m}, is applied to the \eqn{S} coarsest-scale midpoint
+#' \code{\link{pdDist}}, with fuzziness parameter \eqn{m}, is applied to the \eqn{S} coarsest-scale midpoint
 #' vectors, i.e. scale \code{j = 1}. \cr
-#' In the second step, a weighted fuzzy c-means algorithm based on the Euclidian
+#' In the second step, a weighted fuzzy c-means algorithm based on the Euclidean
 #' distance function, also with fuzziness parameter \eqn{m}, is applied to the nonzero thresholded wavelet
 #' coefficients for the \eqn{S} different subjects. The tuning parameter \code{tau} controls the weight given
 #' to the cluster assignments obtained in the first step of the clustering algorithm. For more details on the
@@ -45,12 +45,15 @@
 #' (i.e. second clustering step). If \code{eps} is not specified, by default \code{eps = c(1E-4, 1E-4)}.
 #' @param tau an optional argument tuning the weight given to the cluster assignments obtained in the first step of
 #' the clustering algorithm. If \code{tau} is not specified, by default \code{tau = 0.5}.
+#' @param return.D an optional argument specifying whether to return also the list of coarsest midpoints and wavelet coefficients
+#' (i.e. the features) for each individual subject, by default \code{return.D = FALSE}.
 #' @param ... additional arguments passed on to \code{\link{pdSpecEst}}. These arguments are only used if
 #' \code{is.null(D.hat)}, otherwise the function \code{\link{pdSpecEst}} is not called.
 #'
 #' @return The function returns an (\eqn{S, K})-dimensional matrix, where the value at position (\eqn{s,k}) in the
 #' matrix corresponds to the probabilistic cluster membership assignment of subject \eqn{s} with respect to
-#' cluster \eqn{k}.
+#' cluster \eqn{k}. If \code{isTRUE(return.D)} also returns the list of coarsest midpoints and wavelet coefficients
+#' of each subject used in the clustering procedure.
 #'
 #' @examples
 #' ## ARMA(1,1) process: Example 11.4.1 in (Brockwell and Davis, 1991)
@@ -66,14 +69,14 @@
 #'
 #' cl <- pdSpecClust(P, K=2)
 #'
-#' @seealso \code{\link{pdPgram}}, \code{\link{pdSpecEst}}, \code{\link{RiemmDist}}
+#' @seealso \code{\link{pdPgram}}, \code{\link{pdSpecEst}}, \code{\link{pdDist}}
 #'
-#' @references Chau, J. and von Sachs, R. (2017). \emph{Positive-definite multivariate spectral
+#' @references Chau, J. and von Sachs, R. (2017). \emph{Positive definite multivariate spectral
 #' estimation: a geometric wavelet approach}. Available at \url{http://arxiv.org/abs/1701.03314}.
 #' @references Brockwell, P.J. and Davis, R.A. (1991). \emph{Time series: Theory and Methods}. New York: Springer.
 #'
 #' @export
-pdSpecClust <- function(P, D.hat = NULL, K, m = 2, jmax, d.jmax = 0.1, eps = c(1e-04, 1e-04), tau = 0.5, ...) {
+pdSpecClust <- function(P, D.hat = NULL, K, m = 2, jmax, d.jmax = 0.1, eps = c(1e-04, 1e-04), tau = 0.5, return.D = FALSE, ...) {
 
   ## missing arguments
   if (missing(P)) {
@@ -112,7 +115,7 @@ pdSpecClust <- function(P, D.hat = NULL, K, m = 2, jmax, d.jmax = 0.1, eps = c(1
     for (s in 1:S) {
       D.hat <- pdSpecEst(P[, , , s], lam, order, return = "D", alpha)
       D[[s]] <- D.hat$D
-      d.nzero[s, ] <- sapply(1:jmax, function(j) sum(as.logical(D.hat$components[[j]]))/(dim^2 *  2^j))
+      d.nzero[s, ] <- sapply(1:jmax, function(j) sum(as.logical(D.hat$components$thresholded[[j]]))/(dim^2 *  2^j))
     }
     jmax <- min(jmax, sum(colMeans(d.nzero) > d.jmax))
   } else {
@@ -127,10 +130,12 @@ pdSpecClust <- function(P, D.hat = NULL, K, m = 2, jmax, d.jmax = 0.1, eps = c(1
     d.nzero <- matrix(1, ncol = jmax, nrow = S)
     for (s in 1:S) {
       D[[s]] <- D.hat[[s]]$D
-      d.nzero[s, ] <- sapply(1:jmax, function(j) sum(as.logical(D.hat[[s]]$components[[j]]))/(dim^2 * 2^j))
+      d.nzero[s, ] <- sapply(1:jmax, function(j) sum(as.logical(D.hat[[s]]$components$thresholded[[j]]))/(dim^2 * 2^j))
     }
     jmax <- min(jmax, sum(colMeans(d.nzero) > d.jmax))
   }
+
+  D0 <- D
 
   ## c-medoids algorithm
   M <- sapply(1:S, function(s) D[[s]][[1]], simplify = "array")
@@ -208,5 +213,11 @@ pdSpecClust <- function(P, D.hat = NULL, K, m = 2, jmax, d.jmax = 0.1, eps = c(1
   }
   rownames(clust) <- paste0("Subject", 1:S)
   colnames(clust) <- paste0("Cluster", 1:K)
-  return(clust)
+
+  if(!return.D){
+    cl <- clust
+  } else{
+    cl <- list(clust = clust, D = D0)
+  }
+  return(cl)
 }

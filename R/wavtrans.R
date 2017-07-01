@@ -6,7 +6,7 @@
 #'
 #' @param P a (\eqn{d,d,m})-dimensional array of Hermitian PD matrices, with \eqn{m = 2^J} for some \eqn{J > 0}.
 #' @param order an odd integer between 1 and 9 corresponding to the order of the MI refinement scheme.
-#' @param jmax the maximum scale upto which the wavelet coefficients are computed. If \code{jmax} is not
+#' @param jmax the maximum scale up to which the wavelet coefficients are computed. If \code{jmax} is not
 #' specified it is set equal to the maximum possible scale \code{jmax = J-1}.
 #'
 #' @examples
@@ -23,16 +23,16 @@
 #'
 #' @return The function returns a list with two components:
 #' \item{D }{a list of arrays, where each (\eqn{d, d, 2^j})-dimensional array contains the (\eqn{d \times d})-
-#' dimensional wavelet coefficents at the \eqn{2^j} different locations in the given wavelet scale. The first
+#' dimensional wavelet coefficients at the \eqn{2^j} different locations in the given wavelet scale. The first
 #' list element is a (\eqn{d, d, 2})-dimensional array containing the (\eqn{d \times d})-dimensional midpoints
 #' at the coarsest scale (\eqn{j = 1}) in the midpoint pyramid.}
 #' \item{M }{a list of arrays, where each (\eqn{d, d, 2^j})-dimensional array contains the (\eqn{d \times d})-
-#' dimensional midpoints at the \eqn{2^j} diffferent locations in the given midpoint scale. The first list
+#' dimensional midpoints at the \eqn{2^j} different locations in the given midpoint scale. The first list
 #' element is equivalent to the first list element in the \code{$D} component.}
 #'
 #' @seealso \code{\link{InvWavTransf}}, \code{\link{pdSpecEst}}
 #'
-#' @references Chau, J. and von Sachs, R. (2017). \emph{Positive-definite multivariate spectral
+#' @references Chau, J. and von Sachs, R. (2017). \emph{Positive definite multivariate spectral
 #' estimation: a geometric wavelet approach}. Available at \url{http://arxiv.org/abs/1701.03314}.
 #' @references Brockwell, P.J. and Davis, R.A. (1991). \emph{Time series: Theory and Methods}. New York: Springer.
 #'

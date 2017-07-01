@@ -5,7 +5,7 @@
 \title{Wavelet-based clustering of multivariate spectra.}
 \usage{
 pdSpecClust(P, D.hat = NULL, K, m = 2, jmax, d.jmax = 0.1,
-  eps = c(1e-04, 1e-04), tau = 0.5, ...)
+  eps = c(1e-04, 1e-04), tau = 0.5, return.D = FALSE, ...)
 }
 \arguments{
 \item{P}{a (\eqn{d,d,m,S})-dimensional array, with \eqn{m} a dyadic number.}
@@ -34,13 +34,17 @@ algorithm (i.e. first clustering step), and \code{eps[2]} determines the termina
 \item{tau}{an optional argument tuning the weight given to the cluster assignments obtained in the first step of
 the clustering algorithm. If \code{tau} is not specified, by default \code{tau = 0.5}.}
 
+\item{return.D}{an optional argument specifying whether to return also the list of coarsest midpoints and wavelet coefficients
+(i.e. the features) for each individual subject, by default \code{return.D = FALSE}.}
+
 \item{...}{additional arguments passed on to \code{\link{pdSpecEst}}. These arguments are only used if
 \code{is.null(D.hat)}, otherwise the function \code{\link{pdSpecEst}} is not called.}
 }
 \value{
 The function returns an (\eqn{S, K})-dimensional matrix, where the value at position (\eqn{s,k}) in the
 matrix corresponds to the probabilistic cluster membership assignment of subject \eqn{s} with respect to
-cluster \eqn{k}.
+cluster \eqn{k}. If \code{isTRUE(return.D)} also returns the list of coarsest midpoints and wavelet coefficients
+of each subject used in the clustering procedure.
 }
 \description{
 \code{pdSpecClust} performs clustering of multivariate spectral matrices via a two-step fuzzy
@@ -63,9 +67,9 @@ scale \eqn{j} for which the proportion of nonzero components of thresholded wave
 across subjects) is smaller than \code{d.jmax}.\cr
 The \eqn{S} subjects are assigned to \eqn{K} different fuzzy clusters according to a two-step procedure.
 In the first step, a fuzzy c-medoids algorithm based on the Riemannian distance function as in
-\code{\link{RiemmDist}}, with fuzziness parameter \eqn{m}, is applied to the \eqn{S} coarsest-scale midpoint
+\code{\link{pdDist}}, with fuzziness parameter \eqn{m}, is applied to the \eqn{S} coarsest-scale midpoint
 vectors, i.e. scale \code{j = 1}. \cr
-In the second step, a weighted fuzzy c-means algorithm based on the Euclidian
+In the second step, a weighted fuzzy c-means algorithm based on the Euclidean
 distance function, also with fuzziness parameter \eqn{m}, is applied to the nonzero thresholded wavelet
 coefficients for the \eqn{S} different subjects. The tuning parameter \code{tau} controls the weight given
 to the cluster assignments obtained in the first step of the clustering algorithm. For more details on the
@@ -87,12 +91,11 @@ cl <- pdSpecClust(P, K=2)
 
 }
 \references{
-Chau, J. and von Sachs, R. (2017). \emph{Positive-definite multivariate spectral
+Chau, J. and von Sachs, R. (2017). \emph{Positive definite multivariate spectral
 estimation: a geometric wavelet approach}. Available at \url{http://arxiv.org/abs/1701.03314}.
 
 Brockwell, P.J. and Davis, R.A. (1991). \emph{Time series: Theory and Methods}. New York: Springer.
 }
 \seealso{
-\code{\link{pdPgram}}, \code{\link{pdSpecEst}}, \code{\link{RiemmDist}}
+\code{\link{pdPgram}}, \code{\link{pdSpecEst}}, \code{\link{pdDist}}
 }
-

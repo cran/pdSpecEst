@@ -7,7 +7,7 @@
 Expm(P, H)
 }
 \arguments{
-\item{P}{a Hermitian positive-definite matrix.}
+\item{P}{a Hermitian positive definite matrix.}
 
 \item{H}{a Hermitian matrix (of equal dimension as \code{P}).}
 }
@@ -32,4 +32,3 @@ measurements. \emph{Journal of Mathematical Imaging and Vision} 25(1), 127-154.
 \seealso{
 \code{\link{Logm}}
 }
-

@@ -8,8 +8,8 @@
 //' to the tangent space attached at the Hermitian PD matrix \code{P} via the logarithmic map as in (Pennec, 2006).
 //' This is the unique inverse of the exponential map \code{\link{Expm}}.
 //'
-//' @param P a Hermitian positive-definite matrix.
-//' @param Q a Hermitian positive-definite matrix (of equal dimension as \code{P}).
+//' @param P a Hermitian positive definite matrix.
+//' @param Q a Hermitian positive definite matrix (of equal dimension as \code{P}).
 //'
 //' @examples
 //'  q <- matrix(complex(real = rnorm(9), imaginary = rnorm(9)), nrow = 3)

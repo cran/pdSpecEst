@@ -20,10 +20,12 @@ test_that("Correctly working spectral estimation and clustering", {
   expect_equal(dim(f$f), c(d, d, n/4))
   expect_equal(length(f$D), log2(n/4))
   expect_true(is.numeric(f$lam))
-  expect_equal(length(f$components), log2(n/4) - 1)
+  expect_equal(length(f$components$not_thresholded), log2(n/4) - 1)
+  expect_equal(length(f$components$thresholded), log2(n/4) - 1)
   expect_equal(dim(cl), c(S, 2))
   expect_equal(sum(cl), S)
 
 })
+
 
 
