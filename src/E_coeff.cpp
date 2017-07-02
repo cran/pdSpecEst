@@ -14,9 +14,9 @@ arma::vec E_coeff(arma::cx_mat H) {
         if(i == j) {
           coeff[i * d + j] = real(H(i,i ));
         } else if(i > j) {
-          coeff[i * d + j] = 2 / sqrt(2) * real(H(i, j));
+          coeff[i * d + j] = 2 / std::sqrt((double)2) * real(H(i, j));
         } else{
-          coeff[i * d + j] = 2 / sqrt(2) * imag(H(i, j));
+          coeff[i * d + j] = 2 / std::sqrt((double)2) * imag(H(i, j));
         }
     }
   }
@@ -45,13 +45,13 @@ arma::vec T_coeff(arma::cx_mat H, arma::cx_mat y){
 
       } else if(i > j) {
 
-        Ei(i, j) = Ei(j, i) = arma::cx_double(1 / sqrt(2), 0);
+        Ei(i, j) = Ei(j, i) = arma::cx_double(1 / std::sqrt((double)2), 0);
         Ei = y_sqrt * Ei * y_sqrt;
 
       } else{
 
-        Ei(i, j) = arma::cx_double(0, 1 / sqrt(2));
-        Ei(j, i) = arma::cx_double(0, -1 / sqrt(2));
+        Ei(i, j) = arma::cx_double(0, 1 / std::sqrt((double)2));
+        Ei(j, i) = arma::cx_double(0, -1 / std::sqrt((double)2));
         Ei = y_sqrt * Ei * y_sqrt;
 
       }

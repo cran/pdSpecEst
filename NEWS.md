@@ -1,4 +1,4 @@
-# pdSpEcEst 1.1.0
+# pdSpEcEst 1.1.1
 
 * New features: data depth and rank-based hypothesis tests for samples of Hermitian PD matrices
 * New functions: `pdDist()`, `pdDepth()`, `pdRankTests()`

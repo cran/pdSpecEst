@@ -299,7 +299,7 @@ plot(range(n), range(pdSpecEst:::sr_time, na.rm=T), type="n", log = "xy", main =
 
 ## Shiny app
 
-A demo Shiny app for data depth and rank-based tests in the context of samples of HPD matrices is available [here](https://jchau.shinyapps.io/pdspecest/). By clicking on the tab 'Data depth', for simulated samples of HPD matrices, the user can examine the performance of the different rank-based tests (via `pdRankTests()`) based on depth-induced ranks computed with `pdDepthu()`.
+A demo Shiny app for data depth and rank-based tests in the context of samples of HPD matrices is available [here](https://jchau.shinyapps.io/pdspecest/). By clicking on the tab 'Data depth', for simulated samples of HPD matrices, the user can examine the performance of the different rank-based tests (via `pdRankTests()`) based on depth-induced ranks computed with `pdDepth()`.
 
 ## References
 

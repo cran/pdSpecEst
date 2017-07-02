@@ -4,7 +4,7 @@
 // [[Rcpp::export()]]
 arma::cx_mat E_coeff_inv(arma::vec coeff) {
 
-  int d = (int) sqrt(coeff.size());
+  int d = (int)std::sqrt((double)coeff.size());
 
   arma::cx_mat M = arma::zeros<arma::cx_mat>(d, d);
   arma::cx_mat Ei = arma::zeros<arma::cx_mat>(d, d);
@@ -18,13 +18,13 @@ arma::cx_mat E_coeff_inv(arma::vec coeff) {
 
       } else if(i > j) {
 
-        Ei(i, j) = Ei(j, i) = arma::cx_double(1 / sqrt(2), 0);
+        Ei(i, j) = Ei(j, i) = arma::cx_double(1 / std::sqrt((double)2), 0);
 
       } else{
 
-        Ei(i, j) = arma::cx_double(0, 1 / sqrt(2));
+        Ei(i, j) = arma::cx_double(0, 1 / std::sqrt((double)2));
 
-        Ei(j, i) = arma::cx_double(0, -1 / sqrt(2));
+        Ei(j, i) = arma::cx_double(0, -1 / std::sqrt((double)2));
 
       }
 
@@ -59,13 +59,13 @@ arma::cx_mat T_coeff_inv(arma::vec coeff, arma::cx_mat y) {
 
       } else if(i > j) {
 
-        Ei(i, j) = Ei(j, i) = arma::cx_double(1 / sqrt(2), 0);
+        Ei(i, j) = Ei(j, i) = arma::cx_double(1 / std::sqrt((double)2), 0);
         Ei = y_isqrt * Ei * y_isqrt;
 
       } else{
 
-        Ei(i, j) = arma::cx_double(0, 1 / sqrt(2));
-        Ei(j, i) = arma::cx_double(0, -1 / sqrt(2));
+        Ei(i, j) = arma::cx_double(0, 1 / std::sqrt((double)2));
+        Ei(j, i) = arma::cx_double(0, -1 / std::sqrt((double)2));
         Ei = y_isqrt * Ei * y_isqrt;
 
       }

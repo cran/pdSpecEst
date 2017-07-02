@@ -6,7 +6,7 @@
 #' (Bhatia, 2009, Chapter 6), (ii) log-Euclidean distance, the Euclidean distance between matrix logarithms,
 #' (iii) Cholesky distance, the Euclidean distance between Cholesky decompositions, (iv) Euclidean distance,
 #' and (v) Procrustes distance as in (Dryden et al., 2009). In particular, \code{pdDist} generalizes the function
-#' \code{\link[shapes]{distcov}} to compute the distance between two symmetric positive definite matrices to the
+#' \code{shapes::distcov} to compute the distance between two symmetric positive definite matrices to the
 #' distance between two Hermitian positive definite matrices.
 #'
 #' @param A,B Hermitian positive definite matrices (of equal dimension).
@@ -23,8 +23,6 @@
 #' @references Bhatia, R. (2009). \emph{Positive Definite Matrices}. New Jersey: Princeton University Press.
 #' @references Dryden, I.L., Koloydenko, A., Zhou, D. (2009). Non-Euclidean statistics for covariance matrices,
 #' with applications to diffusion tensor imaging. \emph{Annals of Applied Statistics}, 3(3), 1102-1123.
-#'
-#' @seealso \code{\link[shapes]{distcov}}
 #'
 #' @export
 pdDist <- function(A, B, method = "Riemannian") {

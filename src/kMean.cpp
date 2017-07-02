@@ -7,7 +7,7 @@ arma::cx_mat kMean(arma::cx_mat M, arma::vec mu) {
 
   int d = M.n_cols;
 
-  int n = M.n_rows / d;
+  int n = (int)M.n_rows / d;
 
   arma::cx_mat M1 = M.head_rows(d);
 
