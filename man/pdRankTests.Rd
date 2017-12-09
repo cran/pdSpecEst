@@ -5,7 +5,8 @@
 \title{Rank-based hypothesis tests for HPD matrices}
 \usage{
 pdRankTests(data, sample.sizes, test = c("rank.sum", "krusk.wall",
-  "signed.rank", "bartels"), depth = c("gdd", "zonoid", "spatial"))
+  "signed.rank", "bartels"), depth = c("gdd", "zonoid", "spatial"),
+  metric = c("Riemannian", "logEuclidean"))
 }
 \arguments{
 \item{data}{either a \eqn{(d,d,S)}-dimensional array corresponding to an array of pooled individual samples of Hermitian PD matrices, or a
@@ -20,6 +21,9 @@ in the Details section below.}
 \item{depth}{data depth measure used in the rank-based tests, one of \code{"gdd"}, \code{"zonoid"}, or \code{"spatial"} corresponding to the
 geodesic distance depth, manifold zonoid depth and manifold spatial depth respectively. Defaults to \code{"gdd"}. Not required for test
 \code{"signed.rank"}.}
+
+\item{metric}{the metric that the space of HPD matrices is equipped with, either \code{"Riemannian"} or \code{"logEuclidean"}. Defaults to
+\code{"Riemannian"}.}
 }
 \value{
 The function returns a list with five components:
@@ -30,8 +34,9 @@ The function returns a list with five components:
 \item{depth.values }{computed data depth values (if available)}
 }
 \description{
-\code{pdRankTests} performs generalized rank-based hypothesis testing for samples of Hermitian PD matrices or
-samples of sequences (curves) of Hermitian PD matrices as described in (Chau, Ombao, and von Sachs, 2017b).
+\code{pdRankTests} performs generalized rank-based hypothesis testing in the metric space of HPD matrices equipped
+with the Riemannian or Log-Euclidean metric for samples of Hermitian PD matrices or samples of sequences (curves)
+of Hermitian PD matrices as described in (Chau, Ombao, and von Sachs, 2017b).
 }
 \details{
 For samples of \eqn{(d \times d)}-dimensional Hermitian PD matrices with pooled sample size \eqn{S}, the argument
@@ -55,6 +60,10 @@ manifold of Hermitian PD matrices.}
 Hermitian PD matrices or a sample of sequences of Hermitian PD matrices. The usual univariate ranks are replaced by data depth induced
 ranks via \code{\link{pdDepth}}.}
 }
+The function computes the generalized rank-based test statistics in the \emph{complete} metric space of HPD matrices equipped with one of the following metrics:
+(i) Riemannian metric (default) as in (Bhatia, 2009, Chapter 6), or (ii) Log-Euclidean metric, the Euclidean inner product between matrix logarithms.
+The default Riemannian metric is invariant under congruence transformation by any invertible matrix, whereas the Log-Euclidean metric is only
+invariant under congruence transformation by unitary matrices, see (Chau, Ombao and von Sachs 2017b) for more details.
 }
 \note{
 The manifold signed-rank test also provides a valid test for equivalence of spectral matrices of two multivariate stationary time
@@ -62,13 +71,13 @@ series based on the Hermitian PD periodogram matrices obtained via \code{\link{p
 }
 \examples{
 ## null hypothesis is true
-data <- replicate(100, Expm(diag(2), pdSpecEst:::E_coeff_inv(rnorm(4))))
+data <- replicate(100, Expm(diag(2), H.coeff(rnorm(4), inverse = TRUE)))
 pdRankTests(data, sample.sizes = c(50, 50), test = "rank.sum") ## homogeneity 2 samples
 pdRankTests(data, sample.sizes = rep(25, 4), test = "krusk.wall") ## homogeneity 4 samples
 pdRankTests(data, test = "bartels") ## randomness
 
 ## null hypothesis is false
-data1 <- array(c(data, replicate(50, Expm(diag(2), pdSpecEst:::E_coeff_inv(0.5 * rnorm(4))))),
+data1 <- array(c(data, replicate(50, Expm(diag(2), H.coeff(0.5 * rnorm(4), inverse = TRUE)))),
                  dim = c(2,2,150))
 pdRankTests(data1, sample.sizes = c(100, 50), test = "rank.sum")
 pdRankTests(data1, sample.sizes = rep(50, 3), test = "krusk.wall")

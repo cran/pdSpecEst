@@ -4,7 +4,8 @@
 \alias{pdDepth}
 \title{Data depth for HPD matrices}
 \usage{
-pdDepth(y = NULL, X, method = c("zonoid", "gdd", "spatial"))
+pdDepth(y = NULL, X, method = c("zonoid", "gdd", "spatial"),
+  metric = "Riemannian")
 }
 \arguments{
 \item{y}{either a \eqn{(d,d)}-dimensional array corresponding to a \eqn{(d \times d)}-dimensional Hermitian PD matrix,
@@ -18,6 +19,10 @@ sequences or curves of \eqn{n} individual Hermitian PD matrices.}
 
 \item{method}{the data depth measure, one of \code{'zonoid'}, \code{'gdd'}, or \code{'spatial'} corresponding to
 the manifold zonoid depth, geodesic distance depth, and manifold spatial depth respectively.}
+
+\item{metric}{the metric that the space of HPD matrices is equipped with. The default choice is \code{"Riemannian"},
+but this can also be one of: \code{"logEuclidean"}, \code{"Cholesky"}, \code{"rootEuclidean"} or
+\code{"Euclidean"}.}
 }
 \value{
 If \code{!is.null(y)}, \code{pdDepth} returns the numeric depth value of \code{y} with
@@ -40,18 +45,29 @@ data depth values are computed. If \code{y} is a sequence of \eqn{(d \times d)}-
 (i.e. \eqn{(d,d,n)}-dimensional array), \code{X} should be a \eqn{(d,d,n,S)}-dimensional array of sequences of Hermitian PD matrices
 and the integrated data depth values according to (Chau, Ombao, and von Sachs, 2017b) are computed. If \code{is.null(y)}, the data depth
 of each individual object (i.e. a Hermitian PD matrix or a sequence of Hermitian PD matrices) in \code{X} is computed with
-respect to the data cloud \code{X}.
+respect to the data cloud \code{X}. \cr
+The function computes the intrinsic data depths based on the metric space of HPD matrices equipped with
+one of the following metrics: (i) Riemannian metric (default) as in (Bhatia, 2009, Chapter 6),
+(ii) log-Euclidean metric, the Euclidean inner product between matrix logarithms,
+(iii) Cholesky metric, the Euclidean inner product between Cholesky decompositions, (iv) Euclidean metric and
+(v) root-Euclidean metric. The default choice (Riemannian) has several appealing properties not shared by the
+other metrics, see (Chau, Ombao and von Sachs, 2017b) for more details.
+}
+\note{
+Note that the data depth computations in the metric space equipped with the Riemannian
+metric may be significantly slower than the depth computations based on one of the alternative
+metrics.
 }
 \examples{
 ## Pointwise depth
-X1 <- replicate(50, Expm(diag(2), pdSpecEst:::E_coeff_inv(rnorm(4))))
+X1 <- replicate(50, Expm(diag(2), H.coeff(rnorm(4), inverse = TRUE)))
 pdDepth(y = diag(2), X1, method = "gdd") ## depth of one point
 pdDepth(X = X1, method = "gdd") ## depth of each point in the data cloud
 
 ## Integrated depth
-X2 <- replicate(50, replicate(5, Expm(diag(2), pdSpecEst:::E_coeff_inv(rnorm(4)))))
-pdDepth(y = replicate(5, diag(2)), X2, method = "gdd") ## depth of one curve
-pdDepth(X = X2, method = "gdd") ## depth of each curve in the data cloud
+X2 <- replicate(50, replicate(5, Expm(diag(2), H.coeff(rnorm(4), inverse = TRUE))))
+pdDepth(y = replicate(5, diag(2)), X2, method = "zonoid", metric = "logEuclidean")
+pdDepth(X = X2, method = "zonoid", metric = "logEuclidean")
 
 }
 \references{

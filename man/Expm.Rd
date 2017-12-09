@@ -30,5 +30,5 @@ Pennec, X. (2006). Intrinsic statistics on Riemannian manifolds: Basic tools for
 measurements. \emph{Journal of Mathematical Imaging and Vision} 25(1), 127-154.
 }
 \seealso{
-\code{\link{Logm}}
+\code{\link{Logm}, \link{ParTrans}}
 }

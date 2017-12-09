@@ -24,5 +24,5 @@ Mid(A, B)
 Bhatia, R. (2009). \emph{Positive Definite Matrices}. New Jersey: Princeton University Press.
 }
 \seealso{
-\code{\link{KarchMean}}
+\code{\link{pdMean}}
 }

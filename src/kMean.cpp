@@ -1,3 +1,4 @@
+# define ARMA_DONT_PRINT_ERRORS
 # include <RcppArmadillo.h>
 
 // [[Rcpp::depends(RcppArmadillo)]]
@@ -25,7 +26,7 @@ arma::cx_mat kMean(arma::cx_mat M, arma::vec mu) {
 
   for(int i = 1; i < n; ++i) {
 
-    if (i % 1000 == 0) {
+    if (i % 10000 == 0) {
 
       Rcpp::checkUserInterrupt();
 

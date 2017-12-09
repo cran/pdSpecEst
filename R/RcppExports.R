@@ -2,27 +2,53 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 ARMA <- function(Phi, Theta, Z, len) {
-    .Call(pdSpecEst_ARMA, Phi, Theta, Z, len)
+    .Call(`_pdSpecEst_ARMA`, Phi, Theta, Z, len)
 }
 
-Chol <- function(M) {
-    .Call(pdSpecEst_Chol, M)
+kMean <- function(M, mu) {
+    .Call(`_pdSpecEst_kMean`, M, mu)
 }
 
-E_coeff <- function(H) {
-    .Call(pdSpecEst_E_coeff, H)
+#' Geodesic midpoint between HPD-matrices
+#'
+#' \code{Mid} calculates the geodesic midpoint between two Hermitian PD matrices as in
+#' (Bhatia, 2009, Chapter 6).
+#'
+#' @param A,B Hermitian positive definite matrices (of equal dimension).
+#'
+#' @examples
+#'  a <- matrix(complex(real = rnorm(9), imaginary = rnorm(9)), nrow = 3)
+#'  A <- t(Conj(a)) %*% a
+#'  b <- matrix(complex(real = rnorm(9), imaginary = rnorm(9)), nrow = 3)
+#'  B <- t(Conj(b)) %*% b
+#'  Mid(A, B)
+#' @references Bhatia, R. (2009). \emph{Positive Definite Matrices}. New Jersey: Princeton University Press.
+#'
+#' @seealso \code{\link{pdMean}}
+#'
+#' @export
+Mid <- function(A, B) {
+    .Call(`_pdSpecEst_Mid`, A, B)
 }
 
-T_coeff <- function(H, y) {
-    .Call(pdSpecEst_T_coeff, H, y)
+solveMid <- function(B, C) {
+    .Call(`_pdSpecEst_solveMid`, B, C)
 }
 
-E_coeff_inv <- function(coeff) {
-    .Call(pdSpecEst_E_coeff_inv, coeff)
+Sqrt <- function(M) {
+    .Call(`_pdSpecEst_Sqrt`, M)
 }
 
-T_coeff_inv <- function(coeff, y) {
-    .Call(pdSpecEst_T_coeff_inv, coeff, y)
+iSqrt <- function(M) {
+    .Call(`_pdSpecEst_iSqrt`, M)
+}
+
+NormF <- function(M) {
+    .Call(`_pdSpecEst_NormF`, M)
+}
+
+RiemmDist <- function(A, B) {
+    .Call(`_pdSpecEst_RiemmDist`, A, B)
 }
 
 #' Exponential map
@@ -46,19 +72,11 @@ T_coeff_inv <- function(coeff, y) {
 #' Pennec, X. (2006). Intrinsic statistics on Riemannian manifolds: Basic tools for geometric
 #' measurements. \emph{Journal of Mathematical Imaging and Vision} 25(1), 127-154.
 #'
-#' @seealso \code{\link{Logm}}
+#' @seealso \code{\link{Logm}, \link{ParTrans}}
 #'
 #' @export
 Expm <- function(P, H) {
-    .Call(pdSpecEst_Expm, P, H)
-}
-
-iSqrt <- function(M) {
-    .Call(pdSpecEst_iSqrt, M)
-}
-
-kMean <- function(M, mu) {
-    .Call(pdSpecEst_kMean, M, mu)
+    .Call(`_pdSpecEst_Expm`, P, H)
 }
 
 #' Logarithmic map
@@ -81,48 +99,61 @@ kMean <- function(M, mu) {
 #' Pennec, X. (2006). Intrinsic statistics on Riemannian manifolds: Basic tools for geometric
 #' measurements. \emph{Journal of Mathematical Imaging and Vision} 25(1), 127-154.
 #'
-#' @seealso \code{\link{Expm}}
+#' @seealso \code{\link{Expm}, \link{ParTrans}}
 #'
 #' @export
 Logm <- function(P, Q) {
-    .Call(pdSpecEst_Logm, P, Q)
+    .Call(`_pdSpecEst_Logm`, P, Q)
 }
 
-#' Geodesic midpoint between HPD-matrices
+#' Parallel transport
 #'
-#' \code{Mid} calculates the geodesic midpoint between two Hermitian PD matrices as in
-#' (Bhatia, 2009, Chapter 6).
+#' \code{ParTrans()} computes the parallel transport on the manifold of HPD matrices
+#' equipped with the Riemannian metric as described in e.g. (Chau and von Sachs, 2017a). That is,
+#' the function computes the parallel transport  of a vector (Hermitian matrix) \code{W} in the tangent space
+#' at the point (HPD matrix) \code{P} along a geodesic curve in the direction of the vector \code{V}
+#' in the tangent space at \code{P} for a unit time step.
 #'
-#' @param A,B Hermitian positive definite matrices (of equal dimension).
+#' @param P a \eqn{(d,d)}-dimensional HPD matrix.
+#' @param V a \eqn{(d,d)}-dimensional Hermitian matrix corresponding to a vector in the tangent space of \code{P}.
+#' @param W a \eqn{(d,d)}-dimensional Hermitian matrix corresponding to a vector in the tangent space of \code{P}.
+#'
+#' @return a \eqn{(d,d)}-dimensional Hermitian matrix corresponding to the parallel transportation of \code{W} in
+#' the direction of \code{V} along a geodesic curve for a unit time step.
 #'
 #' @examples
-#'  a <- matrix(complex(real = rnorm(9), imaginary = rnorm(9)), nrow = 3)
-#'  A <- t(Conj(a)) %*% a
-#'  b <- matrix(complex(real = rnorm(9), imaginary = rnorm(9)), nrow = 3)
-#'  B <- t(Conj(b)) %*% b
-#'  Mid(A, B)
-#' @references Bhatia, R. (2009). \emph{Positive Definite Matrices}. New Jersey: Princeton University Press.
+#' ## Transport the vector W to the tangent space at the identity
+#' W <- matrix(complex(real = rnorm(9), imaginary = rnorm(9)), nrow = 3)
+#' diag(W) <- rnorm(3)
+#' W[lower.tri(W)] <- t(Conj(W))[lower.tri(W)]
+#' p <- matrix(complex(real = rnorm(9), imaginary = rnorm(9)), nrow = 3)
+#' P <- t(Conj(p)) %*% p
 #'
-#' @seealso \code{\link{KarchMean}}
+#' ParTrans(P, Logm(P, diag(3)), W) ## whitening transport
+#'
+#' @references Chau, J. and von Sachs, R. (2017a). \emph{Positive definite multivariate spectral
+#' estimation: a geometric wavelet approach}. Available at \url{http://arxiv.org/abs/1701.03314}.
+#'
+#' @seealso \code{\link{Expm}, \link{Logm}}
 #'
 #' @export
-Mid <- function(A, B) {
-    .Call(pdSpecEst_Mid, A, B)
+ParTrans <- function(P, V, W) {
+    .Call(`_pdSpecEst_ParTrans`, P, V, W)
 }
 
-NormF <- function(M) {
-    .Call(pdSpecEst_NormF, M)
+E_coeff <- function(H) {
+    .Call(`_pdSpecEst_E_coeff`, H)
 }
 
-RiemmDist <- function(A, B) {
-    .Call(pdSpecEst_RiemmDist, A, B)
+T_coeff <- function(H, y) {
+    .Call(`_pdSpecEst_T_coeff`, H, y)
 }
 
-solveMid <- function(B, C) {
-    .Call(pdSpecEst_solveMid, B, C)
+E_coeff_inv <- function(coeff) {
+    .Call(`_pdSpecEst_E_coeff_inv`, coeff)
 }
 
-Sqrt <- function(M) {
-    .Call(pdSpecEst_Sqrt, M)
+T_coeff_inv <- function(coeff, y) {
+    .Call(`_pdSpecEst_T_coeff_inv`, coeff, y)
 }
 

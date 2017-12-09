@@ -5,6 +5,7 @@ date: "`r Sys.Date()`"
 output: 
   rmarkdown::html_vignette:
     fig_caption: yes
+    toc: true
 vignette: >
   %\VignetteIndexEntry{"Data depth and rank-based tests for HPD matrices"}
   %\VignetteEngine{knitr::rmarkdown}
@@ -30,11 +31,15 @@ knitr::opts_chunk$set(collapse = TRUE, comment = "#>", fig.width = 10, fig.heigh
 ```
 ## Introduction 
 
-In second-order stationary multivariate time series analysis, non-degenerate autocovariance matrices or spectral density matrices at the Fourier frequencies are necessarily elements of the space of Hermitian positive definite (HPD) matrices. In [@COvS17], we generalize the classical concept of data depth for Euclidean vectors to *manifold* data depth for matrix-valued observations in the non-Euclidean space of HPD matrices. Data depth is an important tool in statistical data analysis measuring the *depth* of a point with respect to a data cloud or probability distribution. In this way, data depth provides a center-to-outward ordering of multivariate data observations, generalizing the notion of a rank for univariate observations.
+In second-order stationary multivariate time series analysis, non-degenerate autocovariance matrices or spectral density matrices at the Fourier frequencies are necessarily elements of the space of Hermitian positive definite (HPD) matrices. In [@COvS17], we generalize the classical concept of data depth for Euclidean vectors to intrinsic *manifold* data depth for matrix-valued observations in the non-Euclidean space of HPD matrices. Data depth is an important tool in statistical data analysis measuring the *depth* of a point with respect to a data cloud or probability distribution. In this way, data depth provides a center-to-outward ordering of multivariate data observations, generalizing the notion of a rank for univariate observations.
 
 The proposed data depth measures can be used to characterize central regions or detect outlying observations in samples of HPD matrices, such as collections of covariance or spectral density matrices. The depth functions also provide a practical framework to perform rank-based hypothesis testing for samples of HPD matrices by replacing the usual ranks by their depth-induced counterparts. Other applications of data depth include the construction of confidence regions, clustering, or classification for samples of HPD matrices.
 
-In this vignette we demonstrate the use of the functions `pdDepth()` and `pdRankTests()` to compute data depth values of HPD matrix-valued observations and perform rank-based hypothesis testing for samples of HPD matrices.
+In this vignette we demonstrate the use of the functions `pdDepth()` and `pdRankTests()` to compute data depth values of HPD matrix-valued observations and perform rank-based hypothesis testing for samples of HPD matrices, where the space of HPD matrices can be equipped with several different metrics, e.g. the *invariant* Riemannian metric discussed in [@COvS17].
+
+### Shiny app
+
+A demo Shiny app for data depth and rank-based tests in the context of samples of HPD matrices is available [here](https://jchau.shinyapps.io/pdSpecEst_app/). By clicking on the tab 'Data depth', for simulated samples of HPD matrices, the user can examine the performance of the different rank-based tests (via `pdRankTests()`) based on depth-induced ranks computed with `pdDepth()`.
 
 ## Data depth of HPD matrices with `pdDepth()`
 
@@ -48,17 +53,17 @@ library(pdSpecEst)
 set.seed(100)
 
 ## Pointwise random sample
-X1 <- replicate(50, Expm(diag(2), pdSpecEst:::E_coeff_inv(0.5 * rnorm(4)))) 
+X1 <- replicate(50, Expm(diag(2), H.coeff(0.5 * rnorm(4), inverse = T))) 
 str(X1)
 
 ## Curve random sample
-X2 <- replicate(50, sapply(1:5, function(i) Expm(i * diag(2), pdSpecEst:::T_coeff_inv(0.5 * rnorm(4), i * diag(2))), simplify = "array"))
+X2 <- replicate(50, sapply(1:5, function(i) Expm(i * diag(2), H.coeff(0.5 * rnorm(4), inverse = T) / i), simplify = "array"))
 str(X2)
 ```
 
-**Remark:** The internal functions `pdSpecEst:::E_coeff_inv()` and `pdSpecEst:::T_coeff_inv()` convert (real-valued) basis components to tangent space elements (Hermitian matrices) via an orthonormal basis of the tangent space as described in [@COvS17].
+**Remark:** The function `H.coeff()` converts (real-valued) basis components to Hermitian matrices via an inverse orthonormal basis expansion on the real vector space of Hermitian matrices.
 
-With `pdDepth()`, we can compute the data depth of a single HPD matrix (resp. curve of HPD matrices) `y` with respect to a sample of HPD matrices (resp. sample of curves of HPD matrices) `X`. For more details and properties of the available manifold depth functions, see [@COvS17].
+`pdDepth()` computes the data depth of a single HPD matrix (resp. curve of HPD matrices) `y` with respect to a sample of HPD matrices (resp. sample of curves of HPD matrices) `X`.  The function computes the intrinsic data depths based on the metric space of HPD matrices equipped with one of the following metrics: (i) Riemannian metric (default), (ii) log-Euclidean metric, the Euclidean inner product between matrix logarithms, (iii) Cholesky metric, the Euclidean inner product between Cholesky decompositions, (iv) Euclidean metric and (v) root-Euclidean metric, the Euclidean inner product between Hermitian square root matrices. The default choice (Riemannian) has several appealing properties not shared by the other metrics. See [@COvS17] for more details and additional properties of the available manifold depth functions.
 
 ```{r}
 ## Pointwise depth
@@ -95,16 +100,18 @@ X1[ , , which(dd1.ranks == 50)] ## most outlying HPD matrix
 
 ```
 
-We can compare the most central HPD matrix above with the (approximate) empirical geometric mean of the observations obtained with `KarchMean()`. The empirical geometric mean is known to maximize the data depth for observations from a *centrally symmetric* distribution (as in this example). For more details, see [@COvS17].
+We can compare the most central HPD matrix above with the (approximate) empirical geometric mean of the observations obtained with `pdMean()` based on the Riemannian metric. The empirical geometric mean is known to maximize the data depth for observations from a *centrally symmetric* distribution (as in this example). For more details, see [@COvS17].
 
 ```{r}
-(mean.X1 <- KarchMean(X1)) 
+(mean.X1 <- pdMean(X1)) 
 
 pdDepth(y = mean.X1, X = X1, method = "gdd")
 ```
 
 ### Computation times
-The figure below displays average computation times in milliseconds (single core Intel Xeon E5-2650) of the depth of a single `(d, d)`-dimensional HPD matrix with respect to a sample of `(d, d)`-dimensional HPD matrices of size `n`. In the left-hand image, the sample size is fixed at `n = 500`, and in the right-hand image the dimension is fixed at `d = 6`. (The computation times are based on the median computation time of 100 depth calculations for 50 random samples). The manifold zonoid depth can only be calculated if `isTRUE(d^2 < n)` and for this reason there are some missing values in the left-hand image.<br>
+The figure below displays average computation times in milliseconds (single core Intel Xeon E5-2650) of the depth of a single `(d, d)`-dimensional HPD matrix with respect to a sample of `(d, d)`-dimensional HPD matrices of size `n` under the Riemannian metric. The computation times of the data depths based on one of the other metrics are either similar or faster than the times displayed below (in particular computation times of the manifold zonoid and spatial depth are significantly faster). 
+
+In the left-hand image, the sample size is fixed at `n = 500`, and in the right-hand image the dimension is fixed at `d = 6`. (The computation times are based on the median computation time of 100 depth calculations for 50 random samples). The manifold zonoid depth can only be calculated if $d^2 < n$ and for this reason there are some missing values in the left-hand image.<br>
 <br>
 
 ```{r, echo = FALSE}
@@ -138,16 +145,18 @@ The null hypotheses of the available rank-based hypothesis tests in `pdRankTests
  
 Below, we construct several simulated examples for which (i) the null hypotheses listed above are satisfied, and (ii) the null hypotheses listed above are not satisfied. Analogous to the previous section, we generate pointwise random samples (resp. random samples of sequences) of `(2,2)`-dimensional HPD matrix-valued observations, with underlying geometric mean equal to the identity matrix (resp. sequence of scaled identity matrices). 
 
-Let's first consider simulated examples of the manifold Wilcoxon rank-sum test (`"rank.sum"`) and manifold Kruskal-Wallis test (`"krusk.wall"`).
+Instead of equipping the space of HPD matrices with the Riemannian metric (the default), `pdRankTests()` can also compute rank-based test statistics in the *complete* metric space of HPD matrices equipped with the Log-Euclidean metric (`metric = 'logEuclidean'`). The default Riemannien metric is invariant under congruence transformation by any invertible matrix, whereas the Log-Euclidean metric is only invariant under congruence transformation by unitary matrices. The space of HPD matrices equipped with one of the other metrics listed above (i.e. Cholesky, Euclidean and root-Euclidean) is no longer a complete metric space, and the derivations of asymptotic null distributions of the rank-based test statistics break down.
+
+Let us first consider simulated examples of the manifold Wilcoxon rank-sum test (`"rank.sum"`) and manifold Kruskal-Wallis test (`"krusk.wall"`).
 
 ```{r}
 ## Generate data (null true)
-data1 <- array(c(X1, replicate(50, Expm(diag(2), pdSpecEst:::E_coeff_inv(0.5 * rnorm(4))))), dim = c(2, 2, 100)) ## pointwise sample
-data2 <- array(c(X2, replicate(50, sapply(1:5, function(i) Expm(i * diag(2), pdSpecEst:::T_coeff_inv(0.5 * rnorm(4), i * diag(2))), simplify = "array"))), dim = c(2, 2, 5, 100)) ## curve sample
+data1 <- array(c(X1, replicate(50, Expm(diag(2), H.coeff(0.5 * rnorm(4), inverse = T)))), dim = c(2, 2, 100)) ## pointwise sample
+data2 <- array(c(X2, replicate(50, sapply(1:5, function(i) Expm(i * diag(2), H.coeff(0.5 * rnorm(4), inverse = T) / i), simplify = "array"))), dim = c(2, 2, 5, 100)) ## curve sample
 
 ## Generate data (null false)
-data1a <- array(c(X1, replicate(50, Expm(diag(2), pdSpecEst:::E_coeff_inv(rnorm(4))))), dim = c(2, 2, 100)) ## pointwise scale change
-data2a <- array(c(X2, replicate(50, sapply(1:5, function(i) Expm(i * diag(2), pdSpecEst:::T_coeff_inv(rnorm(4), i * diag(2))), simplify = "arra"))), dim = c(2, 2, 5, 100)) ## curve scale change
+data1a <- array(c(X1, replicate(50, Expm(diag(2), H.coeff(rnorm(4), inverse = T)))), dim = c(2, 2, 100)) ## pointwise scale change
+data2a <- array(c(X2, replicate(50, sapply(1:5, function(i) Expm(i * diag(2), H.coeff(rnorm(4), inverse = T) / i), simplify = "arra"))), dim = c(2, 2, 5, 100)) ## curve scale change
 
 ## Rank-sum test
 pdRankTests(data1, sample.sizes = c(50, 50), "rank.sum")[1:4] ## null true (pointwise)
@@ -166,7 +175,7 @@ To apply the manifold Wilcoxon signed-rank test (`"signed-rank"`), we generate p
 
 ```{r}
 ## Trial-specific means
-mu <- replicate(50, Expm(diag(2), pdSpecEst:::E_coeff_inv(0.1 * rnorm(4))))
+mu <- replicate(50, Expm(diag(2), H.coeff(0.1 * rnorm(4), inverse = T)))
 
 ## Generate paired samples X,Y
 make_sample <- function(null) sapply(1:50, function(i) Expm(mu[, , i], pdSpecEst:::T_coeff_inv(ifelse(null, 1, 0.5) * rexp(4) - 1, mu[, , i])), simplify = "array") 
@@ -185,29 +194,29 @@ The manifold signed-rank test also provides a valid procedure to test for equiva
 
 ```{r}
 ## Signed-rank test for equivalence of spectra
-## ARMA(1,1) process: Example 11.4.1 in (Brockwell and Davis, 1991)
+## vARMA(1,1) process: Example 11.4.1 in (Brockwell and Davis, 1991)
 Phi <- array(c(0.7, 0, 0, 0.6, rep(0, 4)), dim = c(2, 2, 2))
 Theta <- array(c(0.5, -0.7, 0.6, 0.8, rep(0, 4)), dim = c(2, 2, 2))
 Sigma <- matrix(c(1, 0.71, 0.71, 2), nrow = 2)
-pgram <- function(Sigma) pdPgram(rARMA(2^9, 2, Phi, Theta, Sigma)$X)$P ## HPD periodogram
+pgram <- function(Sigma) pdPgram(rARMA(2^10, 2, Phi, Theta, Sigma)$X)$P ## HPD periodogram
 
 ## Null is true
-pdRankTests(array(c(pgram(Sigma), pgram(Sigma)), dim = c(2, 2, 2^8)), test = "signed.rank")[2]
+pdRankTests(array(c(pgram(Sigma), pgram(Sigma)), dim = c(2, 2, 2^10)), test = "signed.rank")[2]
 
 ## Null is false
-pdRankTests(array(c(pgram(Sigma), pgram(0.5 * Sigma)), dim = c(2, 2, 2^8)), test = "signed.rank")[2]
+pdRankTests(array(c(pgram(Sigma), pgram(0.5 * Sigma)), dim = c(2, 2, 2^10)), test = "signed.rank")[2]
 ```
 
 To apply the manifold Bartels-von Neumman test (`"bartels"`), we generate an independent non-identically distributed sample with a trend in the scale of the distribution across observations, such that the null hypothesis of randomness breaks down.
 
 ```{r}
 ## Null is true
-data3 <- replicate(200, Expm(diag(2), pdSpecEst:::E_coeff_inv(rnorm(4)))) ## pointwise samples
-data4 <- replicate(100, sapply(1:5, function(i) Expm(i * diag(2), pdSpecEst:::T_coeff_inv(rnorm(4), i * diag(2))), simplify = "array")) ## curve samples
+data3 <- replicate(200, Expm(diag(2), H.coeff(rnorm(4), inverse = T))) ## pointwise samples
+data4 <- replicate(100, sapply(1:5, function(i) Expm(i * diag(2), H.coeff(rnorm(4), inverse = T) / i), simplify = "array")) ## curve samples
 
 ## Null is false
-data3a <- sapply(1:200, function(j) Expm(diag(2), pdSpecEst:::E_coeff_inv(((200 - j) / 200 + j * 2 / 200) * rnorm(4))), simplify = "array") ## pointwise trend in scale
-data4a <- sapply(1:100, function(j) sapply(1:5, function(i) Expm(i * diag(2), pdSpecEst:::T_coeff_inv(((100 - j) / 100 + j * 2 / 100) * rnorm(4), i * diag(2))), simplify = "array"), simplify = "array") ## curve trend in scale
+data3a <- sapply(1:200, function(j) Expm(diag(2), H.coeff(((200 - j) / 200 + j * 2 / 200) * rnorm(4), inverse = T)), simplify = "array") ## pointwise trend in scale
+data4a <- sapply(1:100, function(j) sapply(1:5, function(i) Expm(i * diag(2), H.coeff(((100 - j) / 100 + j * 2 / 100) * rnorm(4), inverse = T) / i), simplify = "array"), simplify = "array") ## curve trend in scale
 
 ## Bartels-von Neumann test
 pdRankTests(data3, test = "bartels")[1:4] ## null true (pointwise)
@@ -217,7 +226,7 @@ pdRankTests(data4a, test = "bartels")[2] ## null false (curve)
 ```
 
 ### Computation times
-The figures below display average computation times in milliseconds (single core, Intel Xeon E5-2650) of the rank-based hypothesis tests in terms of the dimension of the matrix-valued data and the size of the samples considered in the tests.
+The figures below display average computation times in milliseconds (single core, Intel Xeon E5-2650) of the rank-based hypothesis tests based on the Riemannian metric in terms of the dimension of the matrix-valued data and the size of the samples considered in the tests. The computation times based on the Log-Euclidean metric are either similar or significantly faster (in particular for the rank-based tests based on the manifold zonoid or spatial depth) than the times displayed below.
 
 **Manifold Wilcoxon rank-sum test**
 The figure below displays average computation times of the manifold Wilcoxon rank-sum test for two equal-sized samples of `(d,d)`-dimensional HPD matrices of size `n`, with depth-induced ranks based on the geodesic distance depth (`gdd`), manifold zonoid depth (`zonoid`) and manifold spatial depth (`spatial`) respectively.<br>
@@ -283,7 +292,7 @@ legend("bottomright", legend = c("gdd", "zonoid", "spatial"), lty = 1:3, pch = 1
 ```
 <br>
 **Manifold Wilcoxon signed-rank test**
-The figure below displays average computation times of the manifold Wilcoxon signed-rank test for two equal-sized samples of size `n` of `(d,d)`-dimensional HPD matrices. This test is not based on data depth but on a specific manifold difference score. <br>
+The figure below displays average computation times of the manifold Wilcoxon signed-rank test for two equal-sized samples of size `n` of `(d,d)`-dimensional HPD matrices. This test is not based on data depth but on a specific intrinsic manifold difference score. <br>
 <br>
 ```{r, echo = FALSE}
 d <- round(exp(seq(from = log(2), to = log(128), length = 10)), digits = 0)
@@ -297,9 +306,7 @@ plot(range(n), range(pdSpecEst:::sr_time, na.rm=T), type="n", log = "xy", main =
   points(n, pdSpecEst:::sr_time[,2], col = 2, pch = 17)
 ```
 
-## Shiny app
-
-A demo Shiny app for data depth and rank-based tests in the context of samples of HPD matrices is available [here](https://jchau.shinyapps.io/pdspecest/). By clicking on the tab 'Data depth', for simulated samples of HPD matrices, the user can examine the performance of the different rank-based tests (via `pdRankTests()`) based on depth-induced ranks computed with `pdDepth()`.
+To conclude, we note again that an interactive demo Shiny app to test and tune the different rank-based test procedures detailed in this vignette is available at [https://jchau.shinyapps.io/pdSpecEst/](https://jchau.shinyapps.io/pdSpecEst/). 
 
 ## References
 

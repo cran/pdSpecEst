@@ -5,13 +5,13 @@
 #' Available distance measures between two Hermitian PD matrices are (i) Riemannian distance (default) as in
 #' (Bhatia, 2009, Chapter 6), (ii) log-Euclidean distance, the Euclidean distance between matrix logarithms,
 #' (iii) Cholesky distance, the Euclidean distance between Cholesky decompositions, (iv) Euclidean distance,
-#' and (v) Procrustes distance as in (Dryden et al., 2009). In particular, \code{pdDist} generalizes the function
+#' (v) root-Euclidean distance and (vi) Procrustes distance as in (Dryden et al., 2009). In particular, \code{pdDist} generalizes the function
 #' \code{shapes::distcov} to compute the distance between two symmetric positive definite matrices to the
 #' distance between two Hermitian positive definite matrices.
 #'
 #' @param A,B Hermitian positive definite matrices (of equal dimension).
 #' @param method the distance measure, one of \code{'Riemannian'},
-#' \code{'logEuclidean'}, \code{'Cholesky'}, \code{'Euclidean'} or \code{'Procrustes'}. Defaults to \code{'Riemannian'}.
+#' \code{'logEuclidean'}, \code{'Cholesky'}, \code{'Euclidean'}, \code{'squareRoot'} or \code{'Procrustes'}. Defaults to \code{'Riemannian'}.
 #'
 #' @examples
 #'  a <- matrix(complex(real = rnorm(9), imaginary = rnorm(9)), nrow = 3)
@@ -31,7 +31,7 @@ pdDist <- function(A, B, method = "Riemannian") {
     stop("Incorrect input dimensions for arguments: 'A' and/or 'B',
          consult the function documentation for the requested inputs.")
   }
-  method <- match.arg(method, c("Riemannian", "logEuclidean", "Cholesky", "Euclidean", "Procrustes"))
+  method <- match.arg(method, c("Riemannian", "logEuclidean", "Cholesky", "Euclidean", "rootEuclidean", "Procrustes"))
   d <- nrow(A)
 
   if (method == "Riemannian") {
@@ -45,6 +45,9 @@ pdDist <- function(A, B, method = "Riemannian") {
   }
   if (method == "Euclidean") {
     dd <- NormF(A - B)
+  }
+  if (method == "rootEuclidean") {
+    dd <- NormF(Sqrt(A) - Sqrt(B))
   }
   if (method == "Procrustes") {
     l1 <- Sqrt(A)
