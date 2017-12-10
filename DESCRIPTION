@@ -1,7 +1,7 @@
 Package: pdSpecEst
 Type: Package
 Title: An Analysis Toolbox for Hermitian Positive Definite Matrices
-Version: 1.2.0
+Version: 1.2.1
 Authors@R: person("Joris", "Chau", email = "j.chau@uclouvain.be", role = c("aut", "cre"))
 Description: An implementation of data analysis tools for samples of symmetric or 
   Hermitian positive definite matrices, such as collections of covariance matrices 
@@ -15,16 +15,16 @@ URL: https://github.com/JorisChau/pdSpecEst,
 Depends: R (>= 3.3.1)
 License: GPL-2
 LazyData: TRUE
-Imports: grid, multitaper, Rcpp, ddalpha, R.utils
+Imports: multitaper, Rcpp, ddalpha
 RoxygenNote: 6.0.1
 LinkingTo: Rcpp, RcppArmadillo (>= 0.7.500.0.0)
 SystemRequirements: GNU make, C++11
-Suggests: knitr, rmarkdown, testthat, ggplot2, reshape2, viridis,
+Suggests: knitr, rmarkdown, testthat, grid, ggplot2, reshape2, viridis,
         ggthemes
 VignetteBuilder: knitr
 NeedsCompilation: yes
-Packaged: 2017-12-09 09:14:51 UTC; jorischau
+Packaged: 2017-12-10 14:55:20 UTC; jorischau
 Author: Joris Chau [aut, cre]
 Maintainer: Joris Chau <j.chau@uclouvain.be>
 Repository: CRAN
-Date/Publication: 2017-12-09 09:41:21 UTC
+Date/Publication: 2017-12-10 15:10:00 UTC

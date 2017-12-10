@@ -1,6 +1,6 @@
-2f1a5a2fe4a7d4ff01ba0bfac66bd166 *DESCRIPTION
+5dbefca4f53a2429ff77f8d86e0ac032 *DESCRIPTION
 1bfdd2ee17ed288593e7c5522ce16a95 *NAMESPACE
-9119add57f04439b0c472e203f0d26bb *NEWS.md
+333eeefb754dd22fff6c1e72d75de22e *NEWS.md
 5d0651e00aa6f920b702d7a8a06d1ec2 *R/RcppExports.R
 8cb40c9a6c9b964b80c483a0730c6868 *R/benchmark.R
 cdbd54cc36a76cbf051d96bb1516332f *R/cluster.R
@@ -22,10 +22,10 @@ e3eb24268d43835ec315a2066c1c4751 *R/ranktests.R
 ca577041873dd54b32f4685275a21b72 *build/vignette.rds
 de6aa85422b36d3350926d04b7de9888 *inst/doc/depth_ranktests.R
 c5203519f2e2d5eb521344004c8ec7ce *inst/doc/depth_ranktests.Rmd
-97d6cb5430a6e010f4b930a0d295e857 *inst/doc/depth_ranktests.html
-f97831b7f67e91361b2dfb1453eacfd6 *inst/doc/wavelet_est_clust.R
-89e9f6dc26ddadb8da24087fdcc335a0 *inst/doc/wavelet_est_clust.Rmd
-fc0e6e238410912e9d5cb25ec1db3da9 *inst/doc/wavelet_est_clust.html
+1bc6f313a74ba7c51fa081df5fc63d43 *inst/doc/depth_ranktests.html
+dd05f7d36a7269f751e4fc93b52ed58f *inst/doc/wavelet_est_clust.R
+388191cce59070dc7c0cb5a59d1cbb2f *inst/doc/wavelet_est_clust.Rmd
+f57975312df5d60b1c9a0c47898b8552 *inst/doc/wavelet_est_clust.html
 35ad6bd4a1a7b694c83baa8f8664301d *man/Expm.Rd
 f0158d17b33f4405c860c7d13213015e *man/H.coeff.Rd
 b1714d97b2eeab65ec1850c21306ceeb *man/InvWavTransf1D.Rd
@@ -65,4 +65,4 @@ ac47d72a676c3d2304e91e64c48ab541 *tests/testthat.R
 b39e23d771b5a6ff1b18bc056549c2b4 *tests/testthat/test-estimation.R
 2eb69a9a5d3b45ad46daa671629b8f18 *tests/testthat/test-geometry.R
 c5203519f2e2d5eb521344004c8ec7ce *vignettes/depth_ranktests.Rmd
-89e9f6dc26ddadb8da24087fdcc335a0 *vignettes/wavelet_est_clust.Rmd
+388191cce59070dc7c0cb5a59d1cbb2f *vignettes/wavelet_est_clust.Rmd
