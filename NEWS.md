@@ -1,3 +1,17 @@
+# pdSpecEst 1.2.2
+
+* New and updated features:
+  + intrinsic k-means clustering with `pdkMeans`
+  + new example simulated data in `rExamples1D` and `rExamples2D`
+  + intrinsic median of HPD matrices with `pdMedian`
+* New and updated functions: `pdSpecClust1D`, `pdSpecClust2D`, `pdDepth`, `pdSpecEst1D`, `pdSpecEst2D`, `rExamples1D`, `rExamples2D`, `InvWavTransf1D`, `InvWavTransf2D`, `pdDist`, 
+`pdMean`, `pdMedian`, `pdPgram`, `pdPgram2D`, `pdNeville`, `WavTransf1D`, `WavTransf2D`, 
+`pdParTrans`, `Expm`, `Logm`
+* Updated vignettes: 
+  + "Wavelet-based multivariate Fourier spectral estimation", 
+  + "Data depth and rank-based tests for HPD matrices"                   
+* Updated Shiny app (see README or DESCRIPTION for url)
+
 # pdSpecEst 1.2.1
 
 * Removed unnecessary package imports

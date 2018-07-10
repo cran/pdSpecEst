@@ -2,32 +2,34 @@
 #'
 #' The \code{pdSpecEst} (\strong{p}ositive \strong{d}efinite \strong{Spec}tral \strong{Est}imation)
 #' package provides data analysis tools for samples of symmetric or Hermitian positive definite matrices,
-#' such as collections of (non-degenerate) covariance matrices or spectral density matrices.
+#' such as collections of positive definite covariance matrices or spectral density matrices.
 #'
 #' The tools in this package can be used to perform:
 #' \itemize{
-#'    \item \emph{Intrinsic manifold wavelet regression} and \emph{clustering} for curves (1D) and surfaces (2D)
-#'    of Hermitian positive definite matrices. These implementations are based in part on the paper (Chau and von Sachs, 2017a).
-#'    \item \emph{Exploratory data analysis} and \emph{inference} for samples of Hermitian positive definite matrices by
-#'    means of intrinsic manifold data depth and rank-based hypothesis tests. These implementations are based on the paper
-#'    (Chau, Ombao and von Sachs, 2017b).
+#'    \item \emph{Intrinsic wavelet transforms} for curves (1D) and surfaces (2D) of Hermitian positive
+#'    definite matrices, with applications to for instance: dimension reduction, denoising and clustering for curves or
+#'    surfaces of Hermitian positive definite matrices, such as (time-varying) Fourier spectral density matrices.
+#'    These implementations are based in part on the paper \insertCite{CvS17}{pdSpecEst} and Chapters 3
+#'    and 5 of \insertCite{C18}{pdSpecEst}.
+#'    \item Exploratory data analysis and inference for samples of Hermitian positive definite matrices by
+#'    means of \emph{intrinsic data depth} and \emph{depth rank-based hypothesis tests}. These implementations are based
+#'    on the paper \insertCite{COvS17}{pdSpecEst} and Chapter 4 of \insertCite{C18}{pdSpecEst}.
 #'  }
 #' For more details and examples on how to use the package see the accompanying vignettes in the vignettes folder.
-#' A demo Shiny app to test out the implemented functions in the package is available
+#' An R-Shiny app to demonstrate and test the implemented functionality in the package is available
 #' \href{https://jchau.shinyapps.io/pdSpecEst/}{here}.
 #'
 #' Author and maintainer: \strong{Joris Chau} (\email{j.chau@@uclouvain.be}).
 #'
 #' Install the current development version via \code{devtools::install_github("JorisChau/pdSpecEst")}.
 #'
-#' @references Chau, J. and von Sachs, R. (2017a). \emph{Positive definite multivariate spectral
-#' estimation: a geometric wavelet approach}. Available at \url{http://arxiv.org/abs/1701.03314}.
-#' @references Chau, J., Ombao, H., and von Sachs, R. (2017b). \emph{Data depth and rank-based
-#' tests for covariance and spectral density matrices}. Available at \url{http://arxiv.org/abs/1706.08289}.
+#' @references
+#' \insertAllCited{}
 #'
 #' @docType package
 #' @useDynLib pdSpecEst, .registration = TRUE
 #' @importFrom Rcpp evalCpp
+#' @importFrom Rdpack reprompt
 #' @import utils
 #' @import stats
 #' @name pdSpecEst

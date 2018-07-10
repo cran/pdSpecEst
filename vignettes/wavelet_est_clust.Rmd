@@ -1,5 +1,5 @@
 ---
-title: "Wavelet-based multivariate spectral analysis"
+title: "Wavelet-based multivariate Fourier spectral estimation"
 author: "Joris Chau"
 date: "`r Sys.Date()`"
 output: 
@@ -7,172 +7,68 @@ output:
     fig_caption: yes
     toc: true
 vignette: >
-  %\VignetteIndexEntry{"Wavelet-based multivariate spectral analysis"}
+  %\VignetteIndexEntry{"Wavelet-based multivariate Fourier spectral estimation"}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
-references:
-- id: CvS17
-  title: 'Positive definite multivariate spectral estimation: a geometric wavelet approach'
-  author:
-  - family: Chau  
-    given: J.
-  - family: von Sachs
-    given: R.
-  URL: 'http://arxiv.org/abs/1701.03314'
-  type: article-journal
-  issued:
-  year: 2017
-- id: D97
-  title: 'CART and best-ortho-basis: a connection'
-  author:
-  - family: Donoho
-    given: D.L.
-  container-title: Annals of Statistics
-  volume: 25
-  issue: 5
-  pages: 1870-1911
-  type: article-journal
-  issued:
-  year: 1997  
-- id: N96
-  title: 'Wavelet shrinkage using cross-validation'
-  author:
-  - family: Nason
-    given: G.P.
-  container-title: Journal of the Royal Statistical Society (Series B)
-  volume: 58
-  pages: 463-479
-  type: article-journal
-  issued:
-  year: 1996     
-- id: COvS17
-  title: 'Data depth and rank-based tests for covariance and spectral density matrices'
-  author:
-  - family: Chau  
-    given: J.
-  - family: Ombao
-    given: H.
-  - family: von Sachs
-    given: R.
-  URL: 'http://arxiv.org/abs/1706.08289'
-  type: article-journal
-  issued: 
-  year: 2017
+bibliography: ../inst/REFERENCES.bib
 ---
   
 ```{r, echo = FALSE}
-  knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
-```
-## Introduction 
-In multivariate time series analysis, the second-order behavior of a multivariate time series is studied by means of the autocovariance matrices in the time domain, or the spectral density matrix in the frequency domain. A non-degenerate spectral density matrix is necessarily a curve (or surface) of Hermitian positive definite (HPD) matrices, and one generally constrains a spectral matrix estimator to preserve this property. This in order to ensure interpretability of the estimator as a covariance or spectral matrix, but also to avoid computational issues in e.g. simulation or bootstrapping. 
+  knitr::opts_chunk$set(collapse = TRUE, comment = "#>", fig.align = "left")
+  library(pdSpecEst)  
 
-In [@CvS17], we develop intrinsic wavelet transforms and perform nonparametric wavelet regression for curves or surfaces in the non-Euclidean space of HPD matrices, exploiting the geometric structure of the space as a Riemannian manifold. Nonlinear wavelet denoising in the Riemannian manifold allows one to capture local smoothness behavior of the spectral matrix across frequency, but also varying degrees of smoothness across components of the spectral matrix, at the same time guaranteeing a HPD spectral estimator. Moreover, and in contrast to existing approaches, the wavelet-based spectral estimator in the space of HPD matrices endowed with a specific inveriant Riemannian metric is *equivariant* under a change or basis (i.e. change of coordinate system) of the given time series. For more details we refer to [@CvS17].
-
-In this vignette, we demonstrate how to use the `pdSpecEst` package to perform intrinsic wavelet-based spectral estimation for stationary and nonstationary time series by linear or nonlinear wavelet denoising of the (time-varying) periodogram matrices in the intrinsic manifold wavelet domain. In addition to (time-varying) spectral matrix estimation, we consider fast fuzzy clustering for (time-varying) spectral matrices of replicated multivariate time series using the sparse representations of the spectral matrices in the intrinsic manifold wavelet domain. 
-
-### Shiny app
-
-A demo Shiny app for intrinsic wavelet-based (time-varying) spectral estimation and clustering is available [here](https://jchau.shinyapps.io/pdSpecEst/). The app allows the user to test, tune and time the wavelet-based (time-varying) spectral matrix estimation or wavelet-based spectral matrix clustering procedures on simulated multivariate time series data. The estimated spectral matrices (resp. their wavelet representations) and/or cluster assignments may be compared to the true generating spectral matrices (resp. their wavelet representations) and/or clusters, or in the case of the wavelet-based spectral estimate with a benchmark multitaper spectral estimate.
-
-## Stationary (1D) spectral matrix estimation
-
-First, we demonstrate how to perform 1D spectral matrix estimation for stationary multivariate $d$-dimensional time series with `pdSpecEst1D()`. In this case the target spectrum is a *curve* of HPD matrices in the Riemannian manifold. 
-
-### Simulate time series data with `rExamples()`
-
-With `rExamples()` we simulate multivariate time series observations from an example HPD 
-spectral matrix. Examples include: (i) a ($3 \times 3$) heaviSine HPD spectral matrix consisting of smooth sinosoids with a break, (ii) a ($3 \times 3$) bumps HPD spectral matrix containing peaks and bumps of various degrees of smoothness, (iii) a ($3 \times 3$) two-cats HPD spectral matrix visualizing the contour of two side-by-side cats, with inhomogeneous smoothness across frequency, and (iv) a ($2 \times 2$) Gaussian HPD spectral matrix consisting of smooth random Gaussian functions. The time series observations are generated via the transfer function of the example spectral matrix and complex normal random variates by means of its Cramér representation. In addition, the function returns the true generating spectral matrix of the time series observations and an initial noisy multitaper HPD periodogram obtained with `pdPgram()`. By default the periodogram is pre-smoothed using $d$ (dimension of the time series) Slepian tapering functions to guarantee that the periodogram is everywhere HPD. 
-
-
-```{r}
-library(pdSpecEst)
-## Generate example time series and periodogram
-set.seed(123)
-d <- 3
-n <- 2^9 
-example <- rExamples(2 * n, example = "bumps")
-freq <- example$freq
-str(example)
-```
-
-Below we plot the simulated time series data and the generating spectral matrix in the frequency domain.<br>
-<br>
-
-```{r, echo = F, out.width='75%', fig.width = 8, fig.height = 3, dpi=100, fig.align = "center"}
-## Plot time series observations
-colnames(example$ts) <- c("X1", "X2", "X3")
-plot.ts(Re(example$ts), ylab = "Time", main = "Time series components")
-```
-
-```{r, echo = F, out.width='75%', fig.width = 8, fig.height = 5, dpi=100, fig.align = "center", fig.cap = "Figure 1: Generating (3 x 3)-dimensional spectral matrix"}
-## Plot spectral matrix
-plotspec <- function(i, data, data1 = NULL){
+  a4width<- 8.3
+  a4height<- 11.7
   
-  ylim <- range(Re(data$f), Im(data$f))
-  if(!is.null(data1)){
-    ylim <- range(range(Re(data$f), Im(data$f)), range(Re(data1$f), Im(data1$f)))
-  }
+  plotspec <- function(i, data, data1 = NULL, est = F){
+
+  freq <- pi * (0:(dim(data)[3]-1))/dim(data)[3]
+  ylim <- range(1.1 * Re(data), 1.1 * Im(data))
   if(i[1] == i[2]){
-    plot(range(data$freq), range(ylim), type = "n", main = paste0("Auto-spectrum (", i[1], ",", i[1], ")"),
-         xlab = "", yaxt = "n", ylab = "", ylim = ylim, mgp = c(3,0.5,0))
+    plot(range(freq), range(ylim), type = "n", main = paste0("Auto-spectrum (", i[1], ",", i[1], ")"),
+         xlab = "", yaxt = "n", ylab = "", ylim = ylim, mgp = c(3,0.5,0), cex.main = 0.9)
     abline(h = 0, lty = 3)
-    if(length(dim(data$f)) == 3){
       if(!is.null(data1)){
-        lines(data1$freq, Re(data1$f[i[1], i[1],]))
+        lines(freq, Re(data1[i[1], i[1],]), col = 2, lwd = ifelse(est, 1.5, 1))
       }
-      lines(data$freq, Re(data$f[i[1], i[1],]), lty = ifelse(is.null(data1), 1, 2))
-    } else if(length(dim(data$f)) == 4){
-      for(i1 in 1:dim(data$f)[4]){
-        for(i2 in 1:dim(data$f)[4]){
-          if(!is.null(data1)){
-            lines(data1$freq, Re(data1$f[i[1], i[1], , i1]), col = i1)
-          }
-          lines(data$freq, Re(data$f[i[1], i[1], , i1]), col = i1, lty = ifelse(is.null(data1), 1, 2))
-        }
-      }
-    }
+      lines(freq, Re(data[i[1], i[1],]), lwd = ifelse(est, 1, 1.5))
     title(xlab = expression(paste("Frequency (", omega, ")")), line = 2)
-    
-  } else{
-    plot(range(data$freq), range(ylim), type = "n", main = paste0("Cross-spectrum (", i[1], ",", i[2], ")"),
-         xlab = "", yaxt = "n", xaxt = "n", ylab = "", ylim = ylim, mgp = c(3,0.5,0))
+
+  } else if(i[1] < i[2]) {
+    plot(range(freq), ylim, type = "n", main = paste0("Real cross-spectrum (", i[1], ",", i[2], ")"),
+         xlab = "", yaxt = "n", xaxt = "n", ylab = "", mgp = c(3,0.5,0), cex.main = 0.9)
     abline(h = 0, lty = 3)
     title(xlab = expression(paste("Frequency (", omega, ")")), line = 0.5)
-    if(!is.null(data1)){
-      lines(data1$freq, Re(data1$f[i[1], i[2], ]), col = 1)
-      lines(data1$freq, Im(data1$f[i[1], i[2], ]), col = 2)
-    }
-    lines(data$freq, Im(data$f[i[1], i[2], ]), lty = ifelse(is.null(data1), 1, 2), col = 2)
-    lines(data$freq, Re(data$f[i[1], i[2], ]), lty = ifelse(is.null(data1), 1, 2), col = 1)
-    legend("topright", legend = c("Real", "Imag."), lty = c(1,1), col = c(1,2), bty = "n", cex = 1, y.intersp = 1)
-    
+      if(!is.null(data1)){
+        lines(freq, Re(data1[i[1], i[2], ]), col = 2, lwd = ifelse(est, 1.5, 1))
+      }
+      lines(freq, Re(data[i[1], i[2], ]), lwd = ifelse(est, 1, 1.5))
+  } else {
+    plot(range(freq), ylim, type = "n", main = paste0("Imag. cross-spectrum (", i[1], ",", i[2], ")"),
+         xlab = "", yaxt = "n", xaxt = "n", ylab = "", mgp = c(3,0.5,0), cex.main = 0.9)
+    abline(h = 0, lty = 3)
+    title(xlab = expression(paste("Frequency (", omega, ")")), line = 0.5)
+      if(!is.null(data1)){
+        lines(freq, Im(data1[i[1], i[2], ]), col = 2, lwd = ifelse(est, 1.5, 1))
+      }
+      lines(freq, Im(data[i[1], i[2], ]), lwd = ifelse(est, 1, 1.5))
   }
-}
-par(mfrow=c(d, d), mar = c(3.5,1,1.5,1))
-invisible(apply(expand.grid(1:d, 1:d), 1, function(i) plotspec(i, data = example)))
-invisible(dev.off())
-```
-
-`WavTransf1D()` transforms the multivariate spectrum (i.e. a curve of HPD matrices) to the intrinsic manifold wavelet domain. By default the order of the intrinsic AI refinement scheme is `order = 5` and the space of HPD matrices is equipped with the invariant Riemannian metric `metric = 'Riemannian'`, but this can also be one of: `'logEuclidean'`, `'Cholesky'` `'rootEuclidean'` or `'Euclidean'`. 
-
-```{r}
-wt.f <- WavTransf1D(example$f, periodic = T)
-```
-
-Below we plot the Frobenius norms of the Hermitian matrix-valued wavelet coefficients across scale-locations from the finest wavelet scale $j = J - 1$ to the coarsest wavelet scale $j = 0$, with $J = \log_2(n)$.<br>
-<br>
-
-```{r, echo = F, out.width='75%', fig.width = 8, fig.height = 3, dpi=100, fig.align = "center"}
-## Plot wavelet coefficients
-plotCoeff <- function(D, title){
+  }
   
-   if (!requireNamespace("ggplot2", quietly = T) | 
+  ## Plot wavelet coefficients
+plotCoeff <- function(D, title, bias = 1){
+  
+  if (!requireNamespace("ggplot2", quietly = T) | 
       !requireNamespace("viridis", quietly = T) | 
       !requireNamespace("ggthemes", quietly = T) | 
       !requireNamespace("reshape2", quietly = T) | 
       !requireNamespace("grid", quietly = T)) {
     cat("Packages 'ggplot2', 'viridis', 'ggthemes', 'reshape2' and 'grid' needed for this function to work. Please install missing packages.")
   } else{
+    
+    cols <- colorRamp(viridis::viridis(20), bias = bias)
+    RGB <- function(x) rgb(cols(x)[1], cols(x)[2], cols(x)[3], maxColorValue = 255, alpha = 255)
+    RGB <- Vectorize(RGB, "x")
     
     L_b <- (dim(D[[1]])[3] - 1) / 2
     J <- length(D)
@@ -181,111 +77,20 @@ plotCoeff <- function(D, title){
     longData <- reshape2::melt(sapply(1:J, function(j) rep(norms[[j]], each = 2^(J - j))))
     
     gg <- ggplot2::ggplot(longData, ggplot2::aes(x = longData$Var1, y = longData$Var2, fill = longData$value)) +
-      ggplot2::geom_tile() +
-      viridis::scale_fill_viridis() +
+      ggplot2::geom_raster() +
+      ggplot2::scale_fill_gradientn(colours = RGB(seq(0,1,len=20)), limits = c(0,1.75)) +
       ggplot2::scale_x_continuous(breaks = NULL, labels = NULL, expand=c(0,0)) +
-      ggplot2::scale_y_reverse(breaks = 1:J, labels=0:(J-1), expand = c(0, 0)) +
+      ggplot2::scale_y_reverse(breaks = 1:J, labels=1:J, expand = c(0, 0)) +
       ggplot2::ggtitle(title) +
       ggplot2::labs(x = "Location", y = "scale") +
       ggthemes::theme_tufte(base_family="sans") +
-      ggplot2::theme(plot.title=ggplot2::element_text(size=14, hjust=0), axis.text = ggplot2::element_text(size=12), axis.title=ggplot2::element_text(size=14), legend.key.width=grid::unit(0.4, "cm"), legend.title=ggplot2::element_blank(), legend.key.height = grid::unit(1.25, "cm"), legend.text = ggplot2::element_text(size=12))
+      ggplot2::theme(plot.title=ggplot2::element_text(size=10, hjust=0), axis.text = ggplot2::element_text(size=8), axis.title=ggplot2::element_text(size=10), legend.key.width=grid::unit(0.2, "cm"), legend.title=ggplot2::element_blank(), legend.key.height = grid::unit(1.1, "cm"), legend.text = ggplot2::element_text(size=8))
     
     print(gg)
   }
 }
-invisible(plotCoeff(wt.f$D, title = "Frobenius norm of target wavelet coefficients"))
-```
-
-### Wavelet-denoised spectral estimator with `pdSpecEst1D()`
-
-`pdSpecEst1D()` computes the HPD wavelet-denoised spectral matrix estimator by:
-(i) applying the intrinsic 1D AI wavelet transform (`WavTransf1D`) to an initial noisy HPD spectral estimate, (ii) (tree-structured) thresholding of the wavelet coefficients (`pdCART`) and (iii) applying the intrinsic inverse 1D AI wavelet transform (`InvWavTransf1D`). The complete estimation procedure is described in detail in [@CvS17]. 
-
-```{r}
-f.hat <- pdSpecEst1D(example$per)
-str(f.hat)
-```
-
-#### Nonlinear tree-structured wavelet thresholding
-
-The noise is removed by nonlinear tree-structured thresholding of the wavelet coefficients based on the trace of the whitened coefficients through minimization of a complexity penalized residual sum of squares (CPRESS) criterion via the fast tree-pruning algorithm in [@D97]. The sparsity parameter is set equal to `alpha` times the universal threshold, where the noise standard deviation (homogeneous across scales) of the traces of the whitened coefficients is determined via the median absolute deviation (MAD) of the coefficients at the finest wavelet scale. If the thresholding policy is set to `policy = 'universal'`, the sparsity parameter is set equal to the universal threshold. If the thresholding policy is set to `policy = 'cv'`, a data-adaptive sparsity parameter is determined via a more time-consuming two-fold cross-validation procedure as in [@N96] relying on the chosen metric for the space of HPD matrices. Note that the two-fold cross-validation procedure works best if the noisy HPD matrix-valued observations are (approximately) independent in the frequency domain.
-
-#### Linear wavelet thresholding
-
-It is also possible to perform linear thresholding of wavelet scales using `pdSpecEst1D()` by setting the argument `alpha = 0` (i.e. no nonlinear thresholding) and the argument `jmax` to the maximum wavelet scale we wish to keep in the intrinsic inverse AI wavelet transform. For instance, if `jmax = 5` the wavelet coefficients at scales $j$ with $j \leq 5$ will not be altered, but all wavelet coefficients at scales $j > 5$ will be set to zero.
-
-#### Estimation results
-
-The figures below show the Frobenius norms of the Hermitian matrix-valued wavelet coefficients of the initial noisy HPD periodogram matrix and the denoised HPD spectral matrix estimator in the intrinsic manifold wavelet domain. <br>
-<br>
-
-```{r, echo=FALSE, out.width='75%', fig.width = 8, fig.height = 3, dpi=100, fig.align = "center"}
-wt.per <- WavTransf1D(example$per, periodic = T)
-invisible(plotCoeff(wt.per$D, title = "Frobenius norm of noisy periodogram wavelet coefficients"))
-invisible(plotCoeff(f.hat$D, title = "Frobenius norm of denoised wavelet coefficients"))
-```
-
-The figure below shows the target spectral matrix (dashed lines) given by `example$f` and the estimated spectral matrix (continuous lines) obtained from `f.hat$f` at the frequencies `examples$freq`. The spectral estimator captures both the smooth spectral matrix behavior in the high-frequency range and the localized peaks in the low-frequency range, while guaranteeing positive definiteness of the estimator. <br>
-<br>
-
-```{r, echo=FALSE, out.width='75%', fig.width = 8, fig.height = 5, dpi=100, fig.align = "center", fig.cap = "Figure 2: target spectral matrix (dashed lines) and estimated spectral matrix (continuous lines)."}
-## Plot estimated spectral matrix
-par(mfrow=c(d, d), mar = c(3.5,1,1.5,1))
-invisible(apply(expand.grid(1:d, 1:d), 1, function(i) plotspec(i, data = example, 
-                                                               data1 = list(freq = example$freq, f = f.hat$f))))
-invisible(dev.off())
-```
-
-### Depth-based bootstrap confidence regions with `pdConfInt1D()`
-
-Given the wavelet-based spectral matrix estimator, we can assess its variability with `pdConfInt1D()`, which uses a parametric bootstrap procedure to construct depth-based confidence regions based on the intrinsic manifold data depths developed in [@COvS17]. The bootstrap procedure exploits the data generating process of a stationary time series via its Cramér representation and substitutes the true generating transfer functions with the transfer functions based on a consistent spectral matrix estimator.
-
-The following code constructs intrinsic depth-based simultaneous confidence regions at $(1-\alpha)\%$ confidence levels with $\alpha = \{0.1, 0.05, 0.01 \}$ over the second half of the frequency domain ($\omega \in (\pi/2, \pi]$) based on the Log-Euclidean metric and the manifold spatial depth. 
-
-```{r, eval = F}
-## Not run
-boot.ci <- pdConfInt1D(f.hat$f, alpha = c(0.1, 0.05, 0.01), ci.region = c(0.5, 1), 
-                       boot.samples = 1E3, f.0 = example$f)
-```
-
-The depth-based confidence balls (maximum, minimum depths and radii) are given by the component `depth.CI`. In particular, a given curve of HPD matrices is covered by the confidence ball if its manifold data depth with respect to the cloud of bootstrap spectral estimates is above the minimum depths given by the component `depth.CI`. The code line above also checks whether the (true) target spectral matrix `example$f` is covered by the confidence regions at the different confidence levels.
-
-```{r, echo = F}
-cat("The depth-based confidence balls:")
-pdSpecEst:::vignette1.data$depth.CI
-
-cat("Verification that the target spectral matrix is covered:")
-pdSpecEst:::vignette1.data$cover.f
-
-cat("Depth of the target spectrum w.r.t. cloud of bootstrap spectral estimates")
-pdSpecEst:::vignette1.data$depth.f
-
-```
-
-## Nonstationary (2D) spectral matrix estimation
-
-Second, we demonstrate how to perform 2D spectral matrix estimation for nonstationary multivariate $d$-dimensional time series with `pdSpecEst2D()`. In this case the target spectrum is a *surface* of HPD matrices in the Riemannian manifold and it suffices to  replace the suffix `-1D` used in the functions above by the suffix `-2D`.
-
-### Simulate pseudo time-varying periodograms with `rExamples2D()`
-
-`rExamples2D()` simulates noisy HPD pseudo time-varying periodogram observations from an example HPD time-varying spectral matrix. Examples include: (i) a ($d \times d$) smiley HPD spectral matrix consisting of constant surfaces of random HPD matrices in the shape of a smiley face, (ii) a ($d \times d$) tvar HPD spectral matrix generated from a time-varying vector auto-regressive process of order 1 with a random time-varying coefficient matrix ($\Phi$), (iii) a ($d \times d$) generally smooth HPD spectral matrix containing a pronounced peak in the center of the discretized time-frequency grid and (iv) a ($d \times d$) facets HPD spectral matrix consisting of several facets generated from random geodesic surfaces. Instead of generating nonstationary time series observations via the Cramér representation based on the tranfer function of the example spectral matrix as in `rExamples()`, which is relatively time-consuming, we directly generate pseudo HPD periodogram observations as independent complex random HPD Wishart matrices centered around the generating HPD spectral matrix. Informally, such random matrix behavior corresponds to the asymptotic distribution of the actual HPD periodogram observations (obtained with `pdPgram2D()`) of a multivariate time series with the given generating HPD spectral matrix.
-
-```{r}
-## Generate example pseudo time-varying periodogram observations
-set.seed(17)
-d <- 2
-n <- c(2^7, 2^7) 
-example <- rExamples2D(n, d, example = "smiley", snr = 0.5)
-tf.grid <- example$tf.grid ## time-frequency grid
-str(example)
-```
-
-The figures below show the matrix-logarithms of the (true) target time-varying spectrum and the matrix-logarithms of the noisy HPD pseudo-periodogram observations. Here we only display the auto-spectrum and upper-diagonal cross-spectrum components of the spectral matrix as the lower-diagonal cross-spectrum components are the conjugate transpose of the upper-diagonal components. <br>
-<br>
-
-```{r, echo = F, out.width='75%', fig.width = 8, fig.height = 6, dpi=100, fig.align = "center", fig.cap = "Figure 3: Matrix-log's of target time-varying spectrum"}
-## Plot 2D spectral matrices
-plotspec2D <- function(P, lim = T, Log = F){
+  
+plotspec2D <- function(P, lim = T, lim.val = NULL, Log = F, bias = 1){
   
   if (!requireNamespace("ggplot2", quietly = T) | 
       !requireNamespace("viridis", quietly = T) | 
@@ -296,17 +101,19 @@ plotspec2D <- function(P, lim = T, Log = F){
   } else{
     
     d <- dim(P)[1]
-    x_n <- min(dim(P)[3], 32)
-    y_n <- min(dim(P)[4], 32)
+    x_n <- min(dim(P)[3], 64)
+    y_n <- min(dim(P)[4], 64)
     P <- P[,,as.integer(seq(from=1,to=dim(P)[3],len=x_n)),as.integer(seq(from=1,to=dim(P)[4],len=y_n))]
     grid_n <- expand.grid(1:x_n, 1:y_n)
     if(Log){
-      P <- array(apply(P, c(3,4), function(P) Logm(diag(d), P)), dim = c(d, d, x_n, y_n))
+      P <- array(pdSpecEst:::Ptransf2D_C(array(P, dim = c(d, d, x_n * y_n)), F, F, "logEuclidean"), dim = c(d, d, x_n, y_n))
     }
-    ylim <- range(mapply(function(i1, i2) range(Re(P[,,i1,i2]), Im(P[,,i1,i2])), grid_n$Var1, grid_n$Var2))
-    
+    ylim <- (if(is.null(lim.val)){ range(mapply(function(i1, i2) range(Re(P[,,i1,i2]), Im(P[,,i1,i2])), grid_n$Var1, grid_n$Var2)) }else{ lim.val })
+    if(!is.null(lim.val)){
+    P <- array(complex(real = sapply(c(Re(P)), function(y) min(max(y,lim.val[1]),lim.val[2])), imaginary = sapply(c(Im(P)), function(y) min(max(y,lim.val[1]),lim.val[2]))), dim = dim(P))
+    }
     grid::grid.newpage()
-    grid::pushViewport(grid::viewport(layout = grid::grid.layout(2*d, d)))
+    grid::pushViewport(grid::viewport(layout = grid::grid.layout(d, d)))
     define_region <- function(row, col){
       grid::viewport(layout.pos.row = row, layout.pos.col = col)
     }
@@ -322,16 +129,16 @@ plotspec2D <- function(P, lim = T, Log = F){
           longdata$Var2 <- rep(seq(from=0.5/y_n,to=0.5,len=y_n), each=x_n)
           
           gg <- ggplot2::ggplot(longdata, ggplot2::aes(x = longdata$Var1, y = longdata$Var2, fill = longdata$value)) +
-            ggplot2::geom_tile() +
-            viridis::scale_fill_viridis(name = "", limits = (if(lim) ylim else NULL)) +
+            ggplot2::geom_raster() +
+                     viridis::scale_fill_viridis(name = "", limits = (if(lim) ylim else NULL)) +
             ggplot2::labs(x = "Time (t)", y = expression(paste("Freq. (", omega, ")", sep ="")),
-                          title = paste0("Auto-spec. (", d1, ",", d1, ")")) +
+                          title = paste0("Auto-spectrum (", d1, ",", d1, ")")) +
             ggthemes::theme_tufte(base_family="sans") +
-            ggplot2::theme(plot.title=ggplot2::element_text(hjust=0, size = 10), 
-                           axis.ticks=ggplot2::element_blank(), axis.title.x = ggplot2::element_text(margin = ggplot2::margin(t = -2)), axis.title.y = ggplot2::element_text(margin = ggplot2::margin(r = -6)), axis.text = ggplot2::element_blank(), legend.key.width=grid::unit(0.3, "cm"), legend.title=ggplot2::element_blank(), legend.key.height = grid::unit(1.1, "cm"), legend.text = ggplot2::element_text(size=8), legend.position = c(1.05, 0.5), 
+            ggplot2::theme(plot.title=ggplot2::element_text(hjust=0, size = 7), 
+                           axis.ticks=ggplot2::element_blank(), axis.title.x = ggplot2::element_text(margin = ggplot2::margin(t = -2), size = 7), axis.title.y = ggplot2::element_text(margin = ggplot2::margin(r = -6), size = 7), axis.text = ggplot2::element_blank(), legend.key.width=grid::unit(0.2, "cm"), legend.title=ggplot2::element_blank(), legend.key.height = grid::unit(0.6, "cm"), legend.text = ggplot2::element_text(size=6), legend.position = c(1.10, 0.52), 
                            plot.margin = grid::unit(c(5.5,30.5,5.5,5.5), "points"))
           
-          print(gg, vp = define_region((2*d1-1):(2*d1), d1))
+          print(gg, vp = define_region(d1, d1))
         } else{
           if(d2 > d1){
             data1 <- Re(P[d1,d2,,])
@@ -340,14 +147,15 @@ plotspec2D <- function(P, lim = T, Log = F){
             longdata1$Var2 <- rep(seq(from=pi/y_n,to=pi,len=y_n), each=x_n)
             
             gg1 <- ggplot2::ggplot(longdata1, ggplot2::aes(x = longdata1$Var1, y = longdata1$Var2, fill = longdata1$value)) +
-              ggplot2::geom_tile() +
-              viridis::scale_fill_viridis(name = "", limits = (if(lim) ylim else NULL)) +
-              ggplot2::labs(x = "Time (t)", y = expression(paste("Freq. (", omega, ")", sep = "")), title = paste0("Real cross. (", d1, ",", d2, ")")) +
+              ggplot2::geom_raster() +
+                     viridis::scale_fill_viridis(name = "", limits = (if(lim) ylim else NULL)) +
+              ggplot2::labs(x = "Time (t)", y = expression(paste("Freq. (", omega, ")", sep = "")), title = paste0("Real cross-spec. (", d1, ",", d2, ")")) +
               ggthemes::theme_tufte(base_family="sans") +
-              ggplot2::theme(plot.title=ggplot2::element_text(hjust=0, size = 10), axis.ticks=ggplot2::element_blank(), axis.title.x = ggplot2::element_text(margin = ggplot2::margin(t = -2)), legend.position = "none",
-                             axis.title.y = ggplot2::element_text(margin = ggplot2::margin(r = -6)), axis.text=ggplot2::element_blank())
+              ggplot2::theme(plot.title=ggplot2::element_text(hjust=0, size = 7), 
+                             axis.ticks=ggplot2::element_blank(), axis.title.x = ggplot2::element_text(margin = ggplot2::margin(t = -2), size = 7), axis.title.y = ggplot2::element_text(margin = ggplot2::margin(r = -6), size = 7), axis.text = ggplot2::element_blank(), legend.key.width=grid::unit(0.2, "cm"), legend.title=ggplot2::element_blank(), legend.key.height = grid::unit(0.6, "cm"), legend.text = ggplot2::element_text(size=6), legend.position = c(1.1, 0.52), 
+                             plot.margin = grid::unit(c(5.5,30.5,5.5,5.5), "points"))
             
-            print(gg1, vp = define_region(2*(d1-1)+1,d2))
+            print(gg1, vp = define_region(d1,d2))
             
             data2 <- Im(P[d1,d2,,])
             longdata2 <- reshape2::melt(data2)
@@ -355,15 +163,15 @@ plotspec2D <- function(P, lim = T, Log = F){
             longdata2$Var2 <- rep(seq(from=pi/y_n,to=pi,len=y_n), each=x_n)
             
             gg2 <- ggplot2::ggplot(longdata2, ggplot2::aes(x = longdata2$Var1, y = longdata2$Var2, fill = longdata2$value)) +
-              ggplot2::geom_tile() +
+              ggplot2::geom_raster() +
               viridis::scale_fill_viridis(name = "", limits = (if(lim) ylim else NULL)) +
-              ggplot2::labs(x = "Time (t)", y = expression(paste("Freq. (", omega, ")", sep = "")), title = paste0("Imag. cross. (", d1, ",", d2, ")")) +
+              ggplot2::labs(x = "Time (t)", y = expression(paste("Freq. (", omega, ")", sep = "")), title = paste0("Imag. cross-spec. (", d1, ",", d2, ")")) +
               ggthemes::theme_tufte(base_family="sans") +
-              ggplot2::theme(plot.title=ggplot2::element_text(hjust=0, size = 10), legend.position = "none",
-                             axis.ticks=ggplot2::element_blank(), axis.title.x = ggplot2::element_text(margin = ggplot2::margin(t = -2)),
-                             axis.title.y = ggplot2::element_text(margin = ggplot2::margin(r = -6)), axis.text=ggplot2::element_blank())
+              ggplot2::theme(plot.title=ggplot2::element_text(hjust=0, size = 7), 
+                             axis.ticks=ggplot2::element_blank(), axis.title.x = ggplot2::element_text(margin = ggplot2::margin(t = -2), size = 7), axis.title.y = ggplot2::element_text(margin = ggplot2::margin(r = -6), size = 7), axis.text = ggplot2::element_blank(), legend.key.width=grid::unit(0.2, "cm"), legend.title=ggplot2::element_blank(), legend.key.height = grid::unit(0.6, "cm"), legend.text = ggplot2::element_text(size=6), legend.position = c(1.1, 0.52), 
+                             plot.margin = grid::unit(c(5.5,30.5,5.5,5.5), "points"))
             
-            print(gg2, vp = define_region(2*d1,d2))
+            print(gg2, vp = define_region(d2,d1))
           }
         }
       }
@@ -371,74 +179,224 @@ plotspec2D <- function(P, lim = T, Log = F){
   }
 }
 
-invisible(plotspec2D(example$f, lim = T, Log = T))
 ```
 
-```{r, echo = F, out.width='75%', fig.width = 8, fig.height = 6, dpi=100, fig.align = "center", fig.cap = "Figure 4: Matrix-log's of pseudo-periodogram matrix"}
-invisible(plotspec2D(example$per, lim = T, Log = T))
-```
+## Standard nonparametric Fourier spectral matrix estimation
 
-### Wavelet-denoised time-varying spectral estimator with `pdSpecEst2D()`
+In multivariate time series analysis, the second-order behavior of a multivariate time series is studied by means of the autocovariance matrices in the time domain, or the Fourier spectral density matrix in the frequency domain. A nondegenerate Fourier spectrum is necessarily a curve (or surface) of Hermitian positive definite (HPD) matrices, and one generally constrains a spectral estimator to preserve this property. This in order to ensure interpretability of the estimator as a covariance or spectral density matrix, but also to avoid computational issues in e.g., simulation or bootstrapping.
 
-`pdSpecEst2D()` computes the HPD wavelet-denoised spectral matrix estimator by:
-(i) applying the intrinsic 2D AI wavelet transform (`WavTransf2D`) to an initial noisy HPD spectral estimate, (ii) (tree-structured) thresholding of the wavelet coefficients (`pdCART`) and (iii) applying the intrinsic inverse 1D AI wavelet transform (`InvWavTransf2D`). By default the marginal refinement orders of the forward and inverse 2D wavelet transform are `order = c(3, 3)` and the space of HPD matrices is equipped with the invariant Riemannian metric `metric = 'Riemannian'`, but this can also be one of: `'logEuclidean'`, `'Cholesky'` `'rootEuclidean'` or `'Euclidean'`. 
+The package `pdSpecEst` contains several useful functions to generate vector-valued time series observations and perform standard nonparametric Fourier spectral matrix estimation. First, the function `rExamples1D()` generates stationary vector-valued time series observations based on a Cramér representation in terms of the transfer function of several example target spectral matrices ([@B81]). The orthogonal increment process is generated by means of independent complex normal random variates. Another function that can be used to generate stationary vector-valued time series observations is `rARMA()`, which generates observations from a vARMA (vector autoregressive-moving-average) process.
 
 ```{r}
-f.hat <- pdSpecEst2D(example$per, order = c(1, 1), progress = F)
-str(f.hat)
+library(pdSpecEst)
+## Generate 3-dim. time series with 'bumps' spectrum
+set.seed(123)
+n <- 2^10
+bumps <- rExamples1D(n, example = "bumps", return.ts = T, noise = "periodogram")
+str(bumps, digits.d = 1)
 ```
 
-#### Nonlinear tree-structured wavelet thresholding
+If we set `return.ts = T`, the function `rExamples1D()` outputs a list with three components: (i) the $(d \times d)$-dimensional target HPD spectral matrix f; (ii) a multitaper HPD periodogram of the generated time series, by default calculated with $B = d$ DPSS (discrete prolate spheroidal sequence) taper functions; and (iii) the generated time series observations, with the $d$ columns corresponding to the components of the time series. Figure 1 displays the true generating spectrum and a noisy multitaper HPD spectral estimator, with $B = 3$ DPSS tapers and time-bandwidth parameter $n_w = 3$, based on a generated time series of length $T = 1024$. In general, to compute a raw or smoothed periodogram of a stationary vector-valued time series, one can use the function `pdPgram()`. By specifying the argument $B$, the function directly computes a multitaper spectral estimator, by default using DPSS tapering functions, with time-bandwidth parameter $n_w = 3$.
 
-The noise is removed by nonlinear tree-structured thresholding of the wavelet coefficients based on the trace of the whitened coefficients in the same way as in `pdSpecEst1D()` outlined above. For thresholding of 2D wavelet coefficients on a non-square time-frequency grid, there is a discrepancy between the constant noise variance of the traces of the whitened coefficients of the first $|J_1 - J_2|$ scales and the remaining scales, where $J_1 = \log_2(n_1)$ and $J_2 = \log_2(n_2)$ with $n_1$ and $n_2$ the (dyadic) number of observations in each marginal direction of the 2D rectangular time-frequency grid. The reason is that the variances of the traces of the whitened coefficients are not homogeneous between: (i) scales at which the 1D wavelet refinement scheme is applied and (ii) scales at which the 2D wavelet refinement scheme is applied. To correct for this discrepancy, the variances of the coefficients at the 2D wavelet scales are normalized by the noise variance determined from the finest wavelet scale. The variances of the coefficients at the 1D wavelet scales are normalized using the theoretic noise variance of the traces of the whitened coefficients for a grid of complex random Wishart matrices, which corresponds to the distributional behavior of the pseudo HPD periodogram matrices, or the asymptotic distributional behavior of the actual HPD periodogram matrices. Note that if the 2D time-frequency grid of is a square grid, i.e. $n_1 = n_2$, the variances of the traces of the whitened coefficients are again homogeneous across all wavelet scales.
+```{r}
+## Multitaper spectral estimator with `pdPgram`
+f.hat <- pdPgram(bumps$ts, B = 75); str(f.hat, digits.d = 1)
+```
 
-#### Linear wavelet thresholding
-
-Analogous to the function `pdSpecEst1D()`, linear thresholding of wavelet scales is performed by setting the argument `alpha = 0` (i.e. no nonlinear thresholding) and the argument `jmax` to the maximum wavelet scale we wish to keep in the intrinsic inverse 2D AI wavelet transform. 
-
-#### Estimation result
-
-The figure below shows the estimated time-varying spectral matrix obtained from `f.hat$f` at the time-frequency grid `examples$tf.grid`. The spectral estimator is able to capture both the smooth parts and the non-smooth edges in the spectrum, while guaranteeing positive definiteness of the estimator as in the stationary case. <br>
 <br>
 
-```{r, echo = F, out.width='75%', fig.width = 8, fig.height = 6, dpi=100, fig.align = "center", fig.cap = "Figure 5: Matrix-log's of estimated time-varying spectrum"}
-invisible(plotspec2D(f.hat$f, lim = T, Log = T))
+```{r, echo = F, fig.width=0.7*a4width, fig.height=0.38*a4height, fig.cap ="Figure 1: Generating HPD spectral matrix `bumps$f` in black and noisy mulitaper HPD periodogram `bumps$P` in red. The diagonal components have zero imaginary part and the missing off-diagonal components are uniquely determined by complex conjugation of the displayed off-diagonal components."}
+grid <- as.matrix(unname(expand.grid(1:3, 1:3)))
+par(mfrow=c(3, 3), mar = c(3.5,1,1.5,1))
+invisible(apply(grid, 1, function(i) plotspec(i, data = bumps$f, data1 = bumps$P)))
 ```
 
-## Stationary (1D) and nonstationary (2D) spectral matrix clustering
+<br>
 
-The intrinsic 1D or 2D AI wavelet transforms `WavTransf1D()` and `WavTransf2D()` can also be used for fast clustering of multivariate (time-varying) spectral matrices based on their sparse representations in the intrinsic manifold wavelet domain. To be precise, in the intrinsic manifold wavelet domain we combine both: (i) denoising by thresholding wavelet coefficients, and (ii) clustering of spectral matrices based on sparse representations (i.e. the non-zero wavelet coefficients). Such an approach allows for significant reduction of the computational effort of clustering estimated spectral matrices in comparison to a more naive approach, where we first compute individual spectral estimates and subsequently execute a clustering procedure based on integrated distances between spectral estimates in the frequency domain. 
+Figure 2 displays the multitaper HPD spectral estimator based on the same generated time series of length $T = 1024$ using $B = 75$ DPSS tapers and time-bandwidth parameter $n_w = 3$. Observe that a standard multitaper spectral estimator has difficulties adapting to the varying degrees of smoothness in the target spectrum as the estimation procedure is based on a single global smoothness parameter $B$, i.e., the number of tapers.<br><br>
 
-### Wavelet-based spectral matrix clustering with `pdSpecClust1D()` and `pdSpecClust2D()`
+```{r, echo = F, fig.width=0.7*a4width, fig.height=0.38*a4height, fig.cap = "Figure 2: Generating HPD spectral matrix `bumps$f` in black and mulitaper HPD spectral estimator `f.hat$P` in red. The diagonal components have zero imaginary part and the missing off-diagonal components are uniquely determined by complex conjugation of the displayed off-diagonal components."}
+grid <- as.matrix(unname(expand.grid(1:3, 1:3)))
+par(mfrow=c(3, 3), mar = c(3.5,1,1.5,1))
+invisible(apply(grid, 1, function(i) plotspec(i, data = bumps$f, data1 = f.hat$P, est = T)))
+```
 
-`pdSpecClust1D()` and `pdSpecClust2D()` perform clustering of multivariate spectral matrices (resp. time-varying spectral matrices) via a two-step fuzzy clustering algorithm.
-Given initial noisy HPD spectral matrix estimates (e.g. multitaper HPD periodograms obtained with `pdPgram()`, resp. `pdPgram2D()`) for $S$ different subjects. For each subject $s = 1,\ldots,S$, thresholded wavelet coefficients in the intrinsic manifold wavelet domain are calculated internally using `pdSpecEst1D()`, resp. `pdSpecEst2D()` as described above. The $S$ subjects are assigned to $K$ different clusters in a probabilistic fashion according to a two-step procedure:
+## More flexible spectral matrix estimation
 
-1. In a first step, an intrinsic fuzzy c-medoids algorithm, with fuziness parameter $m$ is applied to the subject-specific coarsest midpoints at scale $j = 0$, relying on the metric that the space of HPD matrices gets equipped with.
-2. In a second step, a weighted fuzzy c-means algorithm based on the Euclidean distance (between Hermitian matrices), also with fuzziness parameter $m$, is applied to the subject-specific non-zero thresholded whitened wavelet coefficients. Here, the Euclidean distance function is an appropriate distance measure between the whitened wavelet coefficients as they are elements of the real vector space of Hermitian matrices.
+Although standard nonparametric spectral estimation methods, such as multitapering, are suitable to estimate smooth Fourier spectra with globally smooth component curves across frequency
+in each individual matrix component, they are not able to capture localized features, such
+as local peaks in the spectral matrix at certain frequencies or frequency bands, or varying
+degrees of smoothness across components of the spectral matrix. [@CvS17] develops intrinsic wavelet transforms for curves or surfaces in the space of HPD matrices, with applications to denoising, dimension reduction or compression, and more. The intrinsic wavelet transforms are computationally fast and denoising through nonlinear wavelet shrinkage captures localized features, such as peaks or throughs, in the matrix-valued curves or surfaces, always guaranteeing an estimate in the space of HPD matrices. Moreover, and in contrast to existing approaches, wavelet-based spectral estimation in the space of HPD matrices equipped with a specific invariant Riemannian metric is *equivariant* under a change or basis (i.e., change of coordinate system) of the given time series. For more details, see [@CvS17] or [@C18].
 
-The maximum scale taken into account in the clustering procedure is set to the minimum of the argument `jmax` and the wavelet scale $j$ for which the proportion of nonzero thresholded wavelet coefficients (averaged across subjects) is smaller than the argument `d.jmax`.
+## Wavelet-based spectral matrix estimation with `pdSpecEst1D()`
 
-#### Example of 1D spectral matrix clustering
-
-Below we simulate stationary two-dimensional time series data for ten different subjects from two slightly different vARMA(2,2) (vector-ARMA) processes. Here, the first group of five subjects shares the same spectrum and the second group of five subjects share a slightly different spectrum. We use `pdSpecClust1D()` to assign the different subjects to $K=2$ clusters in a probabilistic fashion. Note that the true clusters are formed by the first group of five subjects and the last group of five subjects. 
+In this section, we demonstrate how to use the `pdSpecEst` package to denoise curves of HPD
+matrices corrupted by noise via linear or nonlinear thresholding of the intrinsic wavelet
+coefficients. In particular, we consider the application to spectral matrix estimation of sta-
+tionary time series through wavelet-based denoising of HPD periodogram matrices. Consider again the generated time series `bumps$ts` with generating spectral matrix `bumps$f` and noisy HPD periodogram matrix `bumps$P` as displayed in Figure 1. The function `WavTransf1D()` transforms the generating spectral matrix or the noisy HPD periodograms (i.e., curves of HPD matrices) to the intrinsic AI (average-interpolation) wavelet domain.
 
 ```{r}
-## Fix parameters
-set.seed(123)
+## Forward intrinsic AI wavelet transform
+wt.f <- WavTransf1D(bumps$f, periodic = T)
+wt.per <- WavTransf1D(bumps$P, periodic = T)
+```
+
+By default, the order of the intrinsic AI subdivision scheme is `order = 5`, and the space of HPD matrices is equipped with: 1. the affine-invariant Riemannian metric as detailed in e.g., [@B09][Chapter 6] or [@PFA05], i.e., `metric = "Riemannian"`. Instead, the metric can also be specified to be:
+
+2. the log-Euclidean metric, the Euclidean inner product between matrix logarithms (`metric = "logEuclidean"`);
+3. the Cholesky metric, the Euclidean inner product between Cholesky decompositions (`metric = "Cholesky"`);
+4. the Euclidean metric (`metric = "Euclidean"`);
+5. the root-Euclidean metric, the Euclidean inner product between Hermitian matrix square roots (`metric = "rootEuclidean"`).
+
+The default choice of metric (affine-invariant Riemannian) satisfies several useful properties not shared by the other metrics, see [@CvS17] or [@C18] for more details. Note that this comes at the cost of increased computation time in comparison to one of the other metrics, (due to the frequent use of matrix square roots, logarithms and exponentials). If the average-interpolation order satisfies `order <= 9`, the predicted midpoints in the intrinsic AI subdivision scheme are calculated efficiently by a weighted intrinsic average with pre-determined filter weights. If `order > 9`, the midpoint prediction is computationally more expensive as it relies on intrinsic polynomial interpolation via Neville’s algorithm with the function `pdNeville()`.
+
+In Figures 3 and 4 below, we plot the Frobenius norms of the matrix-valued whitened AI wavelet
+coefficients of the true spectral matrix `bumps$f` and the noisy HPD periodograms `bumps$P` across scales $1 \leq j \leq J$ and locations $0 \leq k \leq 2^{j-1} - 1$, with maximum wavelet scale $J= \log_2(n) = 10$.<br><br>
+
+```{r, echo = F, fig.width=0.8*a4width, fig.height=0.23*a4height, fig.cap = "Figure 3: Frobenius norms of the whitened AI wavelet coefficients of the generating spectral matrix `bumps$f` based on an intrinsic AI wavelet transform of order $N = 5$, under the default affine-invariant metric, obtained with `WavTransf1D()`."}
+plotCoeff(wt.f$D.white, title = "Frobenius norm of target (whitened) AI wavelet coefficients", bias = 1.5)
+```
+
+<br>
+
+```{r, echo = F, fig.width=0.8*a4width, fig.height=0.23*a4height, fig.cap = "Figure 4: Frobenius norms of the whitened AI wavelet coefficients of the noisy HPD periodogram `bumps$P` based on an intrinsic AI wavelet transform of order $N = 5$, under the default affine-invariant metric, obtained with `WavTransf1D()`."}
+plotCoeff(wt.per$D.white, title = "Frobenius norm of noisy periodogram (whitened) AI wavelet coefficients", bias = 1.5)
+```
+
+<br>
+
+Given as input the curve of noisy HPD periodograms `bumps$P`, the function `pdSpecEst1D()` computes a HPD wavelet-denoised spectral matrix estimator by applying the following steps:
+
+1. Application of a forward intrinsic AI wavelet transform, with `WavTransf1D()`,
+2. (Tree-structured) thresholding of the wavelet coefficients, with `pdCART()`,
+3. Application of an inverse intrinsic AI wavelet transform, with `InvWavTransf1D()`.
+
+The complete estimation procedure is described in more detail in [@CvS17] or Chapter 3 of [@C18]. By default, the function applies the intrinsic wavelet transform based on the affine-invariant Riemannian metric, and corresponding (asymptotic) bias-correction as in Chapter 3 of [@C18].
+
+```{r}
+f.hat <- pdSpecEst1D(bumps$P, return.D = "D.white"); str(f.hat, max.level = 1)
+```
+
+The function outputs a list with several components, among which the most important are the denoised HPD matrix curve `f`, and the pyramid of thresholded wavelet coefficients `D`. See the complete package documentation for additional information on the functions used in the intermediate steps and more details on the specifics of the function `pdSpecEst1D()`.
+
+### Nonlinear tree-structured wavelet thresholding
+
+By default, the noise is removed by tree-structured thresholding of the wavelet coefficients based on the trace of the whitened coefficients through minimization of a *complexity penalized residual sum of squares* (CPRESS) criterion via the fast tree-pruning algorithm in [@D97]. The penalty or sparsity parameter in the optimization procedure is set equal to `alpha` times the universal threshold, where the noise standard deviation (homogeneous across scales for independent Wishart matrices) of the traces of the whitened wavelet coefficients is determined via the median absolute deviation (MAD) of the coefficients at the finest wavelet scale.
+
+### Linear wavelet thresholding
+
+It is also possible to perform linear thresholding of wavelet scales using `pdSpecEst1D()` by setting the argument `alpha = 0`, (i.e., no nonlinear thresholding), and the argument `jmax` to the maximum wavelet scale we wish to keep in the intrinsic inverse AI wavelet transform. For instance, if `jmax = 5`, the wavelet coefficients at scales $j$ with $j \leq 5$ remain untouched, but all wavelet coefficients at scales $j > 5$ will be set to zero. By default, the function `pdSpecEst1D()` sets the maximum nonzero wavelet scale \texttt{jmax} to $J-2$, two scales below the finest wavelet scale $J$.
+
+### Estimation results
+
+In Figure 5, we displaye the Frobenius norms of the Hermitian matrix-valued whitened AI wavelet coefficients of the denoised HPD spectral matrix estimator across scale-locations $(j, k)$, and in Figure 6, we plot the wavelet-denoised HPD spectral estimator obtained from `f.hat$f` together with the generating spectral matrix `bumps$f` in the same fashion as in Figure 2 above. The spectral matrix estimator captures both the smooth spectral matrix behavior in the second half of the frequency domain and the localized peaks in the low-frequency range, while always guaranteeing positive definiteness of the estimator.<br><br>
+
+```{r, echo = F, fig.width=0.8*a4width, fig.height=0.23*a4height, fig.cap = "Figure 5: Frobenius norms of the nonlinear (tree-structured) thresholded whitened AI wavelet coefficients of the noisy HPD periodograms based on an intrinsic AI wavelet transform of order $N = 5$, under the default affine-invariant metric."}
+plotCoeff(f.hat$D.white, title = "Frobenius norm of denoised (whitened) AI wavelet coefficients", bias = 1.5)
+```
+
+<br>
+
+```{r, echo = F, fig.width=0.75*a4width, fig.height=0.4*a4height, fig.cap = "Figure 6: Generating spectrum `bumps$f` in black and wavelet-smoothed HPD spectral estimator `f.hat$f` in red. The diagonal components have zero imaginary part and the missing off-diagonal components are uniquely determined by complex conjugation of the displayed off-diagonal components."}
+grid <- as.matrix(unname(expand.grid(1:3, 1:3)))
+par(mfrow=c(3, 3), mar = c(3.5,1,1.5,1))
+invisible(apply(grid, 1, function(i) plotspec(i, data = bumps$f, data1 = f.hat$f, est = T)))
+```
+
+### Wavelet-based spectral matrix clustering with `pdSpecClust1D()`
+
+The intrinsic AI wavelet transforms can also be used for fast clustering of multivariate spectral matrices based on their sparse representations in the wavelet domain. The function `pdSpecClust1D()` performs clustering of HPD spectral matrices corrupted by noise (e.g., multitaper HPD periodograms) by combining wavelet thresholding and fuzzy clustering in the intrinsic wavelet coefficient domain. In particular, the HPD spectral matrices are assigned to a number different clusters in a probabilistic fashion according to the following steps:
+
+1. Transform a collection of noisy HPD spectral matrices to the intrinsic wavelet domain and denoise the HPD matrix curves by (tree-structured) thresholding of wavelet coefficients with `pdSpecEst1D()`.
+2. Apply an intrinsic fuzzy c-means algorithm to the coarsest midpoints at scale `j = 0` across subjects, see e.g., [@BE81]. Note that the distance function in the intrinsic c-means algorithm relies on the chosen metric on the space of HPD matrices.
+3. Taking into account the fuzzy cluster assignments in the previous step, apply a weighted fuzzy c-means algorithm, based on the Euclidean distance function, to the nonzero thresholded wavelet coefficients across subjects from scale `j = 1` up to `j = jmax`. The tuning parameter `tau` controls the weight given to the cluster assignments obtained in the first step of the clustering algorithm.
+
+#### Example of HPD spectral matrix clustering
+
+As an illustrating example, we simulate stationary two-dimensional time series data for ten different subjects from two vARMA(2,2) (vector-autoregressive-moving-average) processes with slightly different coefficient matrices, and thus non-equal spectral matrices, using the function `rARMA()`. Here, the first group of five subjects is simulated from a first vARMA-process and the second group of five subjects is simulated from a second slightly different vARMA-process. We use `pdSpecClust1D()` to assign the different subjects to `K = 2` clusters in a probabilistic fashion. Note that the true clusters are formed by the first group of five subjects and the last group of five subjects.
+
+```{r}
+## Fix parameter matrices
 Phi1 <- array(c(0.5, 0, 0, 0.6, rep(0, 4)), dim = c(2, 2, 2))
 Phi2 <- array(c(0.7, 0, 0, 0.4, rep(0, 4)), dim = c(2, 2, 2))
 Theta <- array(c(0.5, -0.7, 0.6, 0.8, rep(0, 4)), dim = c(2, 2, 2))
 Sigma <- matrix(c(1, 0.71, 0.71, 2), nrow = 2)
 
-## Generate periodogram data for 10 subjects
-pgram <- function(Phi) pdPgram(rARMA(2^10, 2, Phi, Theta, Sigma)$X)$P
-P <- array(c(replicate(5, pgram(Phi1)), replicate(5, pgram(Phi2))), dim=c(2,2,2^9,10))
+## Generate periodogram data for 10 subjects in 2 groups
+pgram <- function(Phi) pdPgram(rARMA(2^9, 2, Phi, Theta, Sigma)$X)$P
+P <- array(c(replicate(5, pgram(Phi1)), replicate(5, pgram(Phi2))), dim=c(2,2,2^8,10))
 
-pdSpecClust1D(P, K = 2, metric = "logEuclidean")$cl.prob
+pdSpecClust1D(P, K = 2)$cl.prob
 ```
 
-To conclude, we note again that an interactive demo Shiny app to test and tune the different estimation procedures detailed in this vignette is available at [https://jchau.shinyapps.io/pdSpecEst/](https://jchau.shinyapps.io/pdSpecEst/). 
+## Wavelet-based time-varying spectral matrix estimation with `pdSpecEst2D()`
+
+Instead of denoising curves of HPD matrices, the `pdSpecEst` package can also be used to denoise
+surfaces of HPD matrices corrupted by noise. This is done through linear or nonlinear shrinkage of
+wavelet coefficients obtained by means of an intrinsic 2D AI wavelet transform as explained in Chapter 5 of [@C18]. In particular, we focus on denoising of HPD surfaces of random Wishart matrices, with in mind the application to time-varying spectral matrix estimation based on wavelet denoising of time-varying periodogram matrices.
+
+The primary tool to perform intrinsic wavelet denoising of noisy surfaces of HPD matrices is the function `pdSpecEst2D()`. The functions below are highly similar to the previously demonstrated functions, where the suffix -`1D` in the context of curves of HPD matrices is replaced by the suffix -`2D` in the context of surfaces of HPD matrices.
+
+### Simulate noisy HPD surfaces with `rExamples2D()`
+
+First, to generate a noisy surface of size $n_1 \times n_2$ in the space of $(d \times d)$-dimensional HPD matrices $\mathbb{P}_{d \times d}$, we use the function `rExamples2D()`, with the argument `noise = 'wishart'`, which generates HPD matrix observations from a discretized intrinsic signal plus i.i.d. noise model with respect to the Riemannian metric:
+$$ P_{ij} = f_{ij}^{1/2} E_{ij} f_{ij}^{1/2} \in \mathbb{P}_{d \times d}, \quad 1 \leq i \leq n_1, 1 \leq i \leq n_2,$$
+with target surface $(f_{ij})_{ij} \in \mathbb{P}_{d \times d}$ and noise $(E_{ij})_{ij} \in \mathbb{P}_{d \times d}$ generated from a complex Wishart distribution $W_d^C(B, \text{Id}/B)$, with $B$ degrees of freedom and Euclidean mean equal to the $(d \times d)$-dimensional identity matrix $\text{Id}$, such that the Euclidean mean of $P_{ij}$ equals $f_{ij}$. Informally, such random matrix behavior corresponds to the asymptotic behavior of localized or segmented HPD periodogram observations (e.g., obtained with `pdPgram2D()`) of a locally stationary time series, with generating time-varying spectral matrix equal to the target surface $(f_{ij})_{ij}$, see e.g., Example 5.4.1 in [@C18].
+
+```{r}
+## Generate noisy HPD surface
+set.seed(17)
+d <- 2; B <- 6; n <- c(2^7, 2^7)
+smiley <- rExamples2D(n, d, example = "smiley", noise = "wishart", df.wishart = B)
+str(smiley)
+```
+
+Figures 7 and 8 display the matrix-logarithms $\text{Log}(f_{ij}) \in \mathbb{H}_{d \times d}$ of the (true) HPD target surface and the matrix-logarithms of the generated HPD matrix observations $\text{Log}(P_{ij}) \in \mathbb{H}_{d \times d}$ corresponding to the target surface corrupted by Wishart noise, where $\mathbb{H}_{d \times d}$ denotes the space of $(d \times d)$-dimensional Hermitian matrices. <br><br>
+
+```{r, echo = F, fig.width=0.55*a4width, fig.height=0.3*a4height, fig.cap = "Figure 7: Matrix-logarithms of the target surface of HPD matrices `smiley$f` in time and frequency. The diagonal components have zero imaginary part and the missing off-diagonal matrix components are uniquely determined by complex conjugation of the displayed off-diagonal components."}
+ Pf <- smiley$f[,,as.integer(seq(from=1,to=n[1],len=64)), as.integer(seq(from=1,to=n[2],len=64))]
+ Pf <- pdSpecEst:::Ptransf2D_C(array(Pf, dim = c(d, d, n[1] * n[2])), F, F, "logEuclidean")
+ lim_val <- 1.25 * range(Re(Pf), Im(Pf))
+ invisible(plotspec2D(smiley$f, lim = T, lim.val = lim_val, Log = T))
+```
+
+<br>
+
+```{r, echo = F, fig.width=0.55*a4width, fig.height=0.3*a4height, fig.cap = "Figure 8: Matrix-logarithms of generated noisy surface of HPD matrices `smiley$P` in time and frequency. The diagonal components have zero imaginary part and the missing off-diagonal matrix components are uniquely determined by complex conjugation of the displayed off-diagonal components."}
+invisible(plotspec2D(smiley$P, lim = T, Log = T))
+```
+
+<br>
+
+The function `pdSpecEst2D()` computes a wavelet-denoised HPD surface estimator by applying the following steps to an initial noisy HPD surface (obtained with e.g., `pdPgram2D()`):
+
+1. Application of a forward intrinsic 2D AI wavelet transform, with `WavTransf2D()`,
+2. (Tree-structured) thresholding of the wavelet coefficients, with `pdCART()`,
+3. Application of an inverse intrinsic 2D AI wavelet transform, with `InvWavTransf2D()`.
+
+For more details on the functions used in the intermediate steps, we refer to the complete package documentation. Currently, the intrinsic forward and inverse 2D AI wavelet transforms act only on dyadic grids using a natural dyadic refinement pyramid as explained in Chapter 5 of [@C18]. By default, the marginal average-interpolation orders of the forward and inverse 2D wavelet transform are set to `order = c(3, 3)`, and the predicted midpoints in the 2D AI subdivision scheme are calculated efficiently by means of local intrinsic weighted averages using pre-determined filter weights. As in the 1D forward and inverse AI wavelet transforms above, by default, the intrinsic wavelet transform is computed with respect to the affine-invariant Riemannian metric, i.e., `metric = "Riemannian"`, but this can also be one of: `"logEuclidean"`, `"Cholesky"`, `"rootEuclidean"` or `"Euclidean"`. 
+
+```{r}
+f.hat <- pdSpecEst2D(smiley$P, order = c(1, 1), jmax = 6, B = B)
+str(f.hat, max.level = 1)
+```
+
+The function `pdSpecEst2D()` outputs a list with several components, among which the most important are the denoised HPD surface `f` at the given rectangular observation grid, and the pyramid of thresholded wavelet coefficients `D`. See the function documentation for more information about its specific arguments and outputs. 
+
+#### Nonlinear and linear wavelet thresholding
+
+By default, shrinkage of the wavelet coefficients in the function `pdSpecEst2D()` is carried out through nonlinear tree-structured thresholding of entire matrix-valued wavelet coefficients based on the trace of the whitened coefficients. This is done in the same way as before through minimization of a CPRESS criterion via a fast tree-pruning algorithm as in [@D97]. For thresholding of 2D wavelet coefficients on a non-square time-frequency grid, there is a discrepancy between the constant noise variance of the traces of the whitened coefficients at the first $|J_1 - J_2|$ coarse scales and the remaining finer scales, where $J_1 = \log_2(n_1)$ and $J_2 = \log_2(n_2)$ with $n_1$ and $n_2$ the (dyadic) number of observations in each marginal direction of the $(n_1 \times n_2)$-dimensional observation grid. To correct for this discrepancy, the variances are normalized to a unit noise variance across wavelet scales via the *semiparametric* method described in Chapter 5 of [@C18]. Note that if the observation grid is square, i.e., $n_1 = n_2$, the variances of the traces of the whitened coefficients are homogeneous across all wavelet scales as in the 1D context described above. The penalty parameter $\lambda$ in the CPRESS criterion is set equal to the universal threshold rescaled by a factor $\alpha$, i.e., $\lambda = \alpha \sqrt{2 \log(N)}$, where $N$ is the total number of pooled coefficients, and by default the rescaling factor $\alpha$ is equal to 1, (`alpha = 1`), such that $\lambda$ equals the universal threshold. 
+
+Analogous to the function `pdSpecEst1D()`, linear thresholding of wavelet scales is performed by specifying the argument `alpha = 0`, (i.e., zero nonlinear threshold), and setting the argument `jmax` to the maximum nonzero wavelet scale to be kept in the inverse wavelet transform. By default, the function `pdSpecEst2D()` sets the maximum nonzero wavelet scale `jmax` to $J-2$, two scales below the finest wavelet scale $J$. Figure 9 displays the matrix-logarithms of the nonlinear wavelet-thresholded HPD surface `f.hat$f` in the same fashion as plotted in Figures 7 and 8 above.<br><br>
+
+```{r, echo = F, fig.width=0.55*a4width, fig.height=0.3*a4height, fig.cap = "Figure 9: Matrix-logarithms of denoised surface of HPD matrices `f.hat$f` in time and frequency. The diagonal components have zero imaginary part and the missing off-diagonal matrix components are uniquely determined by complex conjugation of the displayed off-diagonal components."}
+invisible(plotspec2D(f.hat$f, lim = T, lim.val = lim_val, Log = T))
+```
+
+
+### Demo R-Shiny app
+
+A demo R-Shiny app for wavelet-based (time-varying) HPD spectral matrix estimation and clustering is available [here](https://jchau.shinyapps.io/pdSpecEst/). The app allows the user to test, tune and time the wavelet-based spectral matrix estimation or wavelet-based spectral matrix clustering procedures using simulated HPD matrix-valued data, such as (time-varying) HPD periodograms. The estimated spectral matrices and/or cluster assignments can be compared to the target spectral matrices and/or clusters, or with a benchmark multitaper spectral estimate in the case of wavelet-based spectral estimation for stationary time series.
 
 ## References
 

@@ -9,8 +9,8 @@ pdPolynomial(p0, v0, delta.t = 0.01, steps = 100)
 \arguments{
 \item{p0}{a \eqn{(d, d)}-dimensional HPD matrix specifying the starting point of the polynomial curve.}
 
-\item{v0}{a \eqn{(d, d, k)}-dimensional array corresponding to a sequence of covariant derivatives of
-order zero up to order \eqn{k - 1} at the starting point \code{p0}.}
+\item{v0}{a \eqn{(d, d, k)}-dimensional array corresponding to a sequence of \eqn{(d,d)}-dimensional Hermitian matrix-valued
+covariant derivatives from order zero up to order \eqn{k - 1} at the starting point \code{p0}.}
 
 \item{delta.t}{a numeric value determining the incrementing step size in the numerical integration procedure.
 A smaller step size results in a higher resolution and therefore a more accurate approximation of the polynomial curve,
@@ -19,15 +19,17 @@ defaults to \code{delta.t = 0.01}.}
 \item{steps}{number of incrementing steps in the numerical integration procedure, defaults to \code{steps = 100}.}
 }
 \value{
-A \code{(d, d, length(steps))}-dimensional array containing the approximated intrinsic polynomial
-curve of degree \eqn{k} passing through \code{p0} with the given covariant derivatives up to order
-\eqn{k - 1} and vanishing higher order covariant derivatives.
+A \code{(d, d, length(steps))}-dimensional array corresponding to a generated (approximate)
+intrinsic polynomial curve in the space of \eqn{(d,d)}-dimensional HPD matrices of degree \eqn{k}
+passing through \code{p0} with the given covariant derivatives \code{v0} up to order \eqn{k - 1}
+and vanishing higher order covariant derivatives.
 }
 \description{
-\code{pdPolynomial()} generates intrinsic polynomial curves on the manifold of HPD matrices
-equipped with the Riemannian metric according to the numerical integration procedure described in (Hinkle et al., 2014).
-Given an initial starting point \code{p0} (i.e. HPD matrix) on the Riemannian manifold and the covariant
-derivatives up to order \eqn{k - 1} at \code{p0}, \code{pdPolynomial()} approximates the uniquely existing
+\code{pdPolynomial} generates intrinsic polynomial curves in the manifold of HPD matrices
+equipped with the affine-invariant Riemannian metric (see \insertCite{B09}{pdSpecEst}[Chapter 6]
+or \insertCite{PFA05}{pdSpecEst}) according to the numerical integration procedure in \insertCite{HFJ14}{pdSpecEst}.
+Given an initial starting point \code{p0} (i.e., a HPD matrix) in the Riemannian manifold and covariant
+derivatives up to order \eqn{k - 1} at \code{p0}, \code{pdPolynomial} approximates the uniquely existing
 intrinsic polynomial curve of degree \eqn{k} passing through \code{p0} with the given covariant derivatives up
 to order \eqn{k - 1} and vanishing higher order covariant derivatives.
 }
@@ -38,16 +40,14 @@ v0 <- array(H.coeff(rnorm(9), inverse = TRUE), dim = c(3, 3, 1)) ## zero-th orde
 P.poly <- pdPolynomial(p0, v0)
 
 ## First-order polynomials coincide with geodesic curves
-geo <- function(A, B, t) Expm(A, t * Logm(A, B))
-P.geo <- sapply(seq(0, 1, length = 100), function(t) geo(p0, P.poly[, , 100], t),
-                simplify = "array")
+P.geo <- sapply(seq(0, 1, length = 100), function(t) Expm(p0, t * Logm(p0, P.poly[, , 100])),
+               simplify = "array")
 all.equal(P.poly, P.geo)
 
 }
 \references{
-Hinkle, J., Fletcher, P. and Joshi, S. (2014). Intrinsic polynomials for regression on Riemannian manifolds.
-\emph{Journal of Mathematical Imaging and Vision} 50, 32-52.
+\insertAllCited{}
 }
 \seealso{
-\code{\link{pdNeville}}
+\code{\link{pdNeville}}, \code{\link{pdParTrans}}
 }

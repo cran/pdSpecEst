@@ -7,25 +7,25 @@
 H.coeff(H, inverse = F)
 }
 \arguments{
-\item{H}{if \code{!isTRUE(inverse)}, a \eqn{(d,d)}-dimensional Hermitian matrix; if \code{isTRUE(inverse)}, a numeric
+\item{H}{if \code{inverse = F}, a \eqn{(d,d)}-dimensional Hermitian matrix; if \code{inverse = T}, a numeric
 vector of length \eqn{d^2} with \eqn{d} an integer.}
 
-\item{inverse}{a logical value that determines whether the forward basis transform (\code{inverse = FALSE}) or the inverse
-basis transform (\code{inverse = TRUE}) should be applied.}
+\item{inverse}{a logical value that determines whether the forward basis transform (\code{inverse = F}) or the inverse
+basis transform (\code{inverse = T}) should be applied.}
 }
 \value{
-If \code{inverse = FALSE} takes as input a \eqn{(d,d)}-dimensional Hermitian matrix and outputs a numeric
-vector of length \eqn{d^2} containing the real-valued basis coefficients. If \code{inverse = TRUE} takes as input a
+If \code{inverse = F} takes as input a \eqn{(d,d)}-dimensional Hermitian matrix and outputs a numeric
+vector of length \eqn{d^2} containing the real-valued basis coefficients. If \code{inverse = T} takes as input a
 \eqn{d^2}-dimensional numeric vector of basis coefficients and outputs the corresponding \eqn{(d,d)}-dimensional
 Hermitian matrix.
 }
 \description{
 \code{H.coeff} expands a \eqn{(d,d)}-dimensional Hermitian matrix \code{H}  with respect to
-an orthonormal (in terms of the Frobenius inner product) basis of the space of Hermitian matrices,
-i.e. it transforms \code{H} into a numeric vector of \eqn{d^2} real-valued basis coefficients.
-This is possible as the space of Hermitian matrices is a real vector space. Let \eqn{E_{nm}} be a
-\eqn{(d,d)}-dimensional zero matrix with a 1 at location \eqn{(n,m)}. The orthonormal basis contains
-the following matrix elements: let  \eqn{1 \le n \le d} and
+an orthonormal (in terms of the Frobenius inner product) basis of the space of Hermitian matrices.
+That is, \code{H.coeff} transforms \code{H} into a numeric vector of \eqn{d^2} real-valued basis coefficients,
+which is possible as the space of Hermitian matrices is a real vector space. Let \eqn{E_{nm}} be a
+\eqn{(d,d)}-dimensional zero matrix with a 1 at location \eqn{(1, 1) \leq (n,m) \leq (d,d)}.
+The orthonormal basis contains the following matrix elements; let  \eqn{1 \le n \le d} and
 \eqn{1 \le m \le d},
 \describe{
   \item{If \code{n == m}}{ the real matrix element \eqn{E_{nn}}}

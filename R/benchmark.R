@@ -1,53 +1,60 @@
 #' Cubic smoothing spline regression for HPD matrices
 #'
-#' \code{pdSplineReg()} performs cubic smoothing spline regression on the Riemannian manifold of
-#' HPD matrices equipped with the Riemannian metric through minimization of a penalized regression
-#' objective function using a geometric conjugate gradient descent method as outlined in (Boumal and Absil, 2011).
-#' In contrast to (Boumal and Absil, 2011), we set the term in the objective function based on the
-#' first-order finite geometric differences to zero, such that the solutions of the regression problem
-#' are approximating cubic splines.
+#' \code{pdSplineReg()} performs cubic smoothing spline regression in the space of HPD matrices equipped with the
+#' affine-invariant Riemannian metric through minimization of a penalized regression objective function using a
+#' geometric conjugate gradient descent method as outlined in \insertCite{BA11}{pdSpecEst} and \insertCite{BA11b}{pdSpecEst}.
+#' This is a specific implementation of the more general algorithm in \insertCite{BA11}{pdSpecEst} and \insertCite{BA11b}{pdSpecEst},
+#' setting the part in the objective function based on the first-order finite geometric differences to zero, such that the solutions
+#' of the regression problem are approximating cubic splines.
 #'
-#' @param P a \eqn{(d,d,n)}-dimensional array corresponding to a sequence of observed noisy HPD matrices.
-#' @param f0 a \eqn{(d,d,n)}-dimensional array corresponding to an initial HPD curve estimator of the smooth
-#' target curve of HPD matrices.
-#' @param lam a smoothness penalty parameter, defaults to \code{lam = 1}. If \code{lam = 0}, the penalized regression estimator
-#' coincides with geodesic interpolation of the data points. If \code{lam} increases to \eqn{\infty},
-#' the penalized regression estimator is approximately a fitted geodesic curve.
+#' @param P a \eqn{(d,d,n)}-dimensional array corresponding to a length \eqn{n} sequence of (\eqn{d, d})-dimensional
+#' noisy HPD matrices.
+#' @param f0 a \eqn{(d,d,n)}-dimensional array corresponding to an initial estimate of the smooth
+#' target curve of (\eqn{d, d})-dimensional HPD matrices.
+#' @param lam a smoothness penalty, defaults to \code{lam = 1}. If \code{lam = 0}, the penalized curve estimate
+#' coincides with geodesic interpolation of the data points with respect to the Riemannian metric.
+#' If \code{lam} increases to \eqn{\infty}, the penalized regression estimator is approximately a fitted geodesic curve.
 #' @param Nd a numeric value (\code{Nd <= n}) determining a lower resolution of the cubic spline regression estimator to speed up
-#' computations, defaults to the number of data observations \eqn{n}.
-#' @param ini.step initial candidate step size in a backtracking line search based on the Armijo-Goldstein
-#' condition, defaults to \code{ini.step = 1}.
-#' @param max.iter maximum number of gradient descent iterations, defaults to \code{max.iter = 100}.
-#' @param eps stopping criterion. The gradient descent procedure exits if the absolute difference of the
-#' of the evaluated objective function is smaller than \code{eps}, defaults to \code{eps = 1E-3}.
-#' @param ... additional arguments for internal usage.
+#' computation time, defaults to \eqn{n}.
+#' @param ini_step initial candidate step size in a backtracking line search based on the Armijo-Goldstein
+#' condition, defaults to \code{ini_step = 1}.
+#' @param max_iter maximum number of gradient descent iterations, defaults to \code{max_iter = 100}.
+#' @param eps optional tolerance parameter in gradient descent algorithm. The gradient descent procedure exits if the
+#' absolute difference between consecutive evaluations of the objective function is smaller than \code{eps},
+#' defaults to \code{eps = 1E-3}.
+#' @param ... additional arguments for internal use.
+#'
+#' @note This function does not check for positive definiteness of the matrices given as input, and may fail
+#' if matrices are close to being singular.
 #'
 #' @return A list with three components:
-#' \item{f }{a \eqn{(d, d, N_d)}-dimensional array containing the HPD cubic smoothing spline regression estimator.}
-#' \item{cost }{a numeric vector containing the costs of the objective function after each gradient descent iteration.}
-#' \item{total.iter }{total number of gradient descent iterations.}
+#' \item{f }{a \eqn{(d, d, N_d)}-dimensional array corresponding to a length \code{Nd} estimated cubic smoothing spline
+#' curve of (\eqn{d, d})-dimensional HPD matrices.}
+#' \item{cost }{a numeric vector containing the costs of the objective function at each gradient descent iteration.}
+#' \item{total_iter }{total number of gradient descent iterations.}
 #'
 #' @examples
+#' \dontrun{
 #' set.seed(2)
-#' P <- rExamples(100, example = 'gaussian')
-#' P.spline <- pdSplineReg(P$per, P$per, lam = 0.5, Nd = 25)
-#' ## Examine matrix-component (1,1)
-#' plot((1:50)/50, Re(P$per[1, 1, ]), type = "l", lty = 2) ## noisy observations
-#' lines((1:25)/25, Re(P.spline$f[1, 1, ])) ## penalized regression estimator
-#' lines((1:50)/50, Re(P$f[1, 1, ]), col = 2, lty = 2) ## smooth target
+#' P <- rExamples1D(50, example = 'gaussian', noise.level = 0.1)
+#' P.spline <- pdSplineReg(P$P, P$P, lam = 0.5, Nd = 25)
 #'
+#' ## Examine matrix-component (1,1)
+#' plot((1:50)/50, Re(P$P[1, 1, ]), type = "l", lty = 2) ## noisy observations
+#' lines((1:25)/25, Re(P.spline$f[1, 1, ])) ## estimate
+#' lines((1:50)/50, Re(P$f[1, 1, ]), col = 2, lty = 2) ## smooth target
+#' }
 #' @references
-#' Boumal, N. and Absil, P-A. (2011). A discrete regression method on manifolds and its applications
-#' to data on SO(n). \emph{IFAC Proceedings Volumes}, 44, 2284-2289.
+#' \insertAllCited{}
 #'
 #' @export
-pdSplineReg <- function(P, f0, lam = 1, Nd, ini.step = 1, max.iter = 100, eps = 1E-3, ...) {
+pdSplineReg <- function(P, f0, lam = 1, Nd, ini_step = 1, max_iter = 100, eps = 1E-3, ...) {
 
   ## Set variables
   dots = list(...)
   tau = (if(is.null(dots$tau)) 0.5 else dots$tau)
   sigma = (if(is.null(dots$sigma)) 0.5 else dots$sigma)
-  max.iter_a = (if(is.null(dots$max.iter_a)) 100 else dots$max.iter_a)
+  max_iter_a = (if(is.null(dots$max_iter_a)) 100 else dots$max_iter_a)
 
   d <- dim(P)[1]
   n <- dim(P)[3]
@@ -109,11 +116,11 @@ pdSplineReg <- function(P, f0, lam = 1, Nd, ini.step = 1, max.iter = 100, eps = 
 
   ## Backtrack line search to determine optimal step size
   backtrack <- function(p, gamma, E0){
-    alpha <- ini.step
+    alpha <- ini_step
     t <- mean(sapply(1:Nd, function(k) sigma * NormF(ast(iSqrt(gamma[, , k]), p[, , k]))^2))
     E1 <- NULL
     iter_a <- 0
-    while(isTRUE(iter_a < max.iter_a) & isTRUE(is.null(E1) | isTRUE((E0 - E1) < (alpha * t)))){
+    while(isTRUE(iter_a < max_iter_a) & isTRUE(is.null(E1) | isTRUE((E0 - E1) < (alpha * t)))){
       E1 <- tryCatch({ E(sapply(1:dim(p)[3], function(i) Expm(gamma[, , i], alpha * p[, , i]),
                                 simplify = "array")) }, error = function(e) return(NULL))
       alpha <- tau * alpha
@@ -129,10 +136,10 @@ pdSplineReg <- function(P, f0, lam = 1, Nd, ini.step = 1, max.iter = 100, eps = 
   iter <- 0
   cost_diff <- -1
 
-  while(isTRUE(abs(cost_diff) > eps) & isTRUE(cost_diff < 0) & isTRUE(iter < max.iter)){
+  while(isTRUE(abs(cost_diff) > eps) & isTRUE(cost_diff < 0) & isTRUE(iter < max_iter)){
     alpha <- backtrack(p, gamma_0, tail(cost, 1))
-    if(alpha[2] == max.iter_a){
-      message("Backtracking line search not converging, increase 'max.iter_a' or choose smaller 'ini.step'")
+    if(alpha[2] == max_iter_a){
+      message("Backtracking line search not converging, increase 'max_iter_a' or choose smaller 'ini_step'")
       break
     }
     gamma_1 <- sapply(1:Nd, function(k) Expm(gamma_0[, , k], alpha[1] * p[, , k]), simplify = "array")
@@ -143,23 +150,23 @@ pdSplineReg <- function(P, f0, lam = 1, Nd, ini.step = 1, max.iter = 100, eps = 
     cost_diff <- tail(cost, 1) - tail(cost, 2)[1]
     gamma_0 <- gamma_1
     iter <- iter + 1
-    if(iter == max.iter){
+    if(iter == max_iter){
       message("Reached maximum number of iterations in gradient descent")
     }
   }
 
-  return(list(f = gamma_0, cost = cost, total.iter = iter))
+  return(list(f = gamma_0, cost = cost, total_iter = iter))
 
 }
 
 #' Orthonormal basis expansion of a Hermitian matrix
 #'
 #' \code{H.coeff} expands a \eqn{(d,d)}-dimensional Hermitian matrix \code{H}  with respect to
-#' an orthonormal (in terms of the Frobenius inner product) basis of the space of Hermitian matrices,
-#' i.e. it transforms \code{H} into a numeric vector of \eqn{d^2} real-valued basis coefficients.
-#' This is possible as the space of Hermitian matrices is a real vector space. Let \eqn{E_{nm}} be a
-#' \eqn{(d,d)}-dimensional zero matrix with a 1 at location \eqn{(n,m)}. The orthonormal basis contains
-#' the following matrix elements: let  \eqn{1 \le n \le d} and
+#' an orthonormal (in terms of the Frobenius inner product) basis of the space of Hermitian matrices.
+#' That is, \code{H.coeff} transforms \code{H} into a numeric vector of \eqn{d^2} real-valued basis coefficients,
+#' which is possible as the space of Hermitian matrices is a real vector space. Let \eqn{E_{nm}} be a
+#' \eqn{(d,d)}-dimensional zero matrix with a 1 at location \eqn{(1, 1) \leq (n,m) \leq (d,d)}.
+#' The orthonormal basis contains the following matrix elements; let  \eqn{1 \le n \le d} and
 #' \eqn{1 \le m \le d},
 #' \describe{
 #'   \item{If \code{n == m}}{ the real matrix element \eqn{E_{nn}}}
@@ -169,13 +176,13 @@ pdSplineReg <- function(P, f0, lam = 1, Nd, ini.step = 1, max.iter = 100, eps = 
 #' The orthonormal basis coefficients are ordered by scanning through the matrix \code{H} in a row-by-row
 #' fashion.
 #'
-#' @param H if \code{!isTRUE(inverse)}, a \eqn{(d,d)}-dimensional Hermitian matrix; if \code{isTRUE(inverse)}, a numeric
+#' @param H if \code{inverse = F}, a \eqn{(d,d)}-dimensional Hermitian matrix; if \code{inverse = T}, a numeric
 #' vector of length \eqn{d^2} with \eqn{d} an integer.
-#' @param inverse a logical value that determines whether the forward basis transform (\code{inverse = FALSE}) or the inverse
-#' basis transform (\code{inverse = TRUE}) should be applied.
+#' @param inverse a logical value that determines whether the forward basis transform (\code{inverse = F}) or the inverse
+#' basis transform (\code{inverse = T}) should be applied.
 #'
-#' @return If \code{inverse = FALSE} takes as input a \eqn{(d,d)}-dimensional Hermitian matrix and outputs a numeric
-#' vector of length \eqn{d^2} containing the real-valued basis coefficients. If \code{inverse = TRUE} takes as input a
+#' @return If \code{inverse = F} takes as input a \eqn{(d,d)}-dimensional Hermitian matrix and outputs a numeric
+#' vector of length \eqn{d^2} containing the real-valued basis coefficients. If \code{inverse = T} takes as input a
 #' \eqn{d^2}-dimensional numeric vector of basis coefficients and outputs the corresponding \eqn{(d,d)}-dimensional
 #' Hermitian matrix.
 #'
@@ -192,7 +199,7 @@ pdSplineReg <- function(P, f0, lam = 1, Nd, ini.step = 1, max.iter = 100, eps = 
 #'
 #' @export
 H.coeff <- function(H, inverse = F){
-  if(!inverse){
+  if(!isTRUE(inverse)){
     if(!isTRUE(all.equal(t(Conj(H)), H))){
       stop("'H' should be an Hermitian matrix.")
     }
@@ -204,29 +211,6 @@ H.coeff <- function(H, inverse = F){
     HH <- E_coeff_inv(H)
   }
   return(HH)
-}
-
-## Iterative Cholesky with inverse bias-correction (Dai & Guo, 2004)
-Chol <- function(R, inverse = F, bias.corr = T){
-  d <- dim(R)[1]
-  S <- matrix(0, nrow = d, ncol = d)
-  if(!inverse){
-    S[1, 1] <- sqrt(R[1, 1])
-    for(k in 1:(d - 1)){
-      S[k + 1, 1:k] <- t(R[k + 1, 1:k]) %*% solve(t(Conj(S[1:k, 1:k])))
-      S[k + 1, k + 1] <- sqrt(R[k + 1, k + 1] - t(R[k + 1, 1:k]) %*% solve(R[1:k, 1:k]) %*% Conj(R[k + 1, 1:k]))
-    }
-  } else {
-    b <- (if(bias.corr) gamma(d - 1:d + 3/2) / (sqrt(d) * gamma(d - 1:d + 1)) else rep(1, d))
-    S[1, 1] <- R[1, 1]^2 / b[1]^2
-    for(k in 1:(d - 1)){
-      S[k + 1, 1:k] <- (t(R[k + 1, 1:k]) %*% solve(R[1:k, 1:k])) %*% S[1:k, 1:k]
-      S[1:k, k + 1] <- Conj(S[k + 1, 1:k])
-      S[k + 1, k + 1] <- R[k + 1, k + 1]^2 / b[k + 1]^2 + (t(S[k + 1, 1:k]) %*%
-                                                             solve(S[1:k, 1:k])) %*% Conj(S[k + 1, 1:k])
-    }
-  }
-  return(S)
 }
 
 ## Orthonormal basis expansion Cholesky matrix

@@ -7,18 +7,18 @@ test_that("Correctly working geometric tools", {
   p2 <- matrix(complex(real = rnorm(d^2), imaginary = rnorm(d^2)), nrow = d)
   P1 <- t(Conj(p1)) %*% p1
   P2 <- t(Conj(p2)) %*% p2
-  P_chol <- Chol(P1)
+  P_chol <- Chol_C(P1, F, F)
 
   expect_equal(Expm(P1, Logm(P1, P2)), P2)
   expect_equal(c(Sqrt(P1) %*% iSqrt(P1)), as.complex(diag(d)))
   expect_equal(H.coeff(H.coeff(P1), inverse = T), P1)
   expect_equal(T_coeff_inv(T_coeff(P1, P2), P2), P1)
-  expect_equal(Chol(P_chol, inverse = T, bias.corr = F), P1)
+  expect_equal(Chol_C(P_chol, F, T), P1)
   expect_equal(E_chol(E_chol(P_chol), inverse = T), P_chol)
 
   expect_equal(pdMean(array(c(P1, P2), dim = c(d, d, 2))), Mid(P1, P2))
   expect_type(pdDist(P1, P2), "double")
-  expect_type(pdDist(P1, P2, method = "logEuclidean"), "double")
+  expect_type(pdDist(P1, P2, metric = "logEuclidean"), "double")
 
 })
 
@@ -31,7 +31,7 @@ test_that("Correctly working data depth and rank-based tests", {
 
   ## Pointwise depth
   X1 <- replicate(10, Expm(mu, E_coeff_inv(rnorm(d^2))))
-  dd1 <- pdDepth(mu, X1, "zonoid")
+  dd1 <- pdDepth(y = mu, X = X1, method = "zonoid")
   dd2 <- pdDepth(mu, X1, "gdd")
   dd3 <- pdDepth(mu, X1, "spatial")
   dd4 <- pdDepth(X = X1, method = "zonoid")
@@ -78,20 +78,20 @@ test_that("Correctly working data depth and rank-based tests", {
   ibvn1 <- pdRankTests(X2, test = "bartels", depth = "spatial", metric = "logEuclidean")
 
   expect_true(is.list(rs) & (length(rs) == 5) & is.list(rs1) & (length(rs1) == 5))
-  expect_match(rs[[1]], "Manifold Wilcoxon rank-sum")
+  expect_match(rs[[1]], "Intrinsic Wilcoxon rank-sum")
   expect_match(rs[[4]], "Standard normal distribution")
   expect_true(is.list(irs) & (length(irs) == 5) & is.list(irs1) & (length(irs1) == 5))
-  expect_match(irs[[1]], "Manifold Wilcoxon rank-sum")
+  expect_match(irs[[1]], "Intrinsic Wilcoxon rank-sum")
   expect_match(irs[[4]], "Standard normal distribution")
   expect_true(is.list(kw) & (length(kw) == 5) & is.list(kw1) & (length(kw1) == 5))
   expect_true(is.list(ikw) & (length(ikw) == 5) & is.list(ikw1) & (length(ikw1) == 5))
   expect_true(is.list(sr) & (length(sr) == 4) & is.list(sr1) & (length(sr1) == 4))
   expect_match(sr[[4]], "Wilcoxon signed rank test")
   expect_true(is.list(bvn) & (length(bvn) == 5) & is.list(bvn1) & (length(bvn1) == 5))
-  expect_match(bvn[[1]], "Manifold Bartels-von Neumann")
+  expect_match(bvn[[1]], "Intrinsic Bartels-von Neumann")
   expect_match(bvn[[4]], "Standard normal distribution")
   expect_true(is.list(ibvn) & (length(ibvn) == 5) & is.list(ibvn1) & (length(ibvn1) == 5))
-  expect_match(ibvn[[1]], "Manifold Bartels-von Neumann")
+  expect_match(ibvn[[1]], "Intrinsic Bartels-von Neumann")
   expect_match(ibvn[[4]], "Standard normal distribution")
 
 })

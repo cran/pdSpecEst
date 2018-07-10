@@ -2,83 +2,91 @@
 % Please edit documentation in R/estimation.R
 \name{pdSpecEst1D}
 \alias{pdSpecEst1D}
-\title{Intrinsic 1D wavelet-based spectral matrix estimation}
+\title{Intrinsic wavelet HPD spectral estimation}
 \usage{
-pdSpecEst1D(P, order = 5, policy = "universal", metric = "Riemannian",
-  alpha = 1, return = "f", ...)
+pdSpecEst1D(P, order = 5, metric = "Riemannian", alpha = 1,
+  return_val = "f", ...)
 }
 \arguments{
-\item{P}{a (\eqn{d,d,m})-dimensional array of HPD matrices, with \eqn{m} a dyadic number.}
+\item{P}{a (\eqn{d,d,m})-dimensional array of HPD matrices, corresponding to a sequence of \eqn{(d,d)}-dimensional HPD matrices
+of length \eqn{m}, with \eqn{m = 2^J} for some \eqn{J > 0}.}
 
 \item{order}{an odd integer larger or equal to 1 corresponding to the order of the intrinsic AI refinement scheme,
 defaults to \code{order = 5}. Note that if \code{order > 9}, the computational cost
 significantly increases as the wavelet transform no longer uses a fast wavelet refinement scheme based
 on pre-determined weights.}
 
-\item{policy}{a character, one of \code{"universal"} or \code{"cv"}, defaults to \code{policy = "universal"}.}
-
 \item{metric}{the metric that the space of HPD matrices is equipped with. The default choice is \code{"Riemannian"},
 but this can also be one of: \code{"logEuclidean"}, \code{"Cholesky"}, \code{"rootEuclidean"} or
-\code{"Euclidean"}. The intrinsic AI wavelet transform fundamentally relies on the chosen metric.}
+\code{"Euclidean"}. See also the Details section below.}
 
-\item{alpha}{an optional tuning parameter in the wavelet the thresholding procedure. If \code{policy = "universal"},
-the sparsity parameter in the tree-structured wavelet thresholding procedure is set to \code{alpha} times the
-universal threshold, defaults to \code{alpha = 1}.}
+\item{alpha}{an optional tuning parameter in the wavelet thresholding procedure. The penalty (or sparsity)
+parameter in the tree-structured wavelet thresholding procedure in \code{\link{pdCART}} is set to \code{alpha}
+times the estimated universal threshold, defaults to \code{alpha = 1}.}
 
-\item{return}{an optional argument that specifies whether the denoised spectral estimator
-is returned or not.}
+\item{return_val}{an optional argument that specifies whether the denoised spectral estimator
+is returned or not. See the Details section below.}
 
 \item{...}{additional arguments for internal use.}
 }
 \value{
-The function returns a list with four components:
-\item{f }{a (\eqn{d,d,m})-dimensional array corresponding to the wavelet-denoised HPD (\eqn{d,d})-dimensional
-spectral estimate at the \code{m} different frequencies. If \code{!(return == 'f')}, the inverse wavelet transform
+The function returns a list with the following five components:
+\item{f }{ a (\eqn{d,d,m})-dimensional array of HPD matrices, corresponding to the HPD wavelet-denoised estimate
+of the same resolution as the input array \code{P}. If \code{return_val != 'f'}, the inverse wavelet transform
 of the thresholded wavelet coefficients is not computed and \code{f} is set equal to \code{NULL}.}
-\item{D }{the pyramid of threshold wavelet coefficients. This is a list of arrays, where each array contains the
-(\eqn{d,d})-dimensional thresholded wavelet coefficients from the finest wavelet scale \code{j = jmax} up to the coarsest
-wavelet scale \code{j = 0}.}
-\item{M0 }{a numeric array containing the midpoint(s) at the coarsest scale \code{j = 0} in the midpoint pyramid.}
+\item{D }{ the pyramid of threshold wavelet coefficients. This is a list of arrays, where each array contains the
+(\eqn{d,d})-dimensional thresholded wavelet coefficients from the coarsest wavelet scale \code{j = 0} up to the finest
+wavelet scale \code{j = jmax}.}
+\item{M0 }{ a numeric array containing the midpoint(s) at the coarsest scale \code{j = 0} in the midpoint pyramid.}
 \item{tree.weights }{a list of logical values specifying which coefficients to keep, with each list component
-   corresponding to an individual wavelet scale.}
-\item{alpha.opt }{the wavelet thresholding tuning parameter equal to the input argument \code{alpha} if
-\code{policy = "universal"}; or determined data-adaptively via two-fold cross-validation if \code{policy = "cv"}.}
+   corresponding to an individual wavelet scale starting from the coarsest wavelet scale \code{j = 0}.}
+\item{D.raw }{ the pyramid of non-thresholded wavelet coefficients in the same format as the component \code{$D}.}
 }
 \description{
 \code{pdSpecEst1D} calculates a \eqn{(d,d)}-dimensional HPD wavelet-denoised spectral matrix estimator
-by: (i) applying an intrinsic 1D AI wavelet transform (\code{\link{WavTransf1D}}) to an initial noisy
-HPD spectral estimate, (ii) (tree-structured) thresholding of the wavelet coefficients (\code{\link{pdCART}})
-and (iii) applying an intrinsic inverse 1D AI wavelet transform (\code{\link{InvWavTransf1D}}). The complete
-estimation procedure is described in detail in (Chau and von Sachs, 2017a).
+by applying the following steps to an initial noisy HPD spectral estimate (obtained with e.g., \code{\link{pdPgram}}):
+\enumerate{
+    \item a forward intrinsic AI wavelet transform, with \code{\link{WavTransf1D}},
+    \item (tree-structured) thresholding of the wavelet coefficients, with \code{\link{pdCART}},
+    \item an inverse intrinsic AI wavelet transform, with \code{\link{InvWavTransf1D}}.
+}
+The complete estimation procedure is described in more detail in \insertCite{CvS17}{pdSpecEst} or Chapter 3 of
+\insertCite{C18}{pdSpecEst}.
 }
 \details{
-The input array \code{P} corresponds to an initial noisy HPD spectral estimate of the (\eqn{d, d})-dimensional
-spectral matrix at \code{m} different frequencies, with \eqn{m = 2^J} for some \eqn{J > 0}. This can be e.g.
+The input array \code{P} corresponds to an initial noisy HPD spectral estimate of the (\eqn{d,d})-dimensional
+spectral matrix at \code{m} different frequencies, with \eqn{m = 2^J} for some \eqn{J > 0}. This can be e.g.,
 a multitaper HPD periodogram given as output by the function \code{\link{pdPgram}}.\cr
 \code{P} is transformed to the wavelet domain by the function \code{\link{WavTransf1D}}, which applies an intrinsic
-1D AI wavelet transform based on e.g. the Riemannian metric. The noise is removed by tree-structured thresholding
-of the wavelet coefficients based on the trace of the whitened coefficients as in \code{\link{pdCART}} by
-minimization of a \emph{complexity penalized residual sum of squares} (CPRESS) criterion in (Donoho, 1997),
-via a fast tree-pruning algorithm. As in \code{\link{pdCART}}, the sparsity parameter is set equal to \code{alpha}
-times the universal threshold where the noise variance of the traces of the whitened wavelet
-coefficients determined from the finest wavelet scale. If the thresholding policy is set to \code{policy = "universal"},
-the sparsity parameter is set equal to the universal threshold. If the thresholding policy is set to \code{policy = "cv"},
-a data-adaptive sparsity parameter is computed via two-fold cross-validation as in (Nason, 1996) based on the chosen metric.\cr
-If \code{return == 'f'} the thresholded wavelet coefficients are transformed back to the frequency domain by
-the inverse intrinsic 1D AI wavelet transform via \code{\link{InvWavTransf1D}} giving the wavelet-denoised
+1D AI wavelet transform based on a metric specified by the user. The noise is removed by tree-structured
+thresholding of the wavelet coefficients based on the trace of the whitened coefficients with \code{\link{pdCART}} by
+minimization of a \emph{complexity penalized residual sum of squares} (CPRESS) criterion via the fast tree-pruning algorithm
+in \insertCite{D97}{pdSpecEst}. The penalty or sparsity parameter in the optimization procedure is set equal to \code{alpha}
+times the universal threshold, where the noise variance of the traces of the whitened wavelet
+coefficients are determined from the finest wavelet scale. See \insertCite{CvS17}{pdSpecEst} and Chapter 3 of \insertCite{C18}{pdSpecEst}
+for further details. \cr
+The function computes the forward and inverse intrinsic AI wavelet transform in the space of HPD matrices equipped with
+one of the following metrics: (i) the affine-invariant Riemannian metric (default) as detailed in e.g., \insertCite{B09}{pdSpecEst}[Chapter 6]
+or \insertCite{PFA05}{pdSpecEst}; (ii) the log-Euclidean metric, the Euclidean inner product between matrix logarithms;
+(iii) the Cholesky metric, the Euclidean inner product between Cholesky decompositions; (iv) the Euclidean metric; or
+(v) the root-Euclidean metric. The default choice of metric (affine-invariant Riemannian) satisfies several useful properties
+not shared by the other metrics, see \insertCite{CvS17}{pdSpecEst} or \insertCite{C18}{pdSpecEst} for more details. Note that this comes
+at the cost of increased computation time in comparison to one of the other metrics. \cr
+If \code{return_val = 'f'} the thresholded wavelet coefficients are transformed back to the frequency domain by
+the inverse intrinsic 1D AI wavelet transform via \code{\link{InvWavTransf1D}}, returning the wavelet-denoised
 HPD spectral estimate.
 }
+\note{
+The function does not check for positive definiteness of the input matrices, and (depending on the
+specified metric) may fail if matrices are close to being singular.
+}
 \examples{
-P <- rExamples(2^8, example = "bumps")$per
+P <- rExamples1D(2^8, example = "bumps")$P
 f <- pdSpecEst1D(P)
 
 }
 \references{
-Chau, J. and von Sachs, R. (2017a). \emph{Positive definite multivariate spectral
-estimation: a geometric wavelet approach}. Available at \url{http://arxiv.org/abs/1701.03314}.
-
-Nason, G.P. (1996). \emph{Wavelet shrinkage using cross-validation}. Journal of the
-Royal Statistical Society: Series B, 58, 463-479.
+\insertAllCited{}
 }
 \seealso{
 \code{\link{pdPgram}}, \code{\link{WavTransf1D}}, \code{\link{InvWavTransf1D}}, \code{\link{pdCART}}

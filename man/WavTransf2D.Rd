@@ -2,60 +2,59 @@
 % Please edit documentation in R/wavtrans.R
 \name{WavTransf2D}
 \alias{WavTransf2D}
-\title{Forward average-interpolation 2D wavelet transform}
+\title{Forward AI wavelet transform for surface of HPD matrices}
 \usage{
-WavTransf2D(P, order = c(3, 3), jmax, metric = "Riemannian", progress = T,
-  ...)
+WavTransf2D(P, order = c(3, 3), jmax, metric = "Riemannian", ...)
 }
 \arguments{
-\item{P}{a (\eqn{d,d,n1,n2})-dimensional array of Hermitian PD matrices, with \eqn{n_1 = 2^{J_1}} and \eqn{n_2 = 2^{J_2}}
-for some \eqn{J_1, J_2 > 0}.}
+\item{P}{a (\eqn{d,d,n1,n2})-dimensional array of HPD matrices corresponding to a rectangular surface of \eqn{(d,d)}-dimensional HPD matrices
+of size \eqn{n_1 \times n_2}, with \eqn{n_1 = 2^{J_1}} and \eqn{n_2 = 2^{J_2}} for some \eqn{J_1, J_2 > 0}.}
 
-\item{order}{a 2-dimensional numeric vector of odd integers larger or equal to 1 corresponding to the marginal
-orders of the intrinsic 2D AI refinement scheme, defaults to \code{order = c(3, 3)}. Note that the computational cost
-significantly increases if \code{max(order) > 9} as the wavelet transform no longer uses a fast wavelet refinement scheme based
-on pre-determined weights.}
+\item{order}{a 2-dimensional numeric vector \eqn{(1,1) \le} \code{order} \eqn{\le (9,9)} corresponding to the marginal
+orders of the intrinsic 2D AI refinement scheme, defaults to \code{order = c(3, 3)}.}
 
 \item{jmax}{the maximum scale up to which the wavelet coefficients are computed. If \code{jmax} is not
-specified it is set equal to the maximum possible scale \code{jmax = max(J1, J2) - 1}.}
+specified, it is set equal to the maximum possible scale \code{jmax = max(J1, J2) - 1}.}
 
 \item{metric}{the metric that the space of HPD matrices is equipped with. The default choice is \code{"Riemannian"},
 but this can be one of: \code{"Riemannian"}, \code{"logEuclidean"}, \code{"Cholesky"}, \code{"rootEuclidean"} or
-\code{"Euclidean"}. The intrinsic AI wavelet transform fundamentally relies on the chosen metric.}
-
-\item{progress}{should a console progress bar be displayed? Defaults to \code{progress = T}.}
+\code{"Euclidean"}. See also the Details section below.}
 
 \item{...}{additional arguments for internal use.}
 }
 \value{
 The function returns a list with three components:
-\item{D }{the 2D pyramid of wavelet coefficients. This is a list of arrays, where each 4-dimensional array contains the
-(\eqn{d,d})-dimensional wavelet coefficients in a 2D grid of locations from the finest wavelet scale \code{j = jmax}
-up to the coarsest wavelet scale \code{j = 0}.}
-\item{D.white }{the 2D pyramid of whitened wavelet coefficients. The structure of \code{D.white} is the same as
-\code{D}, but with the wavelet coefficients replaced by their whitened counterparts as explained in
-(Chau and von Sachs, 2017).}
-\item{M0 }{a numeric array containing the midpoint(s) at the coarsest scale \code{j = 0} in the 2D midpoint pyramid.}
+\item{D }{ the 2D pyramid of wavelet coefficients. This is a list of arrays, where each 4-dimensional array contains the
+(\eqn{d,d})-dimensional wavelet coefficients in a 2D grid of locations from the coarsest wavelet scale \code{j = 0}
+up to the finest wavelet scale \code{j = jmax}.}
+\item{D.white }{ the 2D pyramid of whitened wavelet coefficients. The structure of \code{D.white} is the same as
+\code{D}, but with the wavelet coefficients replaced by their whitened counterparts as explained in Chapter 5 of
+\insertCite{C18}{pdSpecEst}.}
+\item{M0 }{ a numeric array containing the midpoint(s) at the coarsest scale \code{j = 0} in the 2D midpoint pyramid.}
 }
 \description{
-\code{WavTransf2D} computes the forward intrinsic average-interpolation (AI) wavelet transform of a
-rectangular surface in the manifold of HPD matrices equipped with a metric specified by the user
-(e.g. the Riemannian metric).
+\code{WavTransf2D} computes a forward intrinsic average-interpolation (AI) wavelet transform for a
+rectangular surface in the manifold of HPD matrices equipped with a metric specified by the user, such as the
+affine-invariant Riemannian metric, as described in Chapter 5 of \insertCite{C18}{pdSpecEst}.
 }
 \details{
 The 4-dimensional array \code{P} corresponds to a discretized rectangular surface of \eqn{(d,d)}-dimensional
 HPD matrices. The rectangular surface is of size \eqn{n_1} by \eqn{n_2}, where both \eqn{n_1} and
 \eqn{n_2} are supposed to be dyadic numbers. \code{WavTransf2D} then computes the intrinsic AI wavelet transform
-of \code{P} based on the given refinement orders and the chosen metric. If both marginal refinement orders are
-smaller or equal to 9, the function computes the wavelet transform using a fast wavelet refinement scheme based on weighted
-geometric averages with pre-determined weights. If one of the marginal refinement order is an odd integer larger than 9,
-the wavelet refinement scheme is based on intrinsic polynomial surface prediction using Neville's algorithm on the
-Riemannian manifold (\code{\link{pdNeville}}). By default \code{WavTransf2D} computes the intrinsic 2D AI wavelet transform
-equipping the space of HPD matrices with (i) the Riemannian metric. Instead, the space of HPD matrices can also be
-equipped with one of the following metrics; (ii) log-Euclidean metric, the Euclidean inner product between matrix logarithms,
-(iii) Cholesky metric, the Euclidean inner product between Cholesky decompositions, (iv) Euclidean metric and
-(v) root-Euclidean metric. The default choice (Riemannian) has several appealing properties not shared by the
-other metrics, see (Chau and von Sachs, 2017a) for more details.
+of \code{P} based on the given refinement orders and the chosen metric. The marginal refinement orders should be
+smaller or equal to 9, and the function computes the wavelet transform using a fast wavelet refinement scheme based on weighted
+intrinsic averages with pre-determined weights as explained in Chapter 5 of \insertCite{C18}{pdSpecEst}. By default \code{WavTransf2D}
+computes the intrinsic 2D AI wavelet transform equipping the space of HPD matrices with (i) the affine-invariant Riemannian metric as
+detailed in e.g., \insertCite{B09}{pdSpecEst}[Chapter 6] or \insertCite{PFA05}{pdSpecEst}. Instead, the space of HPD matrices
+can also be equipped with one of the following metrics; (ii) the Log-Euclidean metric, the Euclidean inner product between matrix
+logarithms; (iii) the Cholesky metric, the Euclidean inner product between Cholesky decompositions; (iv) the Euclidean metric and
+(v) the root-Euclidean metric. The default choice of metric (affine-invariant Riemannian) satisfies several useful properties
+not shared by the other metrics, see \insertCite{C18}{pdSpecEst} for more details. Note that this comes at the cost of increased computation
+time in comparison to one of the other metrics.
+}
+\note{
+The function does not check for positive definiteness of the input matrices, and (depending on the
+specified metric) may fail if matrices are close to being singular.
 }
 \examples{
 P <- rExamples2D(c(2^4, 2^4), 2, example = "tvar")
@@ -63,8 +62,7 @@ P.wt <- WavTransf2D(P$f)
 
 }
 \references{
-Chau, J. and von Sachs, R. (2017a). \emph{Positive definite multivariate spectral
-estimation: a geometric wavelet approach}. Available at \url{http://arxiv.org/abs/1701.03314}.
+\insertAllCited{}
 }
 \seealso{
 \code{\link{InvWavTransf2D}}, \code{\link{pdSpecEst2D}}, \code{\link{pdNeville}}

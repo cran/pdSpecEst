@@ -2,13 +2,13 @@
 % Please edit documentation in R/wavtrans.R
 \name{WavTransf1D}
 \alias{WavTransf1D}
-\title{Forward average-interpolation 1D wavelet transform}
+\title{Forward AI wavelet transform for curve of HPD matrices}
 \usage{
-WavTransf1D(P, order = 5, jmax, periodic = F, metric = "Riemannian",
-  progress = F, ...)
+WavTransf1D(P, order = 5, jmax, periodic = F, metric = "Riemannian", ...)
 }
 \arguments{
-\item{P}{a (\eqn{d,d,m})-dimensional array of HPD matrices, with \eqn{m = 2^J} for some \eqn{J > 0}.}
+\item{P}{a (\eqn{d,d,m})-dimensional array of HPD matrices, corresponding to a sequence of \eqn{(d,d)}-dimensional HPD matrices
+of length \eqn{m}, with \eqn{m = 2^J} for some \eqn{J > 0}.}
 
 \item{order}{an odd integer larger or equal to 1 corresponding to the order of the intrinsic AI refinement scheme,
 defaults to \code{order = 5}. Note that if \code{order > 9}, the computational cost
@@ -16,58 +16,61 @@ significantly increases as the wavelet transform no longer uses a fast wavelet r
 on pre-determined weights.}
 
 \item{jmax}{the maximum scale up to which the wavelet coefficients are computed. If \code{jmax} is not
-specified it is set equal to the maximum possible scale \code{jmax = J-1}.}
+specified, it is set equal to the maximum possible scale \code{jmax = J-1}, where \code{J = log2(m)}.}
 
 \item{periodic}{a logical value determining whether the curve of HPD matrices can be reflected at the boundary for
 improved wavelet refinement schemes near the boundaries of the domain. This is useful for spectral matrix estimation,
-where the spectral matrix is a symmetric and periodic curve in the frequency domain. Defaults to \code{periodic = F}.}
+in which case the spectral matrix is a symmetric and periodic curve in the frequency domain. Defaults to \code{periodic = F}.}
 
 \item{metric}{the metric that the space of HPD matrices is equipped with. The default choice is \code{"Riemannian"},
 but this can also be one of: \code{"logEuclidean"}, \code{"Cholesky"}, \code{"rootEuclidean"} or
-\code{"Euclidean"}. The intrinsic AI wavelet transform fundamentally relies on the chosen metric.}
-
-\item{progress}{should a console progress bar be displayed? Defaults to \code{progress = F}.}
+\code{"Euclidean"}. See also the Details section below.}
 
 \item{...}{additional arguments for internal use.}
 }
 \value{
 The function returns a list with three components:
-\item{D }{the pyramid of wavelet coefficients. This is a list of arrays, where each array contains the
-(\eqn{d,d})-dimensional wavelet coefficients from the finest wavelet scale \code{j = jmax} up to the coarsest
-wavelet scale \code{j = 0}.}
-\item{D.white }{the pyramid of whitened wavelet coefficients. The structure of \code{D.white} is the same as
+\item{D }{ the pyramid of wavelet coefficients. This is a list of arrays, where each array contains the
+(\eqn{d,d})-dimensional Hermitian wavelet coefficients from the coarsest wavelet scale \code{j = 0} up to
+the finest wavelet scale \code{j = jmax}}.
+\item{D.white }{ the pyramid of whitened wavelet coefficients. The structure of \code{D.white} is the same as
 \code{D}, but with the wavelet coefficients replaced by their whitened counterparts as explained in
-(Chau and von Sachs, 2017).}
-\item{M0 }{a numeric array containing the midpoint(s) at the coarsest scale \code{j = 0} in the midpoint pyramid.}
+\insertCite{CvS17}{pdSpecEst}.}
+\item{M0 }{ a numeric array containing the midpoint(s) at the coarsest scale \code{j = 0} in the midpoint pyramid.}
 }
 \description{
-\code{WavTransf1D} computes the forward intrinsic average-interpolation (AI) wavelet transform of a
-curve in the manifold of HPD matrices equipped with a metric specified by the user (e.g. the Riemannian
-metric) as described in (Chau and von Sachs, 2017).
+\code{WavTransf1D} computes a forward intrinsic average-interpolating (AI) wavelet transform for a
+curve in the manifold of HPD matrices equipped with a metric specified by the user, such as the
+affine-invariant Riemannian metric, as described in \insertCite{CvS17}{pdSpecEst} and Chapter 3 of
+\insertCite{C18}{pdSpecEst}.
 }
 \details{
 The input array \code{P} corresponds to a discretized curve of \eqn{(d,d)}-dimensional HPD matrices of
 dyadic length. \code{WavTransf1D} then computes the intrinsic AI wavelet transform of \code{P} based on
 the given refinement order and the chosen metric. If the refinement order is an odd integer smaller or
 equal to 9, the function computes the wavelet transform using a fast wavelet refinement scheme based on weighted
-geometric averages with pre-determined weights as explained in (Chau and von Sachs, 2017a). If the
-refinement order is an odd integer larger than 9, the wavelet refinement scheme is based on intrinsic
-polynomial prediction using Neville's algorithm on the Riemannian manifold.
-The function computes the intrinsic AI wavelet transform equipping the space of HPD matrices with
-one of the following metrics: (i) Riemannian metric (default) as in (Bhatia, 2009, Chapter 6),
-(ii) log-Euclidean metric, the Euclidean inner product between matrix logarithms,
-(iii) Cholesky metric, the Euclidean inner product between Cholesky decompositions, (iv) Euclidean metric and
-(v) root-Euclidean metric. The default choice (Riemannian) has several appealing properties not shared by the
-other metrics, see (Chau and von Sachs, 2017a) for more details.
+intrinsic averages with pre-determined weights as explained in \insertCite{CvS17}{pdSpecEst} and Chapter 3 of
+\insertCite{C18}{pdSpecEst}. If the refinement order is an odd integer larger than 9, the wavelet refinement
+scheme uses intrinsic polynomial prediction based on Neville's algorithm in the Riemannian manifold (via \code{\link{pdNeville}}).\cr
+The function computes the intrinsic AI wavelet transform in the space of HPD matrices equipped with
+one of the following metrics: (i) the affine-invariant Riemannian metric (default) as detailed in e.g., \insertCite{B09}{pdSpecEst}[Chapter 6]
+or \insertCite{PFA05}{pdSpecEst}; (ii) the log-Euclidean metric, the Euclidean inner product between matrix logarithms;
+(iii) the Cholesky metric, the Euclidean inner product between Cholesky decompositions; (iv) the Euclidean metric; or
+(v) the root-Euclidean metric. The default choice of metric (affine-invariant Riemannian) satisfies several useful properties
+not shared by the other metrics, see \insertCite{CvS17}{pdSpecEst} or \insertCite{C18}{pdSpecEst} for more details. Note that this comes
+at the cost of increased computation time in comparison to one of the other metrics.
+}
+\note{
+The function does not check for positive definiteness of the input matrices, and (depending on the
+specified metric) may fail if matrices are close to being singular.
 }
 \examples{
-P <- rExamples(2^8, example = "bumps")
+P <- rExamples1D(2^8, example = "bumps")
 P.wt <- WavTransf1D(P$f, periodic = FALSE)
 
 }
 \references{
-Chau, J. and von Sachs, R. (2017a). \emph{Positive definite multivariate spectral
-estimation: a geometric wavelet approach}. Available at \url{http://arxiv.org/abs/1701.03314}.
+\insertAllCited{}
 }
 \seealso{
 \code{\link{InvWavTransf1D}}, \code{\link{pdSpecEst1D}}, \code{\link{pdNeville}}

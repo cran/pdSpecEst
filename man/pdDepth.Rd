@@ -4,65 +4,65 @@
 \alias{pdDepth}
 \title{Data depth for HPD matrices}
 \usage{
-pdDepth(y = NULL, X, method = c("zonoid", "gdd", "spatial"),
-  metric = "Riemannian")
+pdDepth(y = NULL, X, method = "gdd", metric = "Riemannian")
 }
 \arguments{
-\item{y}{either a \eqn{(d,d)}-dimensional array corresponding to a \eqn{(d \times d)}-dimensional Hermitian PD matrix,
-or a \eqn{(d, d, n)}-dimensional array corresponding to a sequence or curve of Hermitian PD matrices.
-Defaults to \code{NULL}, in which case the data depth of each individual object in \code{X} with respect to the
-data cloud \code{X} itself is calculated.}
+\item{y}{either a \eqn{(d,d)}-dimensional HPD matrix, or a \eqn{(d, d, n)}-dimensional array corresponding to a sequence
+or curve of HPD matrices. Defaults to \code{NULL}, in which case the data depth of each individual object in \code{X}
+with respect to the data cloud \code{X} itself is calculated.}
 
-\item{X}{depending on the input \code{y} either a \eqn{(d,d,S)}-dimensional array corresponding to a data cloud of
-\eqn{S} individual Hermitian PD matrices, or a \eqn{(d,d,n,S)}-dimensional array corresponding to a data cloud of \eqn{S}
+\item{X}{depending on the input \code{y}, \code{X} is either a \eqn{(d,d,S)}-dimensional array corresponding to a data cloud of
+\eqn{S} individual HPD matrices, or a \eqn{(d,d,n,S)}-dimensional array corresponding to a data cloud of \eqn{S}
 sequences or curves of \eqn{n} individual Hermitian PD matrices.}
 
-\item{method}{the data depth measure, one of \code{'zonoid'}, \code{'gdd'}, or \code{'spatial'} corresponding to
-the manifold zonoid depth, geodesic distance depth, and manifold spatial depth respectively.}
+\item{method}{the data depth measure, one of \code{'gdd'}, \code{'zonoid'} or \code{'spatial'} corresponding to
+the geodesic distance depth, intrinsic zonoid depth, and intrinsic spatial depth respectively.}
 
 \item{metric}{the metric that the space of HPD matrices is equipped with. The default choice is \code{"Riemannian"},
 but this can also be one of: \code{"logEuclidean"}, \code{"Cholesky"}, \code{"rootEuclidean"} or
-\code{"Euclidean"}.}
+\code{"Euclidean"}. See also the Details section below.}
 }
 \value{
 If \code{!is.null(y)}, \code{pdDepth} returns the numeric depth value of \code{y} with
-respect to \code{X}. If \code{is.null(y)}, \code{pdDepth} returns a numeric vector of length \code{S} corresponding to the depth values
-of each individual object in \code{X} with respect to \code{X} itself.
+respect to \code{X}. If \code{is.null(y)}, \code{pdDepth} returns a numeric vector of length \code{S} corresponding to
+the vector of depth values for each individual object in \code{X} with respect to \code{X} itself.
 }
 \description{
-\code{pdDepth} calculates the data depth of a Hermitian PD matrix with respect
-to a given data cloud (i.e. a sample or collection) of Hermitian PD matrices, or the integrated
-data depth of a sequence (curve) of Hermitian PD matrices with respect to a given data cloud of
-sequences (curves) of Hermitian PD matrices.
+\code{pdDepth} calculates the data depth of a HPD matrix with respect
+to a given data cloud (i.e., a sample or collection) of HPD matrices, or the integrated
+data depth of a sequence (curve) of HPD matrices with respect to a given data cloud of
+sequences (curves) of HPD matrices as detailed in \insertCite{COvS17}{pdSpecEst}.
 }
 \details{
-Available pointwise or integrated manifold data depth functions for samples of Hermitian PD matrices are (i)
-manifold zonoid depth, (ii) geodesic distance depth and (iii) manifold spatial depth.
+Available pointwise or integrated intrinsic data depth functions for samples of HPD matrices are: (i)
+geodesic distance depth, (ii) intrinsic zonoid depth and (iii) intrinsic spatial depth.
 The various data depth measures and their theoretical properties are described in
-(Chau, Ombao, and von Sachs, 2017b). If \code{y} is a \eqn{(d \times d)}-dimensional Hermitian PD matrix (i.e.
-\eqn{(d,d)}-dimensional array), \code{X} should be a \eqn{(d,d,S)}-dimensional array of Hermitian PD matrices and the pointwise
-data depth values are computed. If \code{y} is a sequence of \eqn{(d \times d)}-dimensional Hermitian PD matrices of length \code{n}
-(i.e. \eqn{(d,d,n)}-dimensional array), \code{X} should be a \eqn{(d,d,n,S)}-dimensional array of sequences of Hermitian PD matrices
-and the integrated data depth values according to (Chau, Ombao, and von Sachs, 2017b) are computed. If \code{is.null(y)}, the data depth
-of each individual object (i.e. a Hermitian PD matrix or a sequence of Hermitian PD matrices) in \code{X} is computed with
+\insertCite{COvS17}{pdSpecEst}. If \code{y} is a \eqn{(d,d)}-dimensional HPD matrix, \code{X} should be a \eqn{(d,d,S)}-dimensional array
+corresponding to a length \code{S} sequence of \eqn{(d,d)}-dimensional HPD matrices and the pointwise
+data depth values are computed. If \code{y} is a sequence of \eqn{(d,d)}-dimensional HPD matrices of length \code{n}
+(i.e., \eqn{(d,d,n)}-dimensional array), \code{X} should be a \eqn{(d,d,n,S)}-dimensional array of replicated sequences of HPD matrices
+and the integrated data depth values according to \insertCite{COvS17}{pdSpecEst} are computed. If \code{is.null(y)}, the data depth
+of each individual object (i.e., a HPD matrix or a sequence of HPD matrices) in \code{X} is computed with
 respect to the data cloud \code{X}. \cr
-The function computes the intrinsic data depths based on the metric space of HPD matrices equipped with
-one of the following metrics: (i) Riemannian metric (default) as in (Bhatia, 2009, Chapter 6),
-(ii) log-Euclidean metric, the Euclidean inner product between matrix logarithms,
+The function computes the intrinsic data depth values based on the metric space of HPD matrices equipped with
+one of the following metrics: (i) Riemannian metric (default) as detailed in e.g., \insertCite{B09}{pdSpecEst}[Chapter 6] or
+\insertCite{PFA05}{pdSpecEst}, (ii) log-Euclidean metric, the Euclidean inner product between matrix logarithms,
 (iii) Cholesky metric, the Euclidean inner product between Cholesky decompositions, (iv) Euclidean metric and
-(v) root-Euclidean metric. The default choice (Riemannian) has several appealing properties not shared by the
-other metrics, see (Chau, Ombao and von Sachs, 2017b) for more details.
+(v) root-Euclidean metric. The default choice (Riemannian) has several properties not shared by the
+other metrics, see \insertCite{COvS17}{pdSpecEst} for more details.
 }
 \note{
-Note that the data depth computations in the metric space equipped with the Riemannian
-metric may be significantly slower than the depth computations based on one of the alternative
-metrics.
+The function does not check for positive definiteness of the input matrices, and may fail
+if matrices are close to being singular.
+
+The data depth computations under the Riemannian metric are more involved than under the other
+metrics, and may therefore result in (significantly) higher computation times.
 }
 \examples{
 ## Pointwise depth
 X1 <- replicate(50, Expm(diag(2), H.coeff(rnorm(4), inverse = TRUE)))
-pdDepth(y = diag(2), X1, method = "gdd") ## depth of one point
-pdDepth(X = X1, method = "gdd") ## depth of each point in the data cloud
+pdDepth(y = diag(2), X = X1) ## depth of one point
+pdDepth(X = X1) ## depth of each point in the data cloud
 
 ## Integrated depth
 X2 <- replicate(50, replicate(5, Expm(diag(2), H.coeff(rnorm(4), inverse = TRUE))))
@@ -71,8 +71,7 @@ pdDepth(X = X2, method = "zonoid", metric = "logEuclidean")
 
 }
 \references{
-Chau, J., Ombao, H., and von Sachs, R. (2017b). \emph{Data depth and rank-based
-tests for covariance and spectral density matrices}. Available at \url{http://arxiv.org/abs/1706.08289}.
+\insertAllCited{}
 }
 \seealso{
 \code{\link{pdDist}}, \code{\link{pdRankTests}}

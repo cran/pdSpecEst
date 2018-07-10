@@ -2,7 +2,7 @@
 % Please edit documentation in R/RcppExports.R
 \name{Logm}
 \alias{Logm}
-\title{Logarithmic map}
+\title{Riemannian HPD logarithmic map}
 \usage{
 Logm(P, Q)
 }
@@ -12,15 +12,18 @@ Logm(P, Q)
 \item{Q}{a Hermitian positive definite matrix (of equal dimension as \code{P}).}
 }
 \description{
-\code{Logm(P, Q)} computes the projection of a Hermitian PD matrix \code{Q} on the Riemannian manifold
-to the tangent space attached at the Hermitian PD matrix \code{P} via the logarithmic map as in (Pennec, 2006).
-This is the unique inverse of the exponential map \code{\link{Expm}}.
+\code{Logm(P, Q)} computes the projection of a Hermitian PD matrix \code{Q} in the manifold of HPD matrices
+equipped with the affine-invariant Riemannian metric to the tangent space attached at the Hermitian PD matrix
+\code{P} via the logarithmic map as in e.g., \insertCite{PFA05}{pdSpecEst}. This is the unique inverse of
+the exponential map \code{\link{Expm}}.
 }
 \examples{
+ ## Generate two random HPD matrices
  q <- matrix(complex(real = rnorm(9), imaginary = rnorm(9)), nrow = 3)
  Q <- t(Conj(q)) \%*\% q
  p <- matrix(complex(real = rnorm(9), imaginary = rnorm(9)), nrow = 3)
  P <- t(Conj(p)) \%*\% p
+ ## Compute logarithmic map
  Logm(P, Q)
 
 }
@@ -29,5 +32,5 @@ Pennec, X. (2006). Intrinsic statistics on Riemannian manifolds: Basic tools for
 measurements. \emph{Journal of Mathematical Imaging and Vision} 25(1), 127-154.
 }
 \seealso{
-\code{\link{Expm}, \link{ParTrans}}
+\code{\link{Expm}, \link{pdParTrans}}
 }

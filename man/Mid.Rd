@@ -2,7 +2,7 @@
 % Please edit documentation in R/RcppExports.R
 \name{Mid}
 \alias{Mid}
-\title{Geodesic midpoint between HPD-matrices}
+\title{Geodesic midpoint between HPD matrices}
 \usage{
 Mid(A, B)
 }
@@ -10,18 +10,23 @@ Mid(A, B)
 \item{A, B}{Hermitian positive definite matrices (of equal dimension).}
 }
 \description{
-\code{Mid} calculates the geodesic midpoint between two Hermitian PD matrices as in
-(Bhatia, 2009, Chapter 6).
+\code{Mid} calculates the geodesic midpoint between two HPD matrices under the
+affine-invariant Riemannian metric as in \insertCite{B09}{pdSpecEst}[Chapter 6].
 }
 \examples{
+ ## Generate two random HPD matrices
  a <- matrix(complex(real = rnorm(9), imaginary = rnorm(9)), nrow = 3)
  A <- t(Conj(a)) \%*\% a
  b <- matrix(complex(real = rnorm(9), imaginary = rnorm(9)), nrow = 3)
  B <- t(Conj(b)) \%*\% b
+ ## Compute midpoint
  Mid(A, B)
+ ## Midpoint coincides with two-point intrinsic Karcher mean
+ all.equal(pdMean(array(c(A, B), dim = c(3, 3, 2))), Mid(A, B))
+
 }
 \references{
-Bhatia, R. (2009). \emph{Positive Definite Matrices}. New Jersey: Princeton University Press.
+\insertAllCited{}
 }
 \seealso{
 \code{\link{pdMean}}

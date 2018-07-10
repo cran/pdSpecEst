@@ -2,7 +2,7 @@
 % Please edit documentation in R/RcppExports.R
 \name{Expm}
 \alias{Expm}
-\title{Exponential map}
+\title{Riemannian HPD exponential map}
 \usage{
 Expm(P, H)
 }
@@ -13,22 +13,25 @@ Expm(P, H)
 }
 \description{
 \code{Expm(P, H)} computes the projection of a Hermitian matrix \code{H} from the tangent space at a Hermitian
-PD matrix \code{P} to the Riemannian manifold of Hermitian PD matrices via the
-exponential map as in (Pennec, 2006). This is the unique inverse of the logarithmic map \code{\link{Logm}}.
+PD matrix \code{P} to the manifold of Hermitian PD matrices equipped with the affine-invariant Riemannian metric
+via the exponential map as in e.g., \insertCite{PFA05}{pdSpecEst}. This is the unique inverse of the Riemannian
+logarithmic map \code{\link{Logm}}.
 }
 \examples{
+ ## Generate random Hermitian matrix
  H <- matrix(complex(real = rnorm(9), imaginary = rnorm(9)), nrow = 3)
  diag(H) <- rnorm(3)
  H[lower.tri(H)] <- t(Conj(H))[lower.tri(H)]
+ ## Generate random HPD matrix
  p <- matrix(complex(real = rnorm(9), imaginary = rnorm(9)), nrow = 3)
  P <- t(Conj(p)) \%*\% p
+ ## Compute exponential map
  Expm(P, H)
 
 }
 \references{
-Pennec, X. (2006). Intrinsic statistics on Riemannian manifolds: Basic tools for geometric
-measurements. \emph{Journal of Mathematical Imaging and Vision} 25(1), 127-154.
+\insertAllCited{}
 }
 \seealso{
-\code{\link{Logm}, \link{ParTrans}}
+\code{\link{Logm}, \link{pdParTrans}}
 }

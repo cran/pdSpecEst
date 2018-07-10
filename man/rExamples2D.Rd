@@ -2,61 +2,70 @@
 % Please edit documentation in R/examples.R
 \name{rExamples2D}
 \alias{rExamples2D}
-\title{Several example time-varying spectral matrices}
+\title{Several example surfaces of HPD matrices}
 \usage{
-rExamples2D(n, d = 3, B, example = c("smiley", "tvar", "peak", "facets"),
-  bias.corr = F, ...)
+rExamples2D(n, d = 2, example = c("smiley", "tvar", "facets", "peak"),
+  replicates = 1, noise = "riem-gaussian", noise.level = 1,
+  df.wishart = NULL)
 }
 \arguments{
-\item{n}{numeric vector with two components corresponding to the size of the discretized time-frequency grid at which the spectral matrix
-is generated.}
+\item{n}{integer vector \code{c(n1, n2)} specifying the number of sampled matrices to be generated on a rectangular surface.}
 
-\item{d}{row- (resp. column-)dimension of the generated spectral matrix.}
+\item{d}{row- (resp. column-)dimension of the generated matrices. Defaults to \code{d = 2}.}
 
-\item{B}{complex Wishart distribution degrees of freedom, defaults to \code{B = d}, such that the generated pseudo periodogram matrix
-observations are positive definite. Note that \code{B} coincides with the number of tapering functions in the (time-varying) multitaper
-periodogram in \code{\link{pdPgram2D}}.}
+\item{example}{the example target HPD matrix surface, one of \code{'smiley'}, \code{'tvar'}, \code{'facets'} or \code{'peak'}.}
 
-\item{example}{the example spectral matrix, one of \code{'smiley'}, \code{'tvar'}, \code{'peak'} or \code{'facets'}.}
+\item{replicates}{a positive integer specifying the number of replications of noisy HPD matrix surfaces to be generated based on the
+target surface of HPD matrices. Defaults to \code{replicates = 1}}
 
-\item{bias.corr}{should the Riemannian manifold bias-correction be applied to the HPD periodogram matrix?
-Defaults to \code{FALSE}.}
+\item{noise}{noise distribution for the generated noisy surfaces of HPD matrices, one of \code{'riem-gaussian'},
+\code{'log-gaussian'}, \code{'wishart'}, \code{'log-wishart'} or \code{'periodogram'}, defaults to \code{'riem-gaussian'}.
+Additional details are given below.}
 
-\item{...}{additional arguments for internal use.}
+\item{noise.level}{parameter to tune the signal-to-noise ratio for the generated noisy HPD matrix observations.
+If \code{noise.level = 0}, the noise distributions are degenerate and the noisy HPD matrix observations coincide with the target HPD matrices.
+Defaults to \code{noise.level = 1}.}
+
+\item{df.wishart}{optional parameter to specify the degrees of freedom in the case of a Wishart noise distribution (\code{noise = 'wishart'} or
+\code{noise = 'log-wishart'}). By default \code{df.wishart} is equal to the dimension \code{d} to guarantee positive definiteness of the
+generated noisy matrices.}
 }
 \value{
 Returns a list with two components:
-   \item{\code{f} }{ example spectral matrix, \code{f} is a \code{(d, d, n[1], n[2])}-dimensional array, corresponding
-   to a \eqn{(d \times d)}-dimensional spectral matrix at a \eqn{(n_1,n_2)}-dimensional grid of time-frequency points.}
-   \item{\code{tf.grid} }{ a list with two components \code{tf.grid$time} and \code{tf.grid$frequency} specifying the
-   rectangular grid of time-frequency points at which the spectral matrix is generated. \code{tf.grid$time}
-   is a numeric vector of rescaled time points in \code{(0,1]}. \code{tf.grid$frequency} is a numeric
-   vector of frequency points in \code{(0,0.5]}, with 0.5 corresponding to the Nyquist frequency.}
-   \item{\code{per} }{ pseudo HPD periodogram observations generated as random complex Wishart matrices centered around \code{f}
-   with \code{B} degrees of freedom at \eqn{(n_1,n_2)}-dimensional grid of time-frequency points.}
+  \item{\code{f} }{ a (\code{d,d,n[1],n[2]})-dimensional array, corresponding to the \eqn{(n_1 \times n_2)}-sized example target surface of
+  \eqn{(d,d)}-dimensional HPD matrices.}
+  \item{\code{P} }{ a (\code{d,d,n[1],n[2]})-dimensional array, corresponding to the \eqn{(n_1 \times n_2)}-sized surface of noisy \eqn{(d,d)}-dimensional
+  HPD matrices centered around the smooth target HPD matrix surface \code{f}. If \code{replicates > 1}, \code{P} is a
+  \code{(d,d,n[1],n[2],length(replicates))}-dimensional array, corresponding to a collection of replicated \eqn{(n_1 \times n_2)}-sized surfaces
+  of noisy \eqn{(d,d)}-dimensional HPD matrices centered around the smooth target HPD matrix surface \code{f}.}
 }
 \description{
-\code{rExamples2D()} generates several example HPD time-varying spectral matrices for testing and simulation purposes.
+\code{rExamples2D()} generates several example (locally) smooth target \emph{surfaces} of HPD matrices corrupted by
+noise in a manifold of HPD matrices for testing and simulation purposes. For more details, see also Chapter 2 and 5 in
+\insertCite{C18}{pdSpecEst}.
 }
 \details{
-The examples include: (i) a \eqn{(d \times d)} smiley HPD spectral matrix consisting of constant surfaces of random HPD matrices in
-the shape of a smiley face, (ii) a \eqn{(d \times d)} tvar HPD spectral matrix generated from a time-varying vector auto-
-regressive process of order 1 with a random time-varying coefficient matrix (\eqn{\Phi}), (iii) a \eqn{(d \times d)} generally smooth
-HPD spectral matrix containing a pronounced peak in the center of the discretized time-frequency grid and (iv) a \eqn{(d \times d)}
-facets HPD spectral matrix consisting of several facets generated from random geodesic surfaces. In addition to the HPD spectral matrices,
-the function also generates pseudo HPD periodogram observations as independent complex random HPD Wishart matrices centered around
-the generating HPD spectral matrix with \eqn{B} degrees of freedom. Informally, such random matrix behavior corresponds to the asymptotic
-distribution of actual HPD periodogram observations (as obtained via \code{\link{pdPgram2D}}) of a multivariate time series with the given
-generating HPD spectral matrix.
+The examples include: (i) a \eqn{(d,d)}-dimensional \code{'smiley'} HPD matrix surface consisting of constant surfaces of random HPD matrices in
+the shape of a smiley face; (ii) a \eqn{(d,d)}-dimensional \code{'tvar'} HPD matrix surface generated from a time-varying vector-auto-
+regressive process of order 1 with random time-varying coefficient matrix (\eqn{\Phi}); (iii) a \eqn{(d,d)}-dimensional \code{'facets'} HPD matrix
+surface consisting of several facets generated from random geodesic surfaces; and (iv) a \eqn{(d,d)}-dimensional \code{'peak'} HPD matrix surface
+containing a pronounced peak in the center of its 2-d (e.g., time-frequency) domain.\cr
+In addition to the (locally) smooth target surface of HPD matrices, the function also returns a noisy version of the target surface of HPD matrices, corrupted
+by a user-specified noise distribution. By default, the noisy HPD matrix observations follow an intrinsic signal plus i.i.d. noise model with
+respect to the affine-invariant Riemannian metric, with a matrix log-Gaussian noise distribution (\code{noise = 'riem-gaussian'}), such that the
+Riemannian Karcher means of the observations coincide with the target surface of HPD matrices. Additional details can be found in Chapters 2, 3,
+and 5 of \insertCite{C18}{pdSpecEst}. Other available signal-noise models include: (ii) a Log-Euclidean signal plus i.i.d. noise model, with
+a matrix log-Gaussian noise distribution (\code{noise = 'log-gaussian'}); (iii) a Riemannian signal plus i.i.d. noise model, with a complex
+Wishart noise distribution (\code{noise = 'wishart'}); (iv) a Log-Euclidean signal plus i.i.d. noise model, with a complex Wishart noise
+distribution (\code{noise = 'log-wishart'}).
 }
 \examples{
-example <- rExamples2D(n = c(2^5, 2^5), example = "smiley")
+example <- rExamples2D(n = c(32, 32), example = "smiley")
 
 }
 \references{
-Chau, J. and von Sachs, R. (2017). \emph{Positive definite multivariate spectral
-estimation: a geometric wavelet approach}. Available at \url{http://arxiv.org/abs/1701.03314}.
+\insertAllCited{}
 }
 \seealso{
-\code{\link{pdPgram2D}}
+\code{\link{rExamples1D}}, \code{\link{pdPgram2D}}
 }

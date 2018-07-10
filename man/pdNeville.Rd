@@ -7,49 +7,57 @@
 pdNeville(P, X, x, metric = "Riemannian")
 }
 \arguments{
-\item{P}{for polynomial curve interpolation, a \eqn{(d, d, N)}-dimensional array corresponding to a sequence
-of \eqn{(d, d)}-dimensional HPD matrices, i.e. control points, through which the interpolated polynomial
+\item{P}{for polynomial curve interpolation, a \eqn{(d, d, N)}-dimensional array corresponding to a length \eqn{N} sequence
+of \eqn{(d, d)}-dimensional HPD matrices (control points) through which the interpolating polynomial
 curve passes. For polynomial surface interpolation, a \eqn{(d, d, N_1, N_2)}-dimensional array corresponding
-to a tensor product grid of \eqn{(d, d)}-dimensional matrices, i.e. control points, through which the interpolated
+to a tensor product grid of \eqn{(d, d)}-dimensional HPD matrices (control points) through which the interpolating
 polynomial surface passes.}
 
-\item{X}{for polynomial curve interpolation, a numeric vector of length \eqn{N} specifying the time points
-the interpolated polynomial passes through the control points \code{P}. For polynomial surface interpolation, a list
+\item{X}{for polynomial curve interpolation, a numeric vector of length \eqn{N} specifying the time points at which
+the interpolating polynomial passes through the control points \code{P}. For polynomial surface interpolation, a list
 with as elements two numeric vectors \code{x} and \code{y} of length \eqn{N_1} and \eqn{N_2} respectively. The numeric
-vectors specify the time points on the tensor product grid \code{expand.grid(X$x, X$y)} the interpolated polynomial passes
-trough the control points \code{P}.}
+vectors specify the time points on the tensor product grid \code{expand.grid(X$x, X$y)} at which the interpolating
+polynomial passes trough the control points \code{P}.}
 
-\item{x}{for polynomial curve interpolation, a numeric vector specifying the time grid (resolution) at which the
-interpolated polynomial is estimated. For polynomial surface interpolation, a list with as elements two numeric vectors
-\code{x} and \code{y} specifying the time tensor product grid (resolution) \code{expand.grid(x$x, x$y)} at which the
-interpolated polynomial surface is estimated.}
+\item{x}{for polynomial curve interpolation, a numeric vector specifying the time points (locations) at which the
+interpolating polynomial is evaluated. For polynomial surface interpolation, a list with as elements two numeric vectors
+\code{x} and \code{y} specifying the time points (locations) on the tensor product grid \code{expand.grid(x$x, x$y)} at which the
+interpolating polynomial surface is evaluated.}
 
-\item{metric}{the metric the space of HPD gets equipped with, by default \code{metric = "Riemannian"}, but instead
+\item{metric}{the metric on the space of HPD matrices, by default \code{metric = "Riemannian"}, but instead of the Riemannian metric
 this can also be set to \code{metric = "Euclidean"} to perform (standard) Euclidean polynomial interpolation of curves or
 surfaces in the space of HPD matrices.}
 }
 \value{
-For polynomial curve interpolation, a \code{(d, d, length(x))}-dimensional array containing the interpolated
-polynomial of degree \eqn{N-1} at the time grid \code{x} passing through the control points \code{P} at times \code{X}.
-For polynomial surface interpolation, a \code{(d, d, length(x$x), length(x$y))}-dimensional array containing the interpolated
-polynomial of bi-degree \eqn{N_1 - 1, N_2 - 1} at the time grid \code{expand.grid(x$x, x$y)} passing through the control points
-\code{P} at times \code{expand.grid(X$x, X$y)}.
+For polynomial curve interpolation, a \code{(d, d, length(x))}-dimensional array corresponding to the interpolating polynomial
+curve of \eqn{(d,d)}-dimensional matrices of degree \eqn{N-1} evaluated at times \code{x} and passing through the control points \code{P}
+at times \code{X}. For polynomial surface interpolation, a \code{(d, d, length(x$x), length(x$y))}-dimensional array corresponding to the
+interpolating polynomial surface of \eqn{(d,d)}-dimensional matrices of bi-degree \eqn{N_1 - 1, N_2 - 1} evaluated at times \code{expand.grid(x$x, x$y)}
+and passing through the control points \code{P} at times \code{expand.grid(X$x, X$y)}.
 }
 \description{
-\code{pdNeville()} performs intrinsic polynomial interpolation of curves or surfaces on the manifold of
-HPD matrices equipped with the Riemannian metric via iterative geodesic interpolation, see e.g.
-(Chau and von Sachs, 2017).
+\code{pdNeville} performs intrinsic polynomial interpolation of curves or surfaces of HPD matrices
+in the metric space of HPD matrices equipped with the affine-invariant Riemannian metric (see \insertCite{B09}{pdSpecEst}[Chapter 6]
+or \insertCite{PFA05}{pdSpecEst}) via Neville's algorithm based on iterative geodesic interpolation detailed
+in \insertCite{CvS17}{pdSpecEst} and in Chapter 3 and 5 of \insertCite{C18}{pdSpecEst}.
 }
 \details{
-For polynomial curve interpolation, given \eqn{N} control points (i.e. HPD
-matrices), the degree of the interpolated polynomial is \eqn{N - 1}. For polynomial surface interpolation,
-given \eqn{N_1 \times N_2} control points (i.e. HPD matrices) on a tensor product grid, the interpolated
-polynomial has bi-degree \eqn{(N_1 - 1, N_2 - 1)}. The function \code{pdNeville()} determines whether
-polynomial curve or polynomial surface interpolation has to be performed based on the function input.
+For polynomial curve interpolation, given \eqn{N} control points (i.e., HPD matrices), the degree of the
+interpolated polynomial is \eqn{N - 1}. For polynomial surface interpolation, given \eqn{N_1 \times N_2} control points
+(i.e., HPD matrices) on a tensor product grid, the interpolated polynomial surface is of bi-degree \eqn{(N_1 - 1, N_2 - 1)}.
+Depending on the input array \code{P}, the function decides whether polynomial curve or polynomial surface interpolation
+is performed.
+}
+\note{
+If \code{metric = "Euclidean"}, the interpolating curve or surface may not be positive definite everywhere as the space of HPD
+matrices equipped with the Euclidean metric has its boundary at a finite distance.
+
+The function does not check for positive definiteness of the input matrices, and may fail if \code{metric = "Riemannian"} and
+the input matrices are close to being singular.
 }
 \examples{
 ### Polynomial curve interpolation
-P <- rExamples(100, example = 'gaussian')$f[, , 10*(1:5)]
+P <- rExamples1D(50, example = 'gaussian')$f[, , 10*(1:5)]
 P.poly <- pdNeville(P, (1:5)/5, (1:50)/50)
 ## Examine matrix-component (1,1)
 plot((1:50)/50, Re(P.poly[1, 1, ]), type = "l") ## interpolated polynomial
@@ -61,8 +69,7 @@ P.poly <- pdNeville(P.surf, list(x = c(0, 1), y = c(0, 1)), list(x = (0:10)/10, 
 
 }
 \references{
-Chau, J. and von Sachs, R. (2017a). \emph{Positive definite multivariate spectral
-estimation: a geometric wavelet approach}. Available at \url{http://arxiv.org/abs/1701.03314}.
+\insertAllCited{}
 }
 \seealso{
 \code{\link{pdPolynomial}}
