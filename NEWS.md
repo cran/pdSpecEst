@@ -1,3 +1,8 @@
+# pdSpecEst 1.2.3
+
+* Fixed warning non-ASCII characters in references
+* Fixed note CRAN checks
+
 # pdSpecEst 1.2.2
 
 * New and updated features:
@@ -9,7 +14,7 @@
 `pdParTrans`, `Expm`, `Logm`
 * Updated vignettes: 
   + "Wavelet-based multivariate Fourier spectral estimation", 
-  + "Data depth and rank-based tests for HPD matrices"                   
+  + "Data depth and rank-based tests for HPD matrices"
 * Updated Shiny app (see README or DESCRIPTION for url)
 
 # pdSpecEst 1.2.1

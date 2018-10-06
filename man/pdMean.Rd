@@ -4,7 +4,8 @@
 \alias{pdMean}
 \title{Weighted Karcher mean of HPD matrices}
 \usage{
-pdMean(M, w, metric = "Riemannian", grad_desc = F, maxit = 1000, reltol)
+pdMean(M, w, metric = "Riemannian", grad_desc = F, maxit = 1000,
+  reltol)
 }
 \arguments{
 \item{M}{a \eqn{(d,d,S)}-dimensional array corresponding to a sample of \eqn{(d,d)}-dimensional HPD matrices of

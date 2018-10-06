@@ -5,8 +5,8 @@
 \title{Intrinsic wavelet HPD spectral matrix clustering}
 \usage{
 pdSpecClust1D(P, K, jmax, metric = "Riemannian", m = 2, d.jmax = 0.1,
-  eps = c(1e-04, 1e-04), tau = 0.5, max_iter = 50, return.centers = F,
-  ...)
+  eps = c(1e-04, 1e-04), tau = 0.5, max_iter = 50,
+  return.centers = F, ...)
 }
 \arguments{
 \item{P}{a (\eqn{d,d,n,S})-dimensional array of HPD matrices, corresponding to a collection of sequences of
