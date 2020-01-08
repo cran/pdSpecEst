@@ -4,18 +4,18 @@
 \alias{H.coeff}
 \title{Orthonormal basis expansion of a Hermitian matrix}
 \usage{
-H.coeff(H, inverse = F)
+H.coeff(H, inverse = FALSE)
 }
 \arguments{
-\item{H}{if \code{inverse = F}, a \eqn{(d,d)}-dimensional Hermitian matrix; if \code{inverse = T}, a numeric
+\item{H}{if \code{inverse = FALSE}, a \eqn{(d,d)}-dimensional Hermitian matrix; if \code{inverse = TRUE}, a numeric
 vector of length \eqn{d^2} with \eqn{d} an integer.}
 
-\item{inverse}{a logical value that determines whether the forward basis transform (\code{inverse = F}) or the inverse
-basis transform (\code{inverse = T}) should be applied.}
+\item{inverse}{a logical value that determines whether the forward basis transform (\code{inverse = FALSE}) or the inverse
+basis transform (\code{inverse = TRUE}) should be applied.}
 }
 \value{
-If \code{inverse = F} takes as input a \eqn{(d,d)}-dimensional Hermitian matrix and outputs a numeric
-vector of length \eqn{d^2} containing the real-valued basis coefficients. If \code{inverse = T} takes as input a
+If \code{inverse = FALSE} takes as input a \eqn{(d,d)}-dimensional Hermitian matrix and outputs a numeric
+vector of length \eqn{d^2} containing the real-valued basis coefficients. If \code{inverse = TRUE} takes as input a
 \eqn{d^2}-dimensional numeric vector of basis coefficients and outputs the corresponding \eqn{(d,d)}-dimensional
 Hermitian matrix.
 }

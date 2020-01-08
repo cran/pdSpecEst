@@ -107,7 +107,7 @@ pdDepth <- function(y = NULL, X, method = "gdd", metric = "Riemannian") {
 
     ## intrinsic zonoid depth
     ZD <- function(y, X) {
-      point <- ifelse(isTRUE(length(dim(y)) == 2), T, F)
+      point <- ifelse(isTRUE(length(dim(y)) == 2), TRUE, FALSE)
       if(metric == "Riemannian" & point){
         X.coeff <- apply(X, 3, function(X) E_coeff(Logm(y, X)))
         X.coeff <- matrix(X.coeff[apply(X.coeff, 1, function(X){isTRUE(diff(range(X)) > .Machine$double.eps)}),],
@@ -116,22 +116,22 @@ pdDepth <- function(y = NULL, X, method = "gdd", metric = "Riemannian") {
       } else if(metric == "logEuclidean"){
         X.coeff <- apply(X, 3, function(X) E_coeff(Logm(diag(d), X)))
         X.rows <- apply(X.coeff, 1, function(X){isTRUE(diff(range(X)) > .Machine$double.eps)})
-        X.coeff <- X.coeff[X.rows, , drop = F]
+        X.coeff <- X.coeff[X.rows, , drop = FALSE]
         y.coeff <- (if(point) E_coeff(Logm(diag(d), y))[X.rows] else X.coeff)
       } else if(metric == "Cholesky"){
-        X.coeff <- apply(X, 3, function(X) E_chol(Chol_C(X, F, F)))
+        X.coeff <- apply(X, 3, function(X) E_chol(Chol_C(X, FALSE, FALSE)))
         X.rows <- apply(X.coeff, 1, function(X){isTRUE(diff(range(X)) > .Machine$double.eps)})
-        X.coeff <- X.coeff[X.rows, , drop = F]
-        y.coeff <- (if(point) E_chol(Chol_C(y, F, F))[X.rows] else X.coeff)
+        X.coeff <- X.coeff[X.rows, , drop = FALSE]
+        y.coeff <- (if(point) E_chol(Chol_C(y, FALSE, FALSE))[X.rows] else X.coeff)
       } else if(metric == "Euclidean"){
         X.coeff <- apply(X, 3, function(X) E_coeff(X))
         X.rows <- apply(X.coeff, 1, function(X){isTRUE(diff(range(X)) > .Machine$double.eps)})
-        X.coeff <- X.coeff[X.rows, , drop = F]
+        X.coeff <- X.coeff[X.rows, , drop = FALSE]
         y.coeff <- (if(point) E_coeff(y)[X.rows] else X.coeff)
       } else if(metric == "rootEuclidean"){
         X.coeff <- apply(X, 3, function(X) E_coeff(Sqrt(X)))
         X.rows <- apply(X.coeff, 1, function(X){isTRUE(diff(range(X)) > .Machine$double.eps)})
-        X.coeff <- X.coeff[X.rows, , drop = F]
+        X.coeff <- X.coeff[X.rows, , drop = FALSE]
         y.coeff <- (if(point) E_coeff(Sqrt(y))[X.rows] else X.coeff)
       }
       ddalpha::depth.zonoid(t(y.coeff), t(X.coeff))
@@ -150,7 +150,7 @@ pdDepth <- function(y = NULL, X, method = "gdd", metric = "Riemannian") {
     ## Integrated zonoid depth
     if (length(dim(X)) == 4) {
       iZD <- function(y, X) {
-        point <- ifelse(length(dim(y)) == 3, T, F)
+        point <- ifelse(length(dim(y)) == 3, TRUE, FALSE)
         if(point){
           dd <- mean(sapply(1:n, function(t) ZD(y[, , t], X[, , t, ])))
         } else{
@@ -169,7 +169,7 @@ pdDepth <- function(y = NULL, X, method = "gdd", metric = "Riemannian") {
 
     ## intrinsic spatial depth
     SD <- function(y, X) {
-      point <- ifelse(length(dim(y)) == 2, T, F)
+      point <- ifelse(length(dim(y)) == 2, TRUE, FALSE)
       if(metric == "Riemannian"){
         y.isqrt <- iSqrt(y)
         log.yx <- sapply(1:S, function(s) Logm(diag(d), (y.isqrt %*% X[, , s]) %*% y.isqrt), simplify = "array")
@@ -180,8 +180,8 @@ pdDepth <- function(y = NULL, X, method = "gdd", metric = "Riemannian") {
           X.coeff <- apply(X, 3, function(X) E_coeff(Logm(diag(d), X)))
           y.coeff <- (if(point) E_coeff(Logm(diag(d), y)) else X.coeff)
         } else if(metric == "Cholesky"){
-          X.coeff <- apply(X, 3, function(X) E_chol(Chol_C(X, F, F)))
-          y.coeff <- (if(point) E_chol(Chol_C(y, F, F)) else X.coeff)
+          X.coeff <- apply(X, 3, function(X) E_chol(Chol_C(X, FALSE, FALSE)))
+          y.coeff <- (if(point) E_chol(Chol_C(y, FALSE, FALSE)) else X.coeff)
         } else if(metric == "Euclidean"){
           X.coeff <- apply(X, 3, function(X) E_coeff(X))
           y.coeff <- (if(point) E_coeff(y) else X.coeff)
@@ -207,7 +207,7 @@ pdDepth <- function(y = NULL, X, method = "gdd", metric = "Riemannian") {
     ## Integrated spatial depth
     if (length(dim(X)) == 4) {
       iSD <- function(y, X) {
-        point <- ifelse(length(dim(y)) == 3, T, F)
+        point <- ifelse(length(dim(y)) == 3, TRUE, FALSE)
         if(point){
           dd <- mean(sapply(1:n, function(t) SD(y[, , t], X[, , t, ])))
         } else{

@@ -61,9 +61,9 @@ pdDist <- function(A, B, metric = "Riemannian") {
 #' @param grad_desc if \code{metric = "Riemannian"}, a logical value indicating if the
 #' gradient descent algorithm in \insertCite{P06}{pdSpecEst} should be used, defaults to \code{FALSE}.
 #' @param maxit maximum number of iterations in gradient descent algorithm, only used if
-#' \code{grad_desc = T} and \code{metric = "Riemannian"}. Defaults to \code{1000}
+#' \code{grad_desc = TRUE} and \code{metric = "Riemannian"}. Defaults to \code{1000}
 #' @param reltol optional tolerance parameter in gradient descent algorithm, only used if
-#' \code{grad_desc = T} and \code{metric = "Riemannian"}. Defaults to \code{1E-10}.
+#' \code{grad_desc = TRUE} and \code{metric = "Riemannian"}. Defaults to \code{1E-10}.
 #'
 #' @note
 #' The function does not check for positive definiteness of the input matrices, and (depending on the
@@ -88,7 +88,7 @@ pdDist <- function(A, B, metric = "Riemannian") {
 #' @seealso \code{\link{Mid}}, \code{\link{pdMedian}}
 #'
 #' @export
-pdMean <- function(M, w, metric = "Riemannian", grad_desc = F, maxit = 1000, reltol) {
+pdMean <- function(M, w, metric = "Riemannian", grad_desc = FALSE, maxit = 1000, reltol) {
 
   if (!(isTRUE(is.array(M) & (dim(M)[1] == dim(M)[2]) & (length(dim(M)) == 3)))) {
     stop("Incorrect input dimensions for arguments: 'M',
@@ -117,14 +117,14 @@ pdMean <- function(M, w, metric = "Riemannian", grad_desc = F, maxit = 1000, rel
     } else {
       ## Transform
       if(metric %in% c("logEuclidean", "Cholesky", "rootEuclidean")) {
-        M <- Ptransf2D_C(M, F, F, metric)
+        M <- Ptransf2D_C(M, FALSE, FALSE, metric)
       }
       ## Euclidean mean
       Mean <- apply(sweep(M, 3, w, "*"), c(1, 2), sum)
       ## Transform back
       Mean <- switch(metric,
                        logEuclidean = Expm(diag(d), Mean),
-                       Cholesky = Chol_C(Mean, F, T),
+                       Cholesky = Chol_C(Mean, FALSE, TRUE),
                        rootEuclidean = t(Conj(Mean)) %*% Mean,
                        Euclidean = Mean)
     }
@@ -198,7 +198,7 @@ pdMedian <- function(M, w, metric = "Riemannian", maxit = 1000, reltol) {
     } else {
       ## Transform
       if(metric %in% c("logEuclidean", "Cholesky", "rootEuclidean")) {
-        M <- Ptransf2D_C(M, F, F, metric)
+        M <- Ptransf2D_C(M, FALSE, FALSE, metric)
       }
       ## Initial estimate
       Med0 <- apply(sweep(M, 3, w, "*"), c(1, 2), sum)
@@ -207,7 +207,7 @@ pdMedian <- function(M, w, metric = "Riemannian", maxit = 1000, reltol) {
       ## Transform back
       Med <- switch(metric,
                      logEuclidean = Expm(diag(d), Med),
-                     Cholesky = Chol_C(Med, F, T),
+                     Cholesky = Chol_C(Med, FALSE, TRUE),
                      rootEuclidean = t(Conj(Med)) %*% Med,
                      Euclidean = Med)
     }

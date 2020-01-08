@@ -125,7 +125,7 @@ pdRankTests <- function(data, sample_sizes, test = c("rank.sum", "krusk.wall", "
     T1 <- (sum(rank(dd, ties.method = "random")[1:n[1]]) - n[1] * (sum(n) + 1)/2) /
                                                     sqrt(n[1] * n[2] * (sum(n) + 1)/12)
 
-    output <- list(test = "Intrinsic Wilcoxon rank-sum", p.value = 2 * stats::pnorm(abs(T1), lower.tail = F), statistic = T1,
+    output <- list(test = "Intrinsic Wilcoxon rank-sum", p.value = 2 * stats::pnorm(abs(T1), lower.tail = FALSE), statistic = T1,
                                                   null.distr = "Standard normal distribution", depth.values = dd)
   }
 
@@ -141,8 +141,8 @@ pdRankTests <- function(data, sample_sizes, test = c("rank.sum", "krusk.wall", "
                                       f = rep(1:length(n), times = n)), mean)))
     T2 <- 12/(N * (N + 1)) * sum(n * (R_bar - (N + 1)/2)^2)
 
-    output <- list(test = "Intrinsic Kruskal-Wallis", p.value = min(stats::pchisq(T2, df = 2, lower.tail = T),
-                            pchisq(T2, df = 2, lower.tail = F)), statistic = T2,
+    output <- list(test = "Intrinsic Kruskal-Wallis", p.value = min(stats::pchisq(T2, df = 2, lower.tail = TRUE),
+                            pchisq(T2, df = 2, lower.tail = FALSE)), statistic = T2,
                                     null.distr = "Chi-squared distribution (df = 2)", depth.values = dd)
   }
 
@@ -159,7 +159,7 @@ pdRankTests <- function(data, sample_sizes, test = c("rank.sum", "krusk.wall", "
     } else{
       diff <- sapply(1:n, function(i) Re(sum(diag(Logm(diag(d), data[, , n + i]) - Logm(diag(d), data[, , i])))))
     }
-    T3 <- stats::wilcox.test(x = diff, y = rep(0, n), paired = T, correct = T)
+    T3 <- stats::wilcox.test(x = diff, y = rep(0, n), paired = TRUE, correct = TRUE)
     output <- list(test = "Intrinsic Wilcoxon signed-rank", p.value = T3$p.value, statistic = T3$statistic, null.distr = T3$method)
   }
 
@@ -173,7 +173,7 @@ pdRankTests <- function(data, sample_sizes, test = c("rank.sum", "krusk.wall", "
     T4 <- sum(diff(rank(dd, ties.method = "random"))^2)/(n * (n^2 - 1)/12)
     sigma <- sqrt(4 * (n - 2) * (5 * n^2 - 2 * n - 9)/(5 * n * (n + 1) * (n - 1)^2))
 
-    output <- list(test = "Intrinsic Bartels-von Neumann", p.value = 2 * pnorm(abs((T4 - 2)/sigma), lower.tail = F),
+    output <- list(test = "Intrinsic Bartels-von Neumann", p.value = 2 * pnorm(abs((T4 - 2)/sigma), lower.tail = FALSE),
                       statistic = (T4 - 2)/sigma, null.distr = "Standard normal distribution",
                    depth.values = dd)
   }

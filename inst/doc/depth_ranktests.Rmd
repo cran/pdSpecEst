@@ -199,9 +199,5 @@ pdRankTests(data3a, test = "bartels")[2] ## null false (pointwise)
 pdRankTests(data4a, test = "bartels")[2] ## null false (curve)
 ```
 
-## Demo R-Shiny app
-
-A demo R-Shiny app to calculate the intrinsic data depth and perform rank-based hypothesis tests for samples in the space of HPD matrices is available [here](https://jchau.shinyapps.io/pdSpecEst_app/). The app allows the user to examine the performance of the different depth rank-based tests based on simulated samples of HPD matrices.
-
 ## References
 

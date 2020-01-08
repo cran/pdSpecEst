@@ -70,7 +70,7 @@ pdSplineReg <- function(P, f0, lam = 1, Nd, ini_step = 1, max_iter = 100, eps = 
 
   ## Compute directional derivatives and gradients as in (Boumal and Absil, 2011b)
   DLog <- function(A, H){
-    e <- eigen(A, symmetric = T)
+    e <- eigen(A, symmetric = TRUE)
     e_vec <- e$vectors
     e_val <- e$values
     H1 <- (t(Conj(e_vec)) %*% H) %*% e_vec
@@ -176,13 +176,13 @@ pdSplineReg <- function(P, f0, lam = 1, Nd, ini_step = 1, max_iter = 100, eps = 
 #' The orthonormal basis coefficients are ordered by scanning through the matrix \code{H} in a row-by-row
 #' fashion.
 #'
-#' @param H if \code{inverse = F}, a \eqn{(d,d)}-dimensional Hermitian matrix; if \code{inverse = T}, a numeric
+#' @param H if \code{inverse = FALSE}, a \eqn{(d,d)}-dimensional Hermitian matrix; if \code{inverse = TRUE}, a numeric
 #' vector of length \eqn{d^2} with \eqn{d} an integer.
-#' @param inverse a logical value that determines whether the forward basis transform (\code{inverse = F}) or the inverse
-#' basis transform (\code{inverse = T}) should be applied.
+#' @param inverse a logical value that determines whether the forward basis transform (\code{inverse = FALSE}) or the inverse
+#' basis transform (\code{inverse = TRUE}) should be applied.
 #'
-#' @return If \code{inverse = F} takes as input a \eqn{(d,d)}-dimensional Hermitian matrix and outputs a numeric
-#' vector of length \eqn{d^2} containing the real-valued basis coefficients. If \code{inverse = T} takes as input a
+#' @return If \code{inverse = FALSE} takes as input a \eqn{(d,d)}-dimensional Hermitian matrix and outputs a numeric
+#' vector of length \eqn{d^2} containing the real-valued basis coefficients. If \code{inverse = TRUE} takes as input a
 #' \eqn{d^2}-dimensional numeric vector of basis coefficients and outputs the corresponding \eqn{(d,d)}-dimensional
 #' Hermitian matrix.
 #'
@@ -198,7 +198,7 @@ pdSplineReg <- function(P, f0, lam = 1, Nd, ini_step = 1, max_iter = 100, eps = 
 #' all.equal(H, H1)
 #'
 #' @export
-H.coeff <- function(H, inverse = F){
+H.coeff <- function(H, inverse = FALSE){
   if(!isTRUE(inverse)){
     if(!isTRUE(all.equal(t(Conj(H)), H))){
       stop("'H' should be an Hermitian matrix.")
@@ -214,15 +214,15 @@ H.coeff <- function(H, inverse = F){
 }
 
 ## Orthonormal basis expansion Cholesky matrix
-E_chol <- function(R, inverse = F){
+E_chol <- function(R, inverse = FALSE){
   d <- (if(!inverse) dim(R)[1] else round(sqrt(length(R))))
 
   if(!inverse){
-    P <- c(Re(R)[lower.tri(R, diag = T)], Im(R)[lower.tri(R)])
+    P <- c(Re(R)[lower.tri(R, diag = TRUE)], Im(R)[lower.tri(R)])
   } else {
     P1 <- array(0, dim = c(d, d))
     P2 <- array(0i, dim = c(d, d))
-    P1[lower.tri(P1, diag = T)] <- R[1:(d * (d + 1)/2)]
+    P1[lower.tri(P1, diag = TRUE)] <- R[1:(d * (d + 1)/2)]
     P2[lower.tri(P2)] <- complex(imaginary = tail(R, -d * (d + 1)/2))
     P <- P1 + P2
   }

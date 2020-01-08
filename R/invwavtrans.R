@@ -35,10 +35,10 @@
 #' If \code{jmax} is not specified it is set equal to the resolution in the finest wavelet scale \code{jmax = length(D)}.
 #' @param periodic a logical value determining whether the curve of HPD matrices can be reflected at the boundary for
 #' improved wavelet refinement schemes near the boundaries of the domain. This is useful for spectral matrix estimation,
-#' where the spectral matrix is a symmetric and periodic curve in the frequency domain. Defaults to \code{periodic = F}.
+#' where the spectral matrix is a symmetric and periodic curve in the frequency domain. Defaults to \code{periodic = FALSE}.
 #' @param metric the metric that the space of HPD matrices is equipped with. The default choice is \code{"Riemannian"},
-#' but this can also be one of: \code{"logEuclidean"}, \code{"Cholesky"}, \code{"rootEuclidean"} or
-#' \code{"Euclidean"}. See also the Details section below.
+#' but this can also be one of: \code{"logEuclidean"}, \code{"Cholesky"}, \code{"rootEuclidean"},
+#' \code{"Euclidean"} or \code{"Riemannian-Rahman"}. See also the Details section below.
 #' @param ... additional arguments for internal use.
 #'
 #' @examples
@@ -56,18 +56,18 @@
 #' \insertAllCited{}
 #'
 #' @export
-InvWavTransf1D <- function(D, M0, order = 5, jmax, periodic = F, metric = "Riemannian", ...) {
+InvWavTransf1D <- function(D, M0, order = 5, jmax, periodic = FALSE, metric = "Riemannian", ...) {
 
   ## Initialize variables
   dots <- list(...)
   return_val <- (if(is.null(dots$return_val)) "f" else dots$return_val)
   method <- (if(is.null(dots$method)) "fast" else dots$method)
-  chol_bias <- (if(is.null(dots$chol_bias)) F else dots$chol_bias)
+  chol_bias <- (if(is.null(dots$chol_bias)) FALSE else dots$chol_bias)
   if (!(order %% 2 == 1)) {
     warning("Refinement order should be an odd integer, by default set to 5")
     order <- 5
   }
-  metric <- match.arg(metric, c("Riemannian", "logEuclidean", "Cholesky", "rootEuclidean", "Euclidean"))
+  metric <- match.arg(metric, c("Riemannian", "logEuclidean", "Cholesky", "rootEuclidean", "Euclidean", "Riemannian-Rahman"))
   L <- (order - 1) / 2
   L_round <- 2 * ceiling(L / 2)
   d <- nrow(D[[1]][, , 1])
@@ -83,21 +83,21 @@ InvWavTransf1D <- function(D, M0, order = 5, jmax, periodic = F, metric = "Riema
     n_M <- dim(m1)[3]
     L1 <- ifelse(order > n_M, floor((n_M - 1) / 2), L)
     ## Impute C++
-    tm1 <- impute_C(m1, W_1D[[min(L1 + 1, 5)]], L1, T, metric, method)
+    tm1 <- impute_C(m1, W_1D[[min(L1 + 1, 5)]], L1, TRUE, metric, method)
     if(periodic){
-      tm1 <- tm1[, , ifelse(j > 0, L_round, 2 * floor(L / 2)) + 1:(2^(j + 1) + 2 * L_round), drop = F]
+      tm1 <- tm1[, , ifelse(j > 0, L_round, 2 * floor(L / 2)) + 1:(2^(j + 1) + 2 * L_round), drop = FALSE]
     }
     L1 <- ifelse(periodic, L_round / 2 + ifelse((j > 0) | (L %% 2 == 0), 0, -1), 0)
     ## Reconstruct C++
     Dj <- (if(j < length(D)) D[[j + 1]] else array(dim = c(d, d, as.integer(dim(tm1)[3]/2))))
     m1 <- reconstr_C(tm1, m1, Dj, j, ifelse(j < length(D), dim(D[[j + 1]])[3], as.integer(dim(tm1)[3]/2)),
-                     isTRUE(j < length(D)), L1, metric)
+                     isTRUE(j < length(D)), L1, ifelse(metric == "Riemannian-Rahman", "Riemannian", metric))
   }
 
   ## Transform back to manifold
   if(return_val == "f") {
     if(metric == "logEuclidean" | metric == "Cholesky" | metric == "rootEuclidean") {
-      m1 <- Ptransf2D_C(m1, T, chol_bias, metric)
+      m1 <- Ptransf2D_C(m1, TRUE, chol_bias, metric)
     }
   }
   return((if(periodic) m1[, , L_round + 1:2^J] else m1))
@@ -161,7 +161,7 @@ InvWavTransf2D <- function(D, M0, order = c(3, 3), jmax, metric = "Riemannian", 
   dots <- list(...)
   return_val <- (if(is.null(dots$return_val)) "f" else dots$return_val)
   method <- (if(is.null(dots$method)) "fast" else dots$method)
-  chol_bias <- (if(is.null(dots$chol_bias)) F else dots$chol_bias)
+  chol_bias <- (if(is.null(dots$chol_bias)) FALSE else dots$chol_bias)
   if (!isTRUE((order[1] %% 2 == 1) & (order[2] %% 2 == 1))) {
     warning("Refinement orders in both directions should be odd integers, by default set to c(5,5).")
     order <- c(3, 3)
@@ -186,16 +186,16 @@ InvWavTransf2D <- function(D, M0, order = c(3, 3), jmax, metric = "Riemannian", 
       if(dim(D[[j + 1]])[3] == 1){
         ## Refine 1D
         L1 <- ifelse(order[2] > 2^j, floor((2^j - 1) / 2), L[2])
-        tm1 <- impute_C(array(m1[, , 1, ], dim = c(d, d, 2^j)), W_1D[[min(L1 + 1, 5)]], L1, T, metric, method)
+        tm1 <- impute_C(array(m1[, , 1, ], dim = c(d, d, 2^j)), W_1D[[min(L1 + 1, 5)]], L1, TRUE, metric, method)
         ## Reconstruct midpoints 1D
-        m1 <- reconstr2D_C(tm1, array(D[[j + 1]], dim = dim(tm1)), J0_2D + j, c(1, 2^(j + 1)), T, metric)
+        m1 <- reconstr2D_C(tm1, array(D[[j + 1]], dim = dim(tm1)), J0_2D + j, c(1, 2^(j + 1)), TRUE, metric)
         m1 <- array(m1, dim = c(d, d, 1, 2^(j + 1)))
       } else if(dim(D[[j + 1]])[4] == 1){
         ## Refine 1D
         L1 <- ifelse(order[1] > 2^j, floor((2^j - 1) / 2), L[1])
-        tm1 <- impute_C(array(m1[, , , 1], dim = c(d, d, 2^j)), W_1D[[min(L1 + 1, 5)]], L1, T, metric, method)
+        tm1 <- impute_C(array(m1[, , , 1], dim = c(d, d, 2^j)), W_1D[[min(L1 + 1, 5)]], L1, TRUE, metric, method)
         ## Reconstruct midpoints 1D
-        m1 <- reconstr2D_C(tm1, array(D[[j + 1]], dim = dim(tm1)), J0_2D + j, c(2^(j + 1), 1), T, metric)
+        m1 <- reconstr2D_C(tm1, array(D[[j + 1]], dim = dim(tm1)), J0_2D + j, c(2^(j + 1), 1), TRUE, metric)
         m1 <- array(m1, dim = c(d, d, 2^(j + 1), 1))
       } else {
         ## Refine 2D
@@ -203,7 +203,7 @@ InvWavTransf2D <- function(D, M0, order = c(3, 3), jmax, metric = "Riemannian", 
         ## Reconstruct midpoints 2D
         m1 <- reconstr2D_C(array(tm1, dim = c(d, d, dim(tm1)[3] * dim(tm1)[4])),
                            array(D[[j + 1]], dim = c(d, d, dim(D[[j + 1]])[3] * dim(D[[j + 1]])[4])), 2 * j,
-                           c(dim(tm1)[3], dim(tm1)[4]), T, metric)
+                           c(dim(tm1)[3], dim(tm1)[4]), TRUE, metric)
         m1 <- array(m1, dim = dim(tm1))
       }
     } else {
@@ -212,7 +212,7 @@ InvWavTransf2D <- function(D, M0, order = c(3, 3), jmax, metric = "Riemannian", 
       ## Reconstruct midpoints 2D
       m1 <- reconstr2D_C(array(tm1, dim = c(d, d, dim(tm1)[3] * dim(tm1)[4])),
                          array(dim = c(d, d, dim(tm1)[3] * dim(tm1)[4])), 2 * j,
-                         c(dim(tm1)[3], dim(tm1)[4]), F, metric)
+                         c(dim(tm1)[3], dim(tm1)[4]), FALSE, metric)
       m1 <- array(m1, dim = dim(tm1))
     }
   }
@@ -220,7 +220,7 @@ InvWavTransf2D <- function(D, M0, order = c(3, 3), jmax, metric = "Riemannian", 
   ## Transform back to manifold
   if(return_val == "f"){
     if(metric == "logEuclidean" | metric == "Cholesky" | metric == "rootEuclidean") {
-      m1 <- array(Ptransf2D_C(array(m1, dim = c(d, d, dim(m1)[3] * dim(m1)[4])), T, chol_bias, metric), dim = dim(m1))
+      m1 <- array(Ptransf2D_C(array(m1, dim = c(d, d, dim(m1)[3] * dim(m1)[4])), TRUE, chol_bias, metric), dim = dim(m1))
     }
   }
 

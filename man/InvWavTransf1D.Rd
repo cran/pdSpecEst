@@ -4,7 +4,7 @@
 \alias{InvWavTransf1D}
 \title{Inverse AI wavelet transform for curve of HPD matrices}
 \usage{
-InvWavTransf1D(D, M0, order = 5, jmax, periodic = F,
+InvWavTransf1D(D, M0, order = 5, jmax, periodic = FALSE,
   metric = "Riemannian", ...)
 }
 \arguments{
@@ -26,11 +26,11 @@ If \code{jmax} is not specified it is set equal to the resolution in the finest 
 
 \item{periodic}{a logical value determining whether the curve of HPD matrices can be reflected at the boundary for
 improved wavelet refinement schemes near the boundaries of the domain. This is useful for spectral matrix estimation,
-where the spectral matrix is a symmetric and periodic curve in the frequency domain. Defaults to \code{periodic = F}.}
+where the spectral matrix is a symmetric and periodic curve in the frequency domain. Defaults to \code{periodic = FALSE}.}
 
 \item{metric}{the metric that the space of HPD matrices is equipped with. The default choice is \code{"Riemannian"},
-but this can also be one of: \code{"logEuclidean"}, \code{"Cholesky"}, \code{"rootEuclidean"} or
-\code{"Euclidean"}. See also the Details section below.}
+but this can also be one of: \code{"logEuclidean"}, \code{"Cholesky"}, \code{"rootEuclidean"},
+\code{"Euclidean"} or \code{"Riemannian-Rahman"}. See also the Details section below.}
 
 \item{...}{additional arguments for internal use.}
 }

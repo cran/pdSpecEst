@@ -6,7 +6,7 @@
 \usage{
 pdSpecClust1D(P, K, jmax, metric = "Riemannian", m = 2, d.jmax = 0.1,
   eps = c(1e-04, 1e-04), tau = 0.5, max_iter = 50,
-  return.centers = F, ...)
+  return.centers = FALSE, ...)
 }
 \arguments{
 \item{P}{a (\eqn{d,d,n,S})-dimensional array of HPD matrices, corresponding to a collection of sequences of
@@ -42,7 +42,7 @@ the clustering algorithm. If \code{tau} is not specified, by default \code{tau =
 clustering algorithm, defaults to \code{max_iter = 50}.}
 
 \item{return.centers}{should the cluster centers transformed back the space of HPD matrices also be returned?
-Defaults to \code{return.centers = F}.}
+Defaults to \code{return.centers = FALSE}.}
 
 \item{...}{additional arguments passed on to \code{\link{pdSpecEst1D}}.}
 }
@@ -56,7 +56,7 @@ Depending on the input the function returns a list with five or six components:
   coefficients is associated to a cluster center.}
   \item{cl.centers.M0 }{ a list of \code{K} arrays of coarse-scale midpoints at scale \code{j = 0}, where each
   array is associated to a cluster center.}
-  \item{cl.centers.f }{ only available if \code{return.centers = T}, returning a list of \code{K} \eqn{(d,d,n)}-dimensional arrays,
+  \item{cl.centers.f }{ only available if \code{return.centers = TRUE}, returning a list of \code{K} \eqn{(d,d,n)}-dimensional arrays,
   where each array corresponds to a length \eqn{n} curve of \eqn{(d,d)}-dimensional HPD matrices associated to a cluster center.}
   \item{cl.jmax }{ the maximum wavelet scale taken into account in the clustering procedure determined by
   the input arguments \code{jmax} and \code{d.jmax}.}
@@ -104,7 +104,7 @@ or \insertCite{PFA05}{pdSpecEst}; (ii) the log-Euclidean metric, the Euclidean i
 (v) the root-Euclidean metric. The default choice of metric (affine-invariant Riemannian) satisfies several useful properties
 not shared by the other metrics, see \insertCite{CvS17}{pdSpecEst} or \insertCite{C18}{pdSpecEst} for more details. Note that this comes
 at the cost of increased computation time in comparison to one of the other metrics. \cr
-If \code{return.centers = T}, the function also returns the \code{K} HPD spectral matrix curves corresponding to
+If \code{return.centers = TRUE}, the function also returns the \code{K} HPD spectral matrix curves corresponding to
 the cluster centers based on the given metric by applying the intrinsic inverse AI wavelet transform (
 \code{\link{InvWavTransf1D}}) to the cluster centers in the wavelet domain.
 }

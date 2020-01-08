@@ -39,8 +39,8 @@
 #' significantly increases as the wavelet transform no longer uses a fast wavelet refinement scheme based
 #' on pre-determined weights.
 #' @param metric the metric that the space of HPD matrices is equipped with. The default choice is \code{"Riemannian"},
-#' but this can also be one of: \code{"logEuclidean"}, \code{"Cholesky"}, \code{"rootEuclidean"} or
-#' \code{"Euclidean"}. See also the Details section below.
+#' but this can also be one of: \code{"logEuclidean"}, \code{"Cholesky"}, \code{"rootEuclidean"},
+#' \code{"Euclidean"} or \code{"Riemannian-Rahman"}. See also the Details section below.
 #' @param alpha an optional tuning parameter in the wavelet thresholding procedure. The penalty (or sparsity)
 #' parameter in the tree-structured wavelet thresholding procedure in \code{\link{pdCART}} is set to \code{alpha}
 #' times the estimated universal threshold, defaults to \code{alpha = 1}.
@@ -78,21 +78,21 @@ pdSpecEst1D <- function(P, order = 5, metric = "Riemannian", alpha = 1, return_v
 
   ## Set variables
   dots <- list(...)
-  tree <- (if(is.null(dots$tree)) T else dots$tree)
+  tree <- (if(is.null(dots$tree)) TRUE else dots$tree)
   w.tree <- (if(is.null(dots$w.tree)) NULL else dots$w.tree)
-  periodic <- (if(is.null(dots$periodic)) T else dots$periodic)
+  periodic <- (if(is.null(dots$periodic)) TRUE else dots$periodic)
   method <- (if(is.null(dots$method)) "fast" else dots$method)
-  metric <- match.arg(metric, c("Riemannian", "logEuclidean", "Cholesky", "rootEuclidean", "Euclidean"))
+  metric <- match.arg(metric, c("Riemannian", "logEuclidean", "Cholesky", "rootEuclidean", "Euclidean", "Riemannian-Rahman"))
   J <- log2(dim(P)[3])
   d <- dim(P)[1]
   B <- (if(is.null(dots$B)) d else dots$B)
   J.out <- (if(is.null(dots$J.out)) J else dots$J.out)
   jmax <- min((if(is.null(dots$jmax)) J - 2 else dots$jmax), J.out - 1)
-  bias.corr <- (if(is.null(dots$bias.corr)) T else dots$bias.corr)
+  bias.corr <- (if(is.null(dots$bias.corr)) TRUE else dots$bias.corr)
   return.D <- (if(is.null(dots$return.D)) NA else dots$return.D)
 
   ## Wishart bias-correction
-  P <- (if((metric == "Riemannian" | metric == "logEuclidean") & bias.corr) {
+  P <- (if((grepl("Riemannian", metric) | metric == "logEuclidean") & bias.corr) {
     B * exp(-1/d * sum(digamma(B - (d - 1:d)))) * P } else P)
 
   ## (1) Transform data to wavelet domain
@@ -193,7 +193,7 @@ pdSpecEst2D <- function(P, order = c(3, 3), metric = "Riemannian", alpha = 1, re
 
   ## Set variables
   dots <- list(...)
-  tree <- (if(is.null(dots$tree)) T else dots$tree)
+  tree <- (if(is.null(dots$tree)) TRUE else dots$tree)
   w.tree <- (if(is.null(dots$w.tree)) NULL else dots$w.tree)
   method <- (if(is.null(dots$method)) "fast" else dots$method)
   metric <- match.arg(metric, c("Riemannian", "logEuclidean", "Cholesky", "rootEuclidean", "Euclidean"))
@@ -204,7 +204,7 @@ pdSpecEst2D <- function(P, order = c(3, 3), metric = "Riemannian", alpha = 1, re
   B <- (if(is.null(dots$B)) d else dots$B)
   J.out <- (if(is.null(dots$J.out)) J else dots$J.out)
   jmax <- min((if(is.null(dots$jmax)) J - 2 else dots$jmax), J.out - 1)
-  bias.corr <- (if(is.null(dots$bias.corr)) T else dots$bias.corr)
+  bias.corr <- (if(is.null(dots$bias.corr)) TRUE else dots$bias.corr)
   return.D <- (if(is.null(dots$return.D)) NA else dots$return.D)
 
   # Wishart bias-correction
@@ -236,7 +236,7 @@ pdSpecEst2D <- function(P, order = c(3, 3), metric = "Riemannian", alpha = 1, re
 
 #' Tree-structured trace thresholding of wavelet coefficients
 #'
-#' \code{pdCart} performs hard tree-structured thresholding of the Hermitian matrix-valued wavelet coefficients obtained with
+#' \code{pdCART} performs hard tree-structured thresholding of the Hermitian matrix-valued wavelet coefficients obtained with
 #' \code{\link{WavTransf1D}} or \code{\link{WavTransf2D}} based on the trace of the whitened wavelet coefficients, as explained in
 #' \insertCite{CvS17}{pdSpecEst} or \insertCite{C18}{pdSpecEst}. This function is primarily written for internal use in other functions and
 #' is typically not used as a stand-alone function.
@@ -263,7 +263,7 @@ pdSpecEst2D <- function(P, order = c(3, 3), metric = "Riemannian", alpha = 1, re
 #' @param D a list of wavelet coefficients as obtained from the \code{$D} component of \code{\link{WavTransf1D}} or \code{\link{WavTransf2D}} .
 #' @param D.white a list of whitened wavelet coefficients as obtained from the \code{$D.white} component of \code{\link{WavTransf1D}} or \code{\link{WavTransf2D}}.
 #' @param alpha tuning parameter specifying the penalty/sparsity parameter as \code{alpha} times the universal threshold.
-#' @param tree logical value, if \code{tree = T} performs tree-structured thresholding, otherwise performs
+#' @param tree logical value, if \code{tree = TRUE} performs tree-structured thresholding, otherwise performs
 #'  non-tree-structured hard thresholding of the coefficients.
 #' @param order the order(s) of the intrinsic 1D or 2D AI refinement scheme as in \code{\link{WavTransf1D}} and \code{\link{WavTransf2D}}.
 #' @param ... additional arguments for internal use.
@@ -293,15 +293,15 @@ pdSpecEst2D <- function(P, order = c(3, 3), metric = "Riemannian", alpha = 1, re
 #' \insertAllCited{}
 #'
 #' @export
-pdCART <- function(D, D.white, order, alpha = 1, tree = T, ...) {
+pdCART <- function(D, D.white, order, alpha = 1, tree = TRUE, ...) {
 
   ## Set variables
   J <- length(D)
   d <- dim(D[[1]])[1]
-  is_2D <- ifelse(length(dim(D[[1]])) == 4, T, F)
+  is_2D <- ifelse(length(dim(D[[1]])) == 4, TRUE, FALSE)
   dots <- list(...)
   B <- (if(is.null(dots$B)) d else dots$B)
-  periodic <- (if(is.null(dots$periodic) | is_2D) F else dots$periodic)
+  periodic <- (if(is.null(dots$periodic) | is_2D) FALSE else dots$periodic)
   return.D <- (if(is.null(dots$return.D)) NA else dots$return.D)
   w.tree <- (if(is.null(dots$w.tree)) NULL else dots$w.tree)
   if(periodic){
@@ -357,7 +357,7 @@ pdCART <- function(D, D.white, order, alpha = 1, tree = T, ...) {
 
     for(j in J_tr:1){
       if(j == J_tr){
-        w[[j]] <- ifelse(abs(D_trace[[j]]) > lam, T, F)
+        w[[j]] <- ifelse(abs(D_trace[[j]]) > lam, TRUE, FALSE)
         R <- pmin(D_trace[[j]]^2, lam^2)
         V <- D_trace[[j]]^2
       } else{
@@ -383,7 +383,7 @@ pdCART <- function(D, D.white, order, alpha = 1, tree = T, ...) {
           V <- sapply(1:dims, function(i) V[2 * i - 1] + V[2 * i]) + D_trace[[j]]^2
           R <- sapply(1:dims, function(i) R[2 * i - 1] + R[2 * i]) + lam^2
         }
-        w[[j]] <- ifelse(R < V, T, F)
+        w[[j]] <- ifelse(R < V, TRUE, FALSE)
         R <- pmin(V, R)
       }
     }
@@ -405,7 +405,7 @@ pdCART <- function(D, D.white, order, alpha = 1, tree = T, ...) {
         if(j > 2){
           dims <- dim(w[[j - 1]])
           roots <- matrix(rep(matrix(rep(t(w[[j - 2]]), each = ifelse(dims[2] > 1, 2, 1)),
-                              byrow = T, ncol = dims[2]), each = ifelse(dims[1] > 1, 2, 1)), nrow = dims[1])
+                              byrow = TRUE, ncol = dims[2]), each = ifelse(dims[1] > 1, 2, 1)), nrow = dims[1])
           w[[j - 1]] <- w[[j - 1]] & roots
         }
       }
@@ -422,7 +422,7 @@ pdCART <- function(D, D.white, order, alpha = 1, tree = T, ...) {
   } else {
     ## 1D
     for(j in 2:J){
-      w[[j - 1]] <- (if(isTRUE(tree)) w[[j - 1]] & rep((if(j == 2) T else w[[j - 2]]), each = 2) else w[[j - 1]])
+      w[[j - 1]] <- (if(isTRUE(tree)) w[[j - 1]] & rep((if(j == 2) TRUE else w[[j - 2]]), each = 2) else w[[j - 1]])
       if(periodic & (L_b > 0)){
         zeros <- !(c(abs(D_trace_full[[j - 1]][1:L_b]) > lam, w[[j - 1]], abs(D_trace_full[[j - 1]][2^(j - 1) + L_b + 1:L_b]) > lam))
       } else{

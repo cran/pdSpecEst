@@ -76,9 +76,9 @@ pdkMeans <- function(X, K, metric = "Riemannian", m = 1, eps = 1e-05, max_iter =
   n <- ifelse(length(dim(X)) == 3, 1, dim(X)[3])
   ## Initialize centers and reshape X if necessary
   if(length(dim(X)) == 3) {
-    init_cent <- (if(missing(centroids)) X[, , sample(1:S, K), drop = F] else centroids)
+    init_cent <- (if(missing(centroids)) X[, , sample(1:S, K), drop = FALSE] else centroids)
   } else {
-    init_cent <- (if(missing(centroids)) X[, , , sample(1:S, K), drop = F] else centroids)
+    init_cent <- (if(missing(centroids)) X[, , , sample(1:S, K), drop = FALSE] else centroids)
     init_cent <- array(init_cent, dim = c(d, d, n * K))
     X <- array(aperm(X, c(1, 2, 4, 3)), dim = c(d, d, S * n))
   }
@@ -93,9 +93,9 @@ pdkMeans <- function(X, K, metric = "Riemannian", m = 1, eps = 1e-05, max_iter =
   for(k in 1:K) {
     w <- clust[, k]^m / sum(clust[, k]^m)
     if(length(dim(X)) == 3) {
-      centroids[, , , k] <- pdMean(X, w, metric, grad_desc = T)
+      centroids[, , , k] <- pdMean(X, w, metric, grad_desc = TRUE)
     } else {
-      centroids[, , , k] <- sapply(1:n, function(i) pdMean(X[, , i, ], w, metric, grad_desc = T),
+      centroids[, , , k] <- sapply(1:n, function(i) pdMean(X[, , i, ], w, metric, grad_desc = TRUE),
                                    simplify = "array")
     }
   }
@@ -145,7 +145,7 @@ pdkMeans <- function(X, K, metric = "Riemannian", m = 1, eps = 1e-05, max_iter =
 #' (v) the root-Euclidean metric. The default choice of metric (affine-invariant Riemannian) satisfies several useful properties
 #' not shared by the other metrics, see \insertCite{CvS17}{pdSpecEst} or \insertCite{C18}{pdSpecEst} for more details. Note that this comes
 #' at the cost of increased computation time in comparison to one of the other metrics. \cr
-#' If \code{return.centers = T}, the function also returns the \code{K} HPD spectral matrix curves corresponding to
+#' If \code{return.centers = TRUE}, the function also returns the \code{K} HPD spectral matrix curves corresponding to
 #' the cluster centers based on the given metric by applying the intrinsic inverse AI wavelet transform (
 #' \code{\link{InvWavTransf1D}}) to the cluster centers in the wavelet domain.
 #'
@@ -173,7 +173,7 @@ pdkMeans <- function(X, K, metric = "Riemannian", m = 1, eps = 1e-05, max_iter =
 #' @param max_iter an optional argument tuning the maximum number of iterations in both the first and second step of the
 #' clustering algorithm, defaults to \code{max_iter = 50}.
 #' @param return.centers should the cluster centers transformed back the space of HPD matrices also be returned?
-#' Defaults to \code{return.centers = F}.
+#' Defaults to \code{return.centers = FALSE}.
 #' @param ... additional arguments passed on to \code{\link{pdSpecEst1D}}.
 #'
 #' @return Depending on the input the function returns a list with five or six components:
@@ -185,7 +185,7 @@ pdkMeans <- function(X, K, metric = "Riemannian", m = 1, eps = 1e-05, max_iter =
 #'   coefficients is associated to a cluster center.}
 #'   \item{cl.centers.M0 }{ a list of \code{K} arrays of coarse-scale midpoints at scale \code{j = 0}, where each
 #'   array is associated to a cluster center.}
-#'   \item{cl.centers.f }{ only available if \code{return.centers = T}, returning a list of \code{K} \eqn{(d,d,n)}-dimensional arrays,
+#'   \item{cl.centers.f }{ only available if \code{return.centers = TRUE}, returning a list of \code{K} \eqn{(d,d,n)}-dimensional arrays,
 #'   where each array corresponds to a length \eqn{n} curve of \eqn{(d,d)}-dimensional HPD matrices associated to a cluster center.}
 #'   \item{cl.jmax }{ the maximum wavelet scale taken into account in the clustering procedure determined by
 #'   the input arguments \code{jmax} and \code{d.jmax}.}
@@ -211,7 +211,7 @@ pdkMeans <- function(X, K, metric = "Riemannian", m = 1, eps = 1e-05, max_iter =
 #'
 #' @export
 pdSpecClust1D <- function(P, K, jmax, metric = "Riemannian", m = 2, d.jmax = 0.1, eps = c(1e-04, 1e-04),
-                          tau = 0.5, max_iter = 50, return.centers = F, ...) {
+                          tau = 0.5, max_iter = 50, return.centers = FALSE, ...) {
 
   ## Set variables
   d <- dim(P)[1]
@@ -219,9 +219,9 @@ pdSpecClust1D <- function(P, K, jmax, metric = "Riemannian", m = 2, d.jmax = 0.1
   metric <- match.arg(metric, c("Riemannian", "logEuclidean", "Cholesky", "rootEuclidean", "Euclidean"))
   dots <- list(...)
   order <- (if(is.null(dots$order)) 5 else dots$order)
-  periodic <- (if(is.null(dots$periodic)) T else dots$periodic)
+  periodic <- (if(is.null(dots$periodic)) TRUE else dots$periodic)
   alpha <- (if(is.null(dots$alpha)) 1 else dots$alpha)
-  bias.corr <- (if(is.null(dots$bias.corr)) T else dots$bias.corr)
+  bias.corr <- (if(is.null(dots$bias.corr)) TRUE else dots$bias.corr)
   jmax <- (if(missing(jmax)) log2(dim(P)[3]) - 2 else jmax)
   if(periodic){
     L <- (order - 1) / 2
@@ -238,10 +238,10 @@ pdSpecClust1D <- function(P, K, jmax, metric = "Riemannian", m = 2, d.jmax = 0.1
   for(s in 1:S) {
     D.s <- pdSpecEst1D(P[, , , s], order, metric, alpha, return_val = "D", jmax = jmax,
                        periodic = periodic, return.D = "D.white", bias.corr = bias.corr)
-    D[[s]] <- lapply(0:jmax, function(j) D.s$D.white[[j + 1]][, , L_b + 1:2^j, drop = F])
+    D[[s]] <- lapply(0:jmax, function(j) D.s$D.white[[j + 1]][, , L_b + 1:2^j, drop = FALSE])
     M0[, , s] <- D.s$M0[, , L + 1]
     M0.est[, , , s] <- D.s$M0
-    D.nzero[s, ] <- sapply(0:jmax, function(j) ifelse(j == 0, T, sum(D.s$tree.weights[[j]])/2^j))
+    D.nzero[s, ] <- sapply(0:jmax, function(j) ifelse(j == 0, TRUE, sum(D.s$tree.weights[[j]])/2^j))
     D.est[[s]] <- D.s$D
   }
 
@@ -273,7 +273,7 @@ pdSpecClust1D <- function(P, K, jmax, metric = "Riemannian", m = 2, d.jmax = 0.1
   for(k in 1:K) {
     w <- clust[, k]^m / sum(clust[, k]^m)
     cent.M0[[k]] <- sapply(1:dim(M0.est)[3], function(i) pdMean(M0.est[, , i,], w, ifelse(metric == "Riemannian",
-                            "Riemannian", "Euclidean"), grad_desc = T), simplify = "array")
+                            "Riemannian", "Euclidean"), grad_desc = TRUE), simplify = "array")
     cent.D[[k]] <- lapply(1:length(D.est[[1]]), function(j) {
       apply(sweep(sapply(D.est, "[[", j, simplify = "array"), 4, w, "*"), c(1, 2, 3), sum)
     })
@@ -334,7 +334,7 @@ pdSpecClust1D <- function(P, K, jmax, metric = "Riemannian", m = 2, d.jmax = 0.1
 #' (v) the root-Euclidean metric. The default choice of metric (affine-invariant Riemannian) satisfies several useful properties
 #' not shared by the other metrics, see \insertCite{C18}{pdSpecEst} for more details. Note that this comes
 #' at the cost of increased computation time in comparison to one of the other metrics. \cr
-#' If \code{return.centers = T}, the function also returns the \code{K} HPD time-varying spectral matrices corresponding to
+#' If \code{return.centers = TRUE}, the function also returns the \code{K} HPD time-varying spectral matrices corresponding to
 #' the cluster centers based on the given metric by applying the intrinsic inverse 2D AI wavelet transform (
 #' \code{\link{InvWavTransf2D}}) to the cluster centers in the wavelet domain.
 #'
@@ -362,7 +362,7 @@ pdSpecClust1D <- function(P, K, jmax, metric = "Riemannian", m = 2, d.jmax = 0.1
 #' @param max_iter an optional argument tuning the maximum number of iterations in both the first and second step of the
 #' clustering algorithm, defaults to \code{max_iter = 50}.
 #' @param return.centers should the cluster centers transformed back the space of HPD matrices also be returned?
-#' Defaults to \code{return.centers = F}.
+#' Defaults to \code{return.centers = FALSE}.
 #' @param ... additional arguments passed on to \code{\link{pdSpecEst2D}}.
 #'
 #' @return Depending on the input the function returns a list with five or six components:
@@ -374,7 +374,7 @@ pdSpecClust1D <- function(P, K, jmax, metric = "Riemannian", m = 2, d.jmax = 0.1
 #'   coefficients is associated to a cluster center.}
 #'   \item{cl.centers.M0 }{ a list of \code{K} arrays of coarse-scale midpoints at scale \code{j = 0}, where each
 #'   array is associated to a cluster center.}
-#'   \item{cl.centers.f }{ only available if \code{return.centers = T}, returning a list of \code{K} \code{(d,d,n[1],n[2])}-dimensional
+#'   \item{cl.centers.f }{ only available if \code{return.centers = TRUE}, returning a list of \code{K} \code{(d,d,n[1],n[2])}-dimensional
 #'   arrays, where each array corresponds to an\eqn{n_1 \times n_2}-sized surface of \eqn{(d,d)}-dimensional HPD matrices associated
 #'   to a cluster center.}
 #'   \item{cl.jmax }{ the maximum wavelet scale taken into account in the clustering procedure determined by
@@ -397,7 +397,7 @@ pdSpecClust1D <- function(P, K, jmax, metric = "Riemannian", m = 2, d.jmax = 0.1
 #'
 #' @export
 pdSpecClust2D <- function(P, K, jmax, metric = "Riemannian", m = 2, d.jmax = 0.1,
-                          eps = c(1e-04, 1e-04), tau = 0.5, max_iter = 50, return.centers = F, ...) {
+                          eps = c(1e-04, 1e-04), tau = 0.5, max_iter = 50, return.centers = FALSE, ...) {
 
   ## Set variables
   d <- dim(P)[1]
@@ -407,7 +407,7 @@ pdSpecClust2D <- function(P, K, jmax, metric = "Riemannian", m = 2, d.jmax = 0.1
   dots <- list(...)
   order <- (if(is.null(dots$order)) c(3, 3) else dots$order)
   alpha <- (if(is.null(dots$alpha)) 1 else dots$alpha)
-  bias.corr <- (if(is.null(dots$bias.corr)) T else dots$bias.corr)
+  bias.corr <- (if(is.null(dots$bias.corr)) TRUE else dots$bias.corr)
 
   ## Compute denoised wavelet coefficients
   D <- D.est <- list()
@@ -451,7 +451,7 @@ pdSpecClust2D <- function(P, K, jmax, metric = "Riemannian", m = 2, d.jmax = 0.1
   for(k in 1:K) {
     w <- clust[, k]^m / sum(clust[, k]^m)
     cent.M0[[k]] <- array(pdMean(M0, w, ifelse(metric == "Riemannian", "Riemannian", "Euclidean"),
-                                 grad_desc = T), dim = c(d, d, 1, 1))
+                                 grad_desc = TRUE), dim = c(d, d, 1, 1))
     cent.D[[k]] <- lapply(1:length(D.est[[1]]), function(j) {
       apply(sweep(sapply(D.est, "[[", j, simplify = "array"), 5, w, "*"), 1:4, sum)
     })

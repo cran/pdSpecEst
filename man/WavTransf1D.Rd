@@ -4,8 +4,8 @@
 \alias{WavTransf1D}
 \title{Forward AI wavelet transform for curve of HPD matrices}
 \usage{
-WavTransf1D(P, order = 5, jmax, periodic = F, metric = "Riemannian",
-  ...)
+WavTransf1D(P, order = 5, jmax, periodic = FALSE,
+  metric = "Riemannian", ...)
 }
 \arguments{
 \item{P}{a (\eqn{d,d,m})-dimensional array of HPD matrices, corresponding to a sequence of \eqn{(d,d)}-dimensional HPD matrices
@@ -21,11 +21,11 @@ specified, it is set equal to the maximum possible scale \code{jmax = J-1}, wher
 
 \item{periodic}{a logical value determining whether the curve of HPD matrices can be reflected at the boundary for
 improved wavelet refinement schemes near the boundaries of the domain. This is useful for spectral matrix estimation,
-in which case the spectral matrix is a symmetric and periodic curve in the frequency domain. Defaults to \code{periodic = F}.}
+in which case the spectral matrix is a symmetric and periodic curve in the frequency domain. Defaults to \code{periodic = FALSE}.}
 
 \item{metric}{the metric that the space of HPD matrices is equipped with. The default choice is \code{"Riemannian"},
-but this can also be one of: \code{"logEuclidean"}, \code{"Cholesky"}, \code{"rootEuclidean"} or
-\code{"Euclidean"}. See also the Details section below.}
+but this can also be one of: \code{"logEuclidean"}, \code{"Cholesky"}, \code{"rootEuclidean"},
+\code{"Euclidean"} or \code{"Riemannian-Rahman"}. See also the Details section below.}
 
 \item{...}{additional arguments for internal use.}
 }

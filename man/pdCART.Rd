@@ -4,7 +4,7 @@
 \alias{pdCART}
 \title{Tree-structured trace thresholding of wavelet coefficients}
 \usage{
-pdCART(D, D.white, order, alpha = 1, tree = T, ...)
+pdCART(D, D.white, order, alpha = 1, tree = TRUE, ...)
 }
 \arguments{
 \item{D}{a list of wavelet coefficients as obtained from the \code{$D} component of \code{\link{WavTransf1D}} or \code{\link{WavTransf2D}} .}
@@ -15,7 +15,7 @@ pdCART(D, D.white, order, alpha = 1, tree = T, ...)
 
 \item{alpha}{tuning parameter specifying the penalty/sparsity parameter as \code{alpha} times the universal threshold.}
 
-\item{tree}{logical value, if \code{tree = T} performs tree-structured thresholding, otherwise performs
+\item{tree}{logical value, if \code{tree = TRUE} performs tree-structured thresholding, otherwise performs
 non-tree-structured hard thresholding of the coefficients.}
 
 \item{...}{additional arguments for internal use.}
@@ -28,7 +28,7 @@ Returns a list with two components:
    to an individual wavelet scale.}
 }
 \description{
-\code{pdCart} performs hard tree-structured thresholding of the Hermitian matrix-valued wavelet coefficients obtained with
+\code{pdCART} performs hard tree-structured thresholding of the Hermitian matrix-valued wavelet coefficients obtained with
 \code{\link{WavTransf1D}} or \code{\link{WavTransf2D}} based on the trace of the whitened wavelet coefficients, as explained in
 \insertCite{CvS17}{pdSpecEst} or \insertCite{C18}{pdSpecEst}. This function is primarily written for internal use in other functions and
 is typically not used as a stand-alone function.

@@ -155,7 +155,7 @@ pdPolynomial <- function(p0, v0, delta.t = 0.01, steps = 100) {
     stop("The matrix-valued covariant derivatives in 'v0' are not Hermitian, consult
           the function documentation for the correct inputs.")
   }
-  if(!isTRUE(all(eigen(p0, symmetric = T, only.values = T)$values > 0))){
+  if(!isTRUE(all(eigen(p0, symmetric = TRUE, only.values = TRUE)$values > 0))){
     stop("'p0' is not a positive definite matrix, consult the function documentation
          for the correct input.")
   }

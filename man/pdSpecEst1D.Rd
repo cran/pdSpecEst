@@ -17,8 +17,8 @@ significantly increases as the wavelet transform no longer uses a fast wavelet r
 on pre-determined weights.}
 
 \item{metric}{the metric that the space of HPD matrices is equipped with. The default choice is \code{"Riemannian"},
-but this can also be one of: \code{"logEuclidean"}, \code{"Cholesky"}, \code{"rootEuclidean"} or
-\code{"Euclidean"}. See also the Details section below.}
+but this can also be one of: \code{"logEuclidean"}, \code{"Cholesky"}, \code{"rootEuclidean"},
+\code{"Euclidean"} or \code{"Riemannian-Rahman"}. See also the Details section below.}
 
 \item{alpha}{an optional tuning parameter in the wavelet thresholding procedure. The penalty (or sparsity)
 parameter in the tree-structured wavelet thresholding procedure in \code{\link{pdCART}} is set to \code{alpha}

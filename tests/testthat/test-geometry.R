@@ -86,7 +86,7 @@ test_that("Correctly working data depth and rank-based tests", {
   expect_true(is.list(kw) & (length(kw) == 5) & is.list(kw1) & (length(kw1) == 5))
   expect_true(is.list(ikw) & (length(ikw) == 5) & is.list(ikw1) & (length(ikw1) == 5))
   expect_true(is.list(sr) & (length(sr) == 4) & is.list(sr1) & (length(sr1) == 4))
-  expect_match(sr[[4]], "Wilcoxon signed rank test")
+  expect_match(sr[[1]], "Intrinsic Wilcoxon signed-rank")
   expect_true(is.list(bvn) & (length(bvn) == 5) & is.list(bvn1) & (length(bvn1) == 5))
   expect_match(bvn[[1]], "Intrinsic Bartels-von Neumann")
   expect_match(bvn[[4]], "Standard normal distribution")

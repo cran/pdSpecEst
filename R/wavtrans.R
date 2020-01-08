@@ -30,10 +30,10 @@
 #' specified, it is set equal to the maximum possible scale \code{jmax = J-1}, where \code{J = log2(m)}.
 #' @param periodic a logical value determining whether the curve of HPD matrices can be reflected at the boundary for
 #' improved wavelet refinement schemes near the boundaries of the domain. This is useful for spectral matrix estimation,
-#' in which case the spectral matrix is a symmetric and periodic curve in the frequency domain. Defaults to \code{periodic = F}.
+#' in which case the spectral matrix is a symmetric and periodic curve in the frequency domain. Defaults to \code{periodic = FALSE}.
 #' @param metric the metric that the space of HPD matrices is equipped with. The default choice is \code{"Riemannian"},
-#' but this can also be one of: \code{"logEuclidean"}, \code{"Cholesky"}, \code{"rootEuclidean"} or
-#' \code{"Euclidean"}. See also the Details section below.
+#' but this can also be one of: \code{"logEuclidean"}, \code{"Cholesky"}, \code{"rootEuclidean"},
+#' \code{"Euclidean"} or \code{"Riemannian-Rahman"}. See also the Details section below.
 #' @param ... additional arguments for internal use.
 #'
 #' @examples
@@ -59,7 +59,7 @@
 #' \insertAllCited{}
 #'
 #' @export
-WavTransf1D <- function(P, order = 5, jmax, periodic = F, metric = "Riemannian", ...) {
+WavTransf1D <- function(P, order = 5, jmax, periodic = FALSE, metric = "Riemannian", ...) {
 
   ## Initialize parameters
   n <- dim(P)[3]
@@ -72,7 +72,7 @@ WavTransf1D <- function(P, order = 5, jmax, periodic = F, metric = "Riemannian",
     warning("Refinement order should be an odd integer, by default set to 5")
     order <- 5
   }
-  metric <- match.arg(metric, c("Riemannian", "logEuclidean", "Cholesky", "rootEuclidean", "Euclidean"))
+  metric <- match.arg(metric, c("Riemannian", "logEuclidean", "Cholesky", "rootEuclidean", "Euclidean", "Riemannian-Rahman"))
   dots <- list(...)
   method <- (if(is.null(dots$method)) "fast" else dots$method)
   d <- dim(P)[1]
@@ -82,15 +82,15 @@ WavTransf1D <- function(P, order = 5, jmax, periodic = F, metric = "Riemannian",
   Nj <- as.integer(ifelse(periodic & (order > 1), N, n) / (2^(0:J)))
 
   ## Compute midpoint pyramid
-  Mper <- wavPyr_C(P, ifelse(periodic & (order > 1), L, 0), J, Nj, metric)
+  Mper <- wavPyr_C(P, ifelse(periodic & (order > 1), L, 0), J, Nj, ifelse(metric == "Riemannian-Rahman", "Riemannian", metric))
   M <- list()
-  M[[1]] <- Mper[, , sum(head(Nj, J)) + 1:Nj[J + 1], drop = F]
+  M[[1]] <- Mper[, , sum(head(Nj, J)) + 1:Nj[J + 1], drop = FALSE]
   for(j in 1:J) {
     if(periodic & (order > 1)) {
       M[[j + 1]] <- Mper[, , ifelse(j < J, sum(Nj[1:(J - j)]), 0) + L * 2^j -
-                           L_round + 1:(2^j + 2 * L_round), drop = F]
+                           L_round + 1:(2^j + 2 * L_round), drop = FALSE]
     } else {
-      M[[j + 1]] <- Mper[, , ifelse(j < J, sum(Nj[1:(J - j)]), 0) + 1:2^j, drop = F]
+      M[[j + 1]] <- Mper[, , ifelse(j < J, sum(Nj[1:(J - j)]), 0) + 1:2^j, drop = FALSE]
     }
   }
 
@@ -103,19 +103,20 @@ WavTransf1D <- function(P, order = 5, jmax, periodic = F, metric = "Riemannian",
     warning(paste0("'jmax' cannot exceed maximum scale j = ", J - 1))
     jmax <- J - 1
   }
-
+  
   for (j in 0:jmax) {
+
     ## Compute predicted midpoints C++
     n_M <- dim(M[[j + 1]])[3]
     L1 <- ifelse(order > n_M, floor((n_M - 1) / 2), L)
-    tm1 <- impute_C(M[[j + 1]], W_1D[[min(L1 + 1, 5)]], L1, F, metric, method)[, , 2 * (1:n_M), drop = F]
+    tm1 <- impute_C(M[[j + 1]], W_1D[[min(L1 + 1, 5)]], L1, FALSE, metric, method)[, , 2 * (1:n_M), drop = FALSE]
     tM <- (if(periodic){ tm1[, , L_round / 2 + ifelse(j > 0 | L %% 2 == 0, 0, -1) +
-                               1:(2^j + L_round), drop = F] } else tm1)
+                               1:(2^j + L_round), drop = FALSE] } else tm1)
     ## Compute wavelet coefficients C++
     n_W <- dim(tM)[3]
-    W <- wavCoeff_C(tM, M[[j + 2]][, , 2 * (1:n_W), drop = F], j, metric)
-    Dw[[j + 1]] <- W[, , 1:n_W, drop = F]
-    D[[j + 1]] <- W[, , n_W + 1:n_W, drop = F]
+    W <- wavCoeff_C(tM, M[[j + 2]][, , 2 * (1:n_W), drop = FALSE], j, ifelse(metric == "Riemannian-Rahman", "Riemannian", metric))
+    Dw[[j + 1]] <- W[, , 1:n_W, drop = FALSE]
+    D[[j + 1]] <- W[, , n_W + 1:n_W, drop = FALSE]
     names(D)[j + 1] <- names(Dw)[j + 1] <- paste0("D.scale", j)
   }
   return(list(D = D, D.white = Dw, M0 = M[[1]]))
@@ -202,7 +203,7 @@ WavTransf2D <- function(P, order = c(3, 3), jmax, metric = "Riemannian", ...) {
 
   ## Transform surface
   if(metric == "logEuclidean" | metric == "Cholesky" | metric == "rootEuclidean") {
-    P <- array(Ptransf2D_C(array(P, dim = c(d, d, dim(P)[3] * dim(P)[4])), F, F, metric), dim = dim(P))
+    P <- array(Ptransf2D_C(array(P, dim = c(d, d, dim(P)[3] * dim(P)[4])), FALSE, FALSE, metric), dim = dim(P))
   }
 
   ## Construct 2D midpoint pyramid C++
@@ -236,7 +237,7 @@ WavTransf2D <- function(P, order = c(3, 3), jmax, metric = "Riemannian", ...) {
       ## Refine 1D C++
       n_M <- dim(M[[j + 1]])[4]
       L1 <- ifelse(order[2] > n_M, floor((n_M - 1) / 2), L[2])
-      tm1 <- impute_C(array(M[[j + 1]][, , 1, ], dim = c(d, d, 2^j)), W_1D[[min(L1 + 1, 5)]], L1, T, metric, method)
+      tm1 <- impute_C(array(M[[j + 1]][, , 1, ], dim = c(d, d, 2^j)), W_1D[[min(L1 + 1, 5)]], L1, TRUE, metric, method)
       ## Compute (correctly scaled) wavelet coefficients C++
       W <- wavCoeff_C(tm1, M[[j + 2]][, , 1, ], J0_2D + j, metric)
       Dw[[j + 1]] <- array(W[, , 1:(2 * n_M)], dim = dim(M[[j + 2]]))
@@ -245,7 +246,7 @@ WavTransf2D <- function(P, order = c(3, 3), jmax, metric = "Riemannian", ...) {
       ## Refine 1D C++
       n_M <- dim(M[[j + 1]])[3]
       L1 <- ifelse(order[1] > n_M, floor((n_M - 1) / 2), L[1])
-      tm1 <- impute_C(array(M[[j + 1]][, , , 1], dim = c(d, d, 2^j)), W_1D[[min(L1 + 1, 5)]], L1, T, metric, method)
+      tm1 <- impute_C(array(M[[j + 1]][, , , 1], dim = c(d, d, 2^j)), W_1D[[min(L1 + 1, 5)]], L1, TRUE, metric, method)
       ## Compute (correctly scaled) wavelet coefficients C++
       W <- wavCoeff_C(tm1, M[[j + 2]][, , , 1], J0_2D + j, metric)
       Dw[[j + 1]] <- array(W[, , 1:(2 * n_M)], dim = dim(M[[j + 2]]))

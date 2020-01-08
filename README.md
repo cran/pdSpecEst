@@ -16,28 +16,22 @@ The tools in this package can be used to perform:
     or surfaces of Hermitian positive definite matrices such as
     (time-varying) Fourier spectral density matrices. These
     implementations are based in part on the papers (Chau and Sachs
-    2017) and (Chau and Sachs 2018) and Chapters 3 and 5 of (Chau 2018).
+    2019) and (Chau and Sachs 2018) and Chapters 3 and 5 of (Chau 2018).
 
   - Exploratory data analysis and inference for samples of Hermitian
     positive definite matrices by means of *intrinsic data depth
     functions* and *depth rank-based hypothesis tests*. These
-    implementations are based on the paper (Chau, Ombao, and Sachs 2017)
+    implementations are based on the paper (Chau, Ombao, and Sachs 2019)
     and Chapter 4 of (Chau 2018).
 
 For more details and examples on how to use the package see the
 accompanying vignettes in the vignettes folder.
-
-An R-Shiny app to demonstrate and test the implemented functionality in
-the package is available [here](https://jchau.shinyapps.io/pdSpecEst/).
 
 *Author and maintainer:* Joris Chau (<joris.chau@openanalytics.eu>).
 
 ## Installation
 
   - **Stable CRAN version:** install from within R
-
-  - **Current development version:** install via
-    `devtools::install_github("JorisChau/pdSpecEst")`
 
 ## References
 
@@ -53,25 +47,27 @@ catholique de Louvain.
 
 <div id="ref-COvS17">
 
-Chau, J., H. Ombao, and R. von Sachs. 2017. “Intrinsic Data Depth for
-Hermitian Positive Definite Matrices.” *ArXiv Preprint 1706.08289*.
-<https://arxiv.org/abs/1706.08289>.
-
-</div>
-
-<div id="ref-CvS17">
-
-Chau, J., and R. von Sachs. 2017. “Intrinsic Wavelet Regression for
-Curves of Hermitian Positive Definite Matrices.” *ArXiv Preprint
-1701.03314*. <https://arxiv.org/abs/1701.03314>.
+Chau, J., H. Ombao, and R. von Sachs. 2019. “Intrinsic Data Depth for
+Hermitian Positive Definite Matrices.” *Journal of Computational and
+Graphical Statistics* 28 (2): 427–39.
+<https://doi.org/https://doi.org/10.1080/10618600.2018.1537926>.
 
 </div>
 
 <div id="ref-CvS18">
 
-Chau, J., and R. von Sachs. 2018. “Intrinsic Wavelet Regression for Surfaces of Hermitian
-Positive Definite Matrices.” *ArXiv Preprint 1808.08764*.
-<https://arxiv.org/abs/1808.08764>.
+Chau, J., and R. von Sachs. 2018. “Intrinsic Wavelet Regression for
+Surfaces of Hermitian Positive Definite Matrices.” *ArXiv Preprint
+1808.08764*. <https://arxiv.org/abs/1808.08764>.
+
+</div>
+
+<div id="ref-CvS17">
+
+———. 2019. “Intrinsic Wavelet Regression for Curves of Hermitian
+Positive Definite Matrices.” *Journal of the American Statistical
+Association*.
+<https://doi.org/https://doi.org/10.1080/01621459.2019.1700129>.
 
 </div>
 

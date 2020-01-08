@@ -5,8 +5,9 @@
 \title{Several example curves of HPD matrices}
 \usage{
 rExamples1D(n, d = 3, example = c("bumps", "two-cats", "heaviSine",
-  "gaussian", "mix-gaussian"), return.ts = FALSE, replicates = 1,
-  noise = "riem-gaussian", noise.level = 1, df.wishart = NULL)
+  "gaussian", "mix-gaussian", "arma", "peaks", "blocks"), user.f = NULL,
+  return.ts = FALSE, replicates = 1, noise = "riem-gaussian",
+  noise.level = 1, df.wishart = NULL, nblocks = 10)
 }
 \arguments{
 \item{n}{number of sampled matrices to be generated.}
@@ -14,10 +15,13 @@ rExamples1D(n, d = 3, example = c("bumps", "two-cats", "heaviSine",
 \item{d}{row- (resp. column-)dimension of the generated matrices. Defaults to \code{d = 3}.}
 
 \item{example}{the example target HPD matrix curve, one of \code{'bumps'}, \code{'two-cats'}, \code{'heaviSine'},
-\code{'gaussian'} or \code{'mix-gaussian'}.}
+\code{'gaussian'}, \code{'mix-gaussian'}, \code{'arma'}, \code{'peaks'} or \code{'blocks'}.}
 
-\item{return.ts}{a logical value, if \code{return.ts = T} the function also returns time series observations generated via the Cramer representation
-based on the transfer function of the example HPD spectral matrix and complex normal random variates. Defaults to \code{return.ts = F}.}
+\item{user.f}{user-specified target HPD matrix curve, should be a (\eqn{d,d,n})-dimensional array, corresponding to a length \eqn{n} curve of
+\eqn{(d,d)}-dimensional HPD matrices.}
+
+\item{return.ts}{a logical value, if \code{return.ts = TRUE} the function also returns time series observations generated via the Cramer representation
+based on the transfer function of the example HPD spectral matrix and complex normal random variates. Defaults to \code{return.ts = FALSE}.}
 
 \item{replicates}{a positive integer specifying the number of replications of noisy HPD matrix curves to be generated based on the
 target curve of HPD matrices. Defaults to \code{replicates = 1}}
@@ -33,6 +37,8 @@ Defaults to \code{noise.level = 1}.}
 \item{df.wishart}{optional parameter to specify the degrees of freedom in the case of a Wishart noise distribution (\code{noise = 'wishart'} or
 \code{noise = 'log-wishart'}); or the number of DPSS tapers in the case of generated periodogram matrices if \code{noise = 'periodogram'}.
 By default \code{df.wishart} is equal to the dimension \code{d} to guarantee positive definiteness of the generated noisy matrices.}
+
+\item{nblocks}{optional parameter to specify the number of constant segments in the \code{'blocks'} HPD matrix curve. Only used if \code{example = 'blocks'}.}
 }
 \value{
 Depending on the input arguments returns a list with two or three components:
@@ -42,7 +48,7 @@ Depending on the input arguments returns a list with two or three components:
   HPD matrices centered around the smooth target HPD matrix curve \code{f}. If \code{replicates > 1}, \code{P} is a \code{(d,d,n,length(replicates))}-dimensional
   array, corresponding to a collection of replicated length \eqn{n} curves of noisy \eqn{(d,d)}-dimensional HPD matrices centered around
   the smooth target HPD matrix curve \code{f}.}
-  \item{\code{ts} }{ generated \eqn{d}-dimensional time series observations, only available if \code{return.ts = T}.}
+  \item{\code{ts} }{ generated \eqn{d}-dimensional time series observations, only available if \code{return.ts = TRUE}.}
 }
 \description{
 \code{rExamples1D()} generates several example (locally) smooth target \emph{curves} of HPD matrices corrupted by
@@ -53,8 +59,11 @@ noise in a manifold of HPD matrices for testing and simulation purposes. For mor
 The examples include: (i) a \eqn{(3,3)}-dimensional \code{'bumps'} HPD matrix curve containing peaks and bumps of various smoothness degrees;
 (ii) a \eqn{(3,3)}-dimensional \code{'two-cats'} HPD matrix curve visualizing the contour of two side-by-side cats, with inhomogeneous
 smoothness across the domain; (iii) a \eqn{(3,3)}-dimensional \code{'heaviSine'} HPD matrix curve consisting of smooth sinosoids with a break;
-(iv) a \eqn{(2,2)}-dimensional \code{'gaussian'} HPD matrix curve consisting of smooth Gaussian functions; and (v) a \eqn{(d,d)}-dimensional
-\code{'mix-gaussian'} HPD matrix curve consisting of a weighted linear combination of smooth Gaussian functions.\cr
+(iv) a \eqn{(2,2)}-dimensional \code{'gaussian'} HPD matrix curve consisting of smooth Gaussian functions; (v) a \eqn{(d,d)}-dimensional
+\code{'mix-gaussian'} HPD matrix curve consisting of a weighted linear combination of smooth Gaussian functions; (vi) a \eqn{(2,2)}-dimensional
+\code{'arma'} HPD matrix curve generated from the smooth spectral matrix of a 2-dimensional stationary ARMA(1,1)-process; (vii) a \eqn{(d, d)}-
+dimensional \code{'peaks'} HPD matrix curve containing several sharp peaks across the domain; and (viii) a \eqn{(d, d)}-\code{'blocks'} HPD matrix
+curve generated from locally constant segments of HPD matrices.\cr
 In addition to the smooth target curve of HPD matrices, the function also returns a noisy version of the target curve of HPD matrices, corrupted
 by a user-specified noise distribution. By default, the noisy HPD matrix observations follow an intrinsic signal plus i.i.d. noise model with
 respect to the affine-invariant Riemannian metric, with a matrix log-Gaussian noise distribution (\code{noise = 'riem-gaussian'}), such that the
@@ -64,7 +73,7 @@ a matrix log-Gaussian noise distribution (\code{noise = 'log-gaussian'}); (iii) 
 Wishart noise distribution (\code{noise = 'wishart'}); (iv) a Log-Euclidean signal plus i.i.d. noise model, with a complex Wishart noise
 distribution (\code{noise = 'log-wishart'}); and (v) noisy periodogram observations obtained with \code{pdPgram} from a stationary time series
 generated via the Cramer representation based on the transfer function of the target HPD spectral matrix curve and complex normal random variates
-(\code{noise = 'periodogram'}). If \code{return.ts = T}, the function also returns the generated time series observations, which are not generated
+(\code{noise = 'periodogram'}). If \code{return.ts = TRUE}, the function also returns the generated time series observations, which are not generated
 by default if \code{noise != 'periodogram'}.
 }
 \note{

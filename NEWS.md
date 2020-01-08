@@ -1,3 +1,14 @@
+# pdSpecEst 1.2.4
+
+* Fixed testthat error CRAN testing against R's messages
+* Updated article references
+
+# pdSpecEst 1.2.3
+
+* Updated functions:
+  + new metric `Riemannian-Rahman` in `WavTransf1D` and `InvWavTransf1D`
+  + additional example spectra with `rExamples1D`
+
 # pdSpecEst 1.2.3
 
 * Fixed warning non-ASCII characters in references
