@@ -4,8 +4,7 @@
 \alias{pdSplineReg}
 \title{Cubic smoothing spline regression for HPD matrices}
 \usage{
-pdSplineReg(P, f0, lam = 1, Nd, ini_step = 1, max_iter = 100,
-  eps = 0.001, ...)
+pdSplineReg(P, f0, lam = 1, Nd, ini_step = 1, max_iter = 100, eps = 0.001, ...)
 }
 \arguments{
 \item{P}{a \eqn{(d,d,n)}-dimensional array corresponding to a length \eqn{n} sequence of (\eqn{d, d})-dimensional

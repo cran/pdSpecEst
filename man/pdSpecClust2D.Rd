@@ -4,9 +4,19 @@
 \alias{pdSpecClust2D}
 \title{Intrinsic wavelet HPD time-varying spectral clustering}
 \usage{
-pdSpecClust2D(P, K, jmax, metric = "Riemannian", m = 2, d.jmax = 0.1,
-  eps = c(1e-04, 1e-04), tau = 0.5, max_iter = 50,
-  return.centers = FALSE, ...)
+pdSpecClust2D(
+  P,
+  K,
+  jmax,
+  metric = "Riemannian",
+  m = 2,
+  d.jmax = 0.1,
+  eps = c(1e-04, 1e-04),
+  tau = 0.5,
+  max_iter = 50,
+  return.centers = FALSE,
+  ...
+)
 }
 \arguments{
 \item{P}{a (\code{d,d,n[1],n[2],S})-dimensional array of HPD matrices, corresponding to a collection of surfaces of

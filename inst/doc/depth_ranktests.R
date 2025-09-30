@@ -1,9 +1,9 @@
-## ---- echo = FALSE-------------------------------------------------------
+## ----echo = FALSE-------------------------------------------------------------
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>", fig.align = "center", out.width = "600px")
 a4width<- 8.3
 a4height<- 11.7
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 ## Pointwise random sample
 library(pdSpecEst); set.seed(100)
 X1 <- replicate(50, Expm(diag(2), H.coeff(0.5 * rnorm(4), inverse = T))); str(X1)
@@ -12,7 +12,7 @@ X1 <- replicate(50, Expm(diag(2), H.coeff(0.5 * rnorm(4), inverse = T))); str(X1
 X2 <- replicate(50, sapply(1:5, function(i) Expm(i * diag(2), H.coeff(0.5 *
                            rnorm(4), inverse = T) / i), simplify = "array")); str(X2)
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 ## Pointwise geodesic distance, zonoid and spatial depth
 point.depth <- function(method) pdDepth(y = diag(2), X = X1, method = method)
 point.depth("gdd"); point.depth("zonoid"); point.depth("spatial")
@@ -23,12 +23,12 @@ int.depth <- function(method){ pdDepth(y = sapply(1:5, function(i) i * diag(2),
 int.depth("gdd"); int.depth("zonoid"); int.depth("spatial")
 
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 (dd1 <- pdDepth(X = X1, method = "gdd")) ## pointwise geodesic distance depth
 
 (dd2 <- pdDepth(X = X2, method = "gdd")) ## integrated geodesic distance depth
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 (dd1.ranks <- rank(1 - dd1)) ## pointwise depth ranks
 
 (dd2.ranks <- rank(1 - dd2)) ## integrated depth ranks
@@ -39,7 +39,7 @@ rev(tail(order(dd1.ranks))) ## most outlying observations
 X1[ , , which(dd1.ranks == 1)] ## most central HPD matrix
 X1[ , , which(dd1.ranks == 50)] ## most outlying HPD matrix
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 (med.X1 <- pdMedian(X1)) ## intrinsic sample median
 
 
@@ -47,7 +47,7 @@ pdDepth(y = med.X1, X = X1, method = "gdd") ## maximum out-of-sample depth
 
 max(dd1) ## maximum in-sample depth
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 ## Generate data (null true)
 data1 <- array(c(X1, replicate(50, Expm(diag(2), H.coeff(0.5 * rnorm(4), inverse = T)))), dim = c(2, 2, 100)) ## pointwise HPD sample
 data2 <- array(c(X2, replicate(50, sapply(1:5, function(i) Expm(i * diag(2), H.coeff(0.5 * rnorm(4), inverse = T) / i), simplify = "array"))), dim = c(2, 2, 5, 100)) ## HPD curve sample
@@ -74,7 +74,7 @@ pdRankTests(data1a, sample_sizes = c(50, 25, 25), "krusk.wall")[2] ## null false
 
 pdRankTests(data2a, sample_sizes = c(50, 25, 25), "krusk.wall")[2] ## null false (curve)
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 ## Trial-specific means
 mu <- replicate(50, Expm(diag(2), H.coeff(0.1 * rnorm(4), inverse = T)))
 
@@ -91,7 +91,7 @@ pdRankTests(array(c(X3, Y3), dim = c(2, 2, 100)), test = "signed.rank")[1:4] ## 
 pdRankTests(array(c(X3, Y3a), dim = c(2, 2, 100)), test = "signed.rank")[2] ## null false
 
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 ## Signed-rank test for equivalence of spectra
 ## vARMA(1,1) process: Example 11.4.1 in (Brockwell and Davis, 1991)
 Phi <- array(c(0.7, 0, 0, 0.6, rep(0, 4)), dim = c(2, 2, 2))
@@ -105,7 +105,7 @@ pdRankTests(array(c(pgram(Sigma), pgram(Sigma)), dim = c(2, 2, 2^10)), test = "s
 ## Null is false
 pdRankTests(array(c(pgram(Sigma), pgram(0.9 * Sigma)), dim = c(2, 2, 2^10)), test = "signed.rank")[2]
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 ## Null is true
 data3 <- replicate(200, Expm(diag(2), H.coeff(rnorm(4), inverse = T))) ## iid HPd sample
 data4 <- replicate(100, sapply(1:5, function(i) Expm(i * diag(2), H.coeff(rnorm(4), inverse = T) / i), simplify = "array")) ## iid HPD curve

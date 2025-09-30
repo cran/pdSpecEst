@@ -1,4 +1,4 @@
-## ---- echo = FALSE-------------------------------------------------------
+## ----echo = FALSE-------------------------------------------------------------
   knitr::opts_chunk$set(collapse = TRUE, comment = "#>", fig.align = "left")
   library(pdSpecEst)  
 
@@ -165,7 +165,7 @@ plotspec2D <- function(P, lim = T, lim.val = NULL, Log = F, bias = 1){
 }
 
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 library(pdSpecEst)
 ## Generate 3-dim. time series with 'bumps' spectrum
 set.seed(123)
@@ -173,43 +173,43 @@ n <- 2^10
 bumps <- rExamples1D(n, example = "bumps", return.ts = T, noise = "periodogram")
 str(bumps, digits.d = 1)
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 ## Multitaper spectral estimator with `pdPgram`
 f.hat <- pdPgram(bumps$ts, B = 75); str(f.hat, digits.d = 1)
 
-## ---- echo = F, fig.width=0.7*a4width, fig.height=0.38*a4height, fig.cap ="Figure 1: Generating HPD spectral matrix `bumps$f` in black and noisy mulitaper HPD periodogram `bumps$P` in red. The diagonal components have zero imaginary part and the missing off-diagonal components are uniquely determined by complex conjugation of the displayed off-diagonal components."----
+## ----echo = F, fig.width=0.7*a4width, fig.height=0.38*a4height, fig.cap ="Figure 1: Generating HPD spectral matrix `bumps$f` in black and noisy multitaper HPD periodogram `bumps$P` in red. The diagonal components have zero imaginary part and the missing off-diagonal components are uniquely determined by complex conjugation of the displayed off-diagonal components."----
 grid <- as.matrix(unname(expand.grid(1:3, 1:3)))
 par(mfrow=c(3, 3), mar = c(3.5,1,1.5,1))
 invisible(apply(grid, 1, function(i) plotspec(i, data = bumps$f, data1 = bumps$P)))
 
-## ---- echo = F, fig.width=0.7*a4width, fig.height=0.38*a4height, fig.cap = "Figure 2: Generating HPD spectral matrix `bumps$f` in black and mulitaper HPD spectral estimator `f.hat$P` in red. The diagonal components have zero imaginary part and the missing off-diagonal components are uniquely determined by complex conjugation of the displayed off-diagonal components."----
+## ----echo = F, fig.width=0.7*a4width, fig.height=0.38*a4height, fig.cap = "Figure 2: Generating HPD spectral matrix `bumps$f` in black and multitaper HPD spectral estimator `f.hat$P` in red. The diagonal components have zero imaginary part and the missing off-diagonal components are uniquely determined by complex conjugation of the displayed off-diagonal components."----
 grid <- as.matrix(unname(expand.grid(1:3, 1:3)))
 par(mfrow=c(3, 3), mar = c(3.5,1,1.5,1))
 invisible(apply(grid, 1, function(i) plotspec(i, data = bumps$f, data1 = f.hat$P, est = T)))
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 ## Forward intrinsic AI wavelet transform
 wt.f <- WavTransf1D(bumps$f, periodic = T)
 wt.per <- WavTransf1D(bumps$P, periodic = T)
 
-## ---- echo = F, fig.width=0.8*a4width, fig.height=0.23*a4height, fig.cap = "Figure 3: Frobenius norms of the whitened AI wavelet coefficients of the generating spectral matrix `bumps$f` based on an intrinsic AI wavelet transform of order $N = 5$, under the default affine-invariant metric, obtained with `WavTransf1D()`."----
+## ----echo = F, fig.width=0.8*a4width, fig.height=0.23*a4height, fig.cap = "Figure 3: Frobenius norms of the whitened AI wavelet coefficients of the generating spectral matrix `bumps$f` based on an intrinsic AI wavelet transform of order $N = 5$, under the default affine-invariant metric, obtained with `WavTransf1D()`."----
 plotCoeff(wt.f$D.white, title = "Frobenius norm of target (whitened) AI wavelet coefficients", bias = 1.5)
 
-## ---- echo = F, fig.width=0.8*a4width, fig.height=0.23*a4height, fig.cap = "Figure 4: Frobenius norms of the whitened AI wavelet coefficients of the noisy HPD periodogram `bumps$P` based on an intrinsic AI wavelet transform of order $N = 5$, under the default affine-invariant metric, obtained with `WavTransf1D()`."----
+## ----echo = F, fig.width=0.8*a4width, fig.height=0.23*a4height, fig.cap = "Figure 4: Frobenius norms of the whitened AI wavelet coefficients of the noisy HPD periodogram `bumps$P` based on an intrinsic AI wavelet transform of order $N = 5$, under the default affine-invariant metric, obtained with `WavTransf1D()`."----
 plotCoeff(wt.per$D.white, title = "Frobenius norm of noisy periodogram (whitened) AI wavelet coefficients", bias = 1.5)
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 f.hat <- pdSpecEst1D(bumps$P, return.D = "D.white"); str(f.hat, max.level = 1)
 
-## ---- echo = F, fig.width=0.8*a4width, fig.height=0.23*a4height, fig.cap = "Figure 5: Frobenius norms of the nonlinear (tree-structured) thresholded whitened AI wavelet coefficients of the noisy HPD periodograms based on an intrinsic AI wavelet transform of order $N = 5$, under the default affine-invariant metric."----
+## ----echo = F, fig.width=0.8*a4width, fig.height=0.23*a4height, fig.cap = "Figure 5: Frobenius norms of the nonlinear (tree-structured) thresholded whitened AI wavelet coefficients of the noisy HPD periodograms based on an intrinsic AI wavelet transform of order $N = 5$, under the default affine-invariant metric."----
 plotCoeff(f.hat$D.white, title = "Frobenius norm of denoised (whitened) AI wavelet coefficients", bias = 1.5)
 
-## ---- echo = F, fig.width=0.75*a4width, fig.height=0.4*a4height, fig.cap = "Figure 6: Generating spectrum `bumps$f` in black and wavelet-smoothed HPD spectral estimator `f.hat$f` in red. The diagonal components have zero imaginary part and the missing off-diagonal components are uniquely determined by complex conjugation of the displayed off-diagonal components."----
+## ----echo = F, fig.width=0.75*a4width, fig.height=0.4*a4height, fig.cap = "Figure 6: Generating spectrum `bumps$f` in black and wavelet-smoothed HPD spectral estimator `f.hat$f` in red. The diagonal components have zero imaginary part and the missing off-diagonal components are uniquely determined by complex conjugation of the displayed off-diagonal components."----
 grid <- as.matrix(unname(expand.grid(1:3, 1:3)))
 par(mfrow=c(3, 3), mar = c(3.5,1,1.5,1))
 invisible(apply(grid, 1, function(i) plotspec(i, data = bumps$f, data1 = f.hat$f, est = T)))
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 ## Fix parameter matrices
 Phi1 <- array(c(0.5, 0, 0, 0.6, rep(0, 4)), dim = c(2, 2, 2))
 Phi2 <- array(c(0.7, 0, 0, 0.4, rep(0, 4)), dim = c(2, 2, 2))
@@ -222,26 +222,26 @@ P <- array(c(replicate(5, pgram(Phi1)), replicate(5, pgram(Phi2))), dim=c(2,2,2^
 
 pdSpecClust1D(P, K = 2)$cl.prob
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 ## Generate noisy HPD surface
 set.seed(17)
 d <- 2; B <- 6; n <- c(2^7, 2^7)
 smiley <- rExamples2D(n, d, example = "smiley", noise = "wishart", df.wishart = B)
 str(smiley)
 
-## ---- echo = F, fig.width=0.55*a4width, fig.height=0.3*a4height, fig.cap = "Figure 7: Matrix-logarithms of the target surface of HPD matrices `smiley$f` in time and frequency. The diagonal components have zero imaginary part and the missing off-diagonal matrix components are uniquely determined by complex conjugation of the displayed off-diagonal components."----
+## ----echo = F, fig.width=0.55*a4width, fig.height=0.3*a4height, fig.cap = "Figure 7: Matrix-logarithms of the target surface of HPD matrices `smiley$f` in time and frequency. The diagonal components have zero imaginary part and the missing off-diagonal matrix components are uniquely determined by complex conjugation of the displayed off-diagonal components."----
  Pf <- smiley$f[,,as.integer(seq(from=1,to=n[1],len=64)), as.integer(seq(from=1,to=n[2],len=64))]
  Pf <- pdSpecEst:::Ptransf2D_C(array(Pf, dim = c(d, d, n[1] * n[2])), F, F, "logEuclidean")
  lim_val <- 1.25 * range(Re(Pf), Im(Pf))
  invisible(plotspec2D(smiley$f, lim = T, lim.val = lim_val, Log = T))
 
-## ---- echo = F, fig.width=0.55*a4width, fig.height=0.3*a4height, fig.cap = "Figure 8: Matrix-logarithms of generated noisy surface of HPD matrices `smiley$P` in time and frequency. The diagonal components have zero imaginary part and the missing off-diagonal matrix components are uniquely determined by complex conjugation of the displayed off-diagonal components."----
+## ----echo = F, fig.width=0.55*a4width, fig.height=0.3*a4height, fig.cap = "Figure 8: Matrix-logarithms of generated noisy surface of HPD matrices `smiley$P` in time and frequency. The diagonal components have zero imaginary part and the missing off-diagonal matrix components are uniquely determined by complex conjugation of the displayed off-diagonal components."----
 invisible(plotspec2D(smiley$P, lim = T, Log = T))
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 f.hat <- pdSpecEst2D(smiley$P, order = c(1, 1), jmax = 6, B = B)
 str(f.hat, max.level = 1)
 
-## ---- echo = F, fig.width=0.55*a4width, fig.height=0.3*a4height, fig.cap = "Figure 9: Matrix-logarithms of denoised surface of HPD matrices `f.hat$f` in time and frequency. The diagonal components have zero imaginary part and the missing off-diagonal matrix components are uniquely determined by complex conjugation of the displayed off-diagonal components."----
+## ----echo = F, fig.width=0.55*a4width, fig.height=0.3*a4height, fig.cap = "Figure 9: Matrix-logarithms of denoised surface of HPD matrices `f.hat$f` in time and frequency. The diagonal components have zero imaginary part and the missing off-diagonal matrix components are uniquely determined by complex conjugation of the displayed off-diagonal components."----
 invisible(plotspec2D(f.hat$f, lim = T, lim.val = lim_val, Log = T))
 

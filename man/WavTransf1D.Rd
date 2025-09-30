@@ -4,8 +4,7 @@
 \alias{WavTransf1D}
 \title{Forward AI wavelet transform for curve of HPD matrices}
 \usage{
-WavTransf1D(P, order = 5, jmax, periodic = FALSE,
-  metric = "Riemannian", ...)
+WavTransf1D(P, order = 5, jmax, periodic = FALSE, metric = "Riemannian", ...)
 }
 \arguments{
 \item{P}{a (\eqn{d,d,m})-dimensional array of HPD matrices, corresponding to a sequence of \eqn{(d,d)}-dimensional HPD matrices

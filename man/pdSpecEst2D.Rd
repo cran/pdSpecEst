@@ -4,8 +4,14 @@
 \alias{pdSpecEst2D}
 \title{Intrinsic wavelet HPD time-varying spectral estimation}
 \usage{
-pdSpecEst2D(P, order = c(3, 3), metric = "Riemannian", alpha = 1,
-  return_val = "f", ...)
+pdSpecEst2D(
+  P,
+  order = c(3, 3),
+  metric = "Riemannian",
+  alpha = 1,
+  return_val = "f",
+  ...
+)
 }
 \arguments{
 \item{P}{a (\eqn{d,d,n1,n2})-dimensional array of HPD matrices corresponding to a rectangular surface of \eqn{(d,d)}-dimensional HPD matrices

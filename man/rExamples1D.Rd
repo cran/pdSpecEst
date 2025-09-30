@@ -4,10 +4,19 @@
 \alias{rExamples1D}
 \title{Several example curves of HPD matrices}
 \usage{
-rExamples1D(n, d = 3, example = c("bumps", "two-cats", "heaviSine",
-  "gaussian", "mix-gaussian", "arma", "peaks", "blocks"), user.f = NULL,
-  return.ts = FALSE, replicates = 1, noise = "riem-gaussian",
-  noise.level = 1, df.wishart = NULL, nblocks = 10)
+rExamples1D(
+  n,
+  d = 3,
+  example = c("bumps", "two-cats", "heaviSine", "gaussian", "mix-gaussian", "arma",
+    "peaks", "blocks"),
+  user.f = NULL,
+  return.ts = FALSE,
+  replicates = 1,
+  noise = "riem-gaussian",
+  noise.level = 1,
+  df.wishart = NULL,
+  nblocks = 10
+)
 }
 \arguments{
 \item{n}{number of sampled matrices to be generated.}

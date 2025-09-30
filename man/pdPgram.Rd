@@ -4,8 +4,7 @@
 \alias{pdPgram}
 \title{Multitaper HPD periodogram matrix}
 \usage{
-pdPgram(X, B, method = c("multitaper", "bartlett"), bias.corr = F,
-  nw = 3)
+pdPgram(X, B, method = c("multitaper", "bartlett"), bias.corr = F, nw = 3)
 }
 \arguments{
 \item{X}{an (\eqn{n,d})-dimensional matrix corresponding to a multivariate time series,

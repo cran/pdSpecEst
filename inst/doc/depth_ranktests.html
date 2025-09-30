@@ -1,88 +1,118 @@
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
 
 <head>
 
 <meta charset="utf-8" />
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="pandoc" />
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 
 <meta name="author" content="Joris Chau" />
 
-<meta name="date" content="2020-01-07" />
+<meta name="date" content="2025-09-30" />
 
 <title>Data depth and rank-based tests for HPD matrices</title>
 
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
 
 
-<style type="text/css">code{white-space: pre;}</style>
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
 <style type="text/css" data-origin="pandoc">
-a.sourceLine { display: inline-block; line-height: 1.25; }
-a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
-a.sourceLine:empty { height: 1.2em; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
-code.sourceCode { white-space: pre; position: relative; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
 div.sourceCode { margin: 1em 0; }
 pre.sourceCode { margin: 0; }
 @media screen {
 div.sourceCode { overflow: auto; }
 }
 @media print {
-code.sourceCode { white-space: pre-wrap; }
-a.sourceLine { text-indent: -1em; padding-left: 1em; }
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
 }
-pre.numberSource a.sourceLine
-  { position: relative; left: -4em; }
-pre.numberSource a.sourceLine::before
-  { content: attr(title);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; pointer-events: all; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-    color: #aaaaaa;
-  }
-pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
 div.sourceCode
-  {  }
+{ }
 @media screen {
-a.sourceLine::before { text-decoration: underline; }
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
-code span.al { color: #ff0000; font-weight: bold; } /* Alert */
-code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
-code span.at { color: #7d9029; } /* Attribute */
-code span.bn { color: #40a070; } /* BaseN */
-code span.bu { } /* BuiltIn */
-code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
-code span.ch { color: #4070a0; } /* Char */
-code span.cn { color: #880000; } /* Constant */
-code span.co { color: #60a0b0; font-style: italic; } /* Comment */
-code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
-code span.do { color: #ba2121; font-style: italic; } /* Documentation */
-code span.dt { color: #902000; } /* DataType */
-code span.dv { color: #40a070; } /* DecVal */
-code span.er { color: #ff0000; font-weight: bold; } /* Error */
-code span.ex { } /* Extension */
-code span.fl { color: #40a070; } /* Float */
-code span.fu { color: #06287e; } /* Function */
-code span.im { } /* Import */
-code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
-code span.kw { color: #007020; font-weight: bold; } /* Keyword */
-code span.op { color: #666666; } /* Operator */
-code span.ot { color: #007020; } /* Other */
-code span.pp { color: #bc7a00; } /* Preprocessor */
-code span.sc { color: #4070a0; } /* SpecialChar */
-code span.ss { color: #bb6688; } /* SpecialString */
-code span.st { color: #4070a0; } /* String */
-code span.va { color: #19177c; } /* Variable */
-code span.vs { color: #4070a0; } /* VerbatimString */
-code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
-
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
 </style>
 <script>
 // apply pandoc div.sourceCode style to pre.sourceCode instead
@@ -91,13 +121,20 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   for (var i = 0; i < sheets.length; i++) {
     if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
     try { var rules = sheets[i].cssRules; } catch (e) { continue; }
-    for (var j = 0; j < rules.length; j++) {
+    var j = 0;
+    while (j < rules.length) {
       var rule = rules[j];
       // check if there is a div.sourceCode rule
-      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
       var style = rule.style.cssText;
       // check if color or background-color is set
-      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
       // replace div.sourceCode by a pre.sourceCode rule
       sheets[i].deleteRule(j);
       sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
@@ -107,6 +144,30 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </script>
 
 
+
+<style type="text/css">
+
+div.csl-bib-body { }
+div.csl-entry {
+clear: both;
+margin-bottom: 0em;
+}
+.hanging div.csl-entry {
+margin-left:2em;
+text-indent:-2em;
+}
+div.csl-left-margin {
+min-width:2em;
+float:left;
+}
+div.csl-right-inline {
+margin-left:2em;
+padding-left:1em;
+}
+div.csl-indent {
+margin-left: 2em;
+}
+</style>
 
 <style type="text/css">body {
 background-color: #fff;
@@ -118,9 +179,6 @@ padding-right: 2em;
 font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
 font-size: 14px;
 line-height: 1.35;
-}
-#header {
-text-align: center;
 }
 #TOC {
 clear: both;
@@ -289,7 +347,8 @@ code > span.st { color: #d14; }
 code > span.co { color: #888888; font-style: italic; } 
 code > span.ot { color: #007020; } 
 code > span.al { color: #ff0000; font-weight: bold; } 
-code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61717; background-color: #e3d2d2; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
 </style>
 
 
@@ -302,271 +361,384 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 
 
 
-<h1 class="title toc-ignore">Data depth and rank-based tests for HPD matrices</h1>
+<h1 class="title toc-ignore">Data depth and rank-based tests for HPD
+matrices</h1>
 <h4 class="author">Joris Chau</h4>
-<h4 class="date">2020-01-07</h4>
+<h4 class="date">2025-09-30</h4>
 
 
 <div id="TOC">
 <ul>
-<li><a href="#introduction">Introduction</a></li>
-<li><a href="#data-depth-of-hpd-matrices-with-pddepth">Data depth of HPD matrices with <code>pdDepth()</code></a></li>
-<li><a href="#rank-based-tests-for-hpd-matrices-with-pdranktests">Rank-based tests for HPD matrices with <code>pdRankTests()</code></a></li>
-<li><a href="#references">References</a></li>
+<li><a href="#introduction" id="toc-introduction">Introduction</a></li>
+<li><a href="#data-depth-of-hpd-matrices-with-pddepth" id="toc-data-depth-of-hpd-matrices-with-pddepth">Data depth of HPD
+matrices with <code>pdDepth()</code></a></li>
+<li><a href="#rank-based-tests-for-hpd-matrices-with-pdranktests" id="toc-rank-based-tests-for-hpd-matrices-with-pdranktests">Rank-based
+tests for HPD matrices with <code>pdRankTests()</code></a></li>
+<li><a href="#references" id="toc-references">References</a></li>
 </ul>
 </div>
 
 <div id="introduction" class="section level2">
 <h2>Introduction</h2>
-<p>Nondegenerate covariance, correlation and spectral density matrices are necessarily sym- metric or Hermitian and positive definite. In <span class="citation">(Chau, Ombao, and Sachs 2019)</span>, we develop statistical data depths for collections of Hermitian positive definite matrices by exploiting the geometric structure of the space as a Riemannian manifold. Data depth is an important tool in statistical data analysis measuring the <em>depth</em> of a point with respect to a data cloud or probability distribution. In this way, data depth provides a center-to-outward ordering of multivariate data observations, generalizing the notion of a rank for univariate observations.</p>
-<p>The proposed data depth measures can be used to characterize most central regions or detect outlying observations in samples of HPD matrices, such as collections of covariance or spectral density matrices. The depth functions also provide a practical framework to perform rank-based hypothesis testing for samples of HPD matrices by replacing the usual ranks by their depth-induced counterparts. Other applications of data depth include the construction of confidence regions, clustering, or classification for samples of HPD matrices.</p>
-<p>In this vignette we demonstrate the use of the functions <code>pdDepth()</code> and <code>pdRankTests()</code> to compute data depth values of HPD matrix-valued observations and perform rank-based hypothesis testing for samples of HPD matrices, where the space of HPD matrices can be equipped with several different metrics, such as the affine-invariant Riemannian metric as discussed in <span class="citation">(Chau, Ombao, and Sachs 2019)</span> or Chapter 4 of <span class="citation">(Chau 2018)</span>.</p>
+<p>Nondegenerate covariance, correlation and spectral density matrices
+are necessarily sym- metric or Hermitian and positive definite. In <span class="citation">(Chau, Ombao, and Sachs 2019)</span>, we develop
+statistical data depths for collections of Hermitian positive definite
+matrices by exploiting the geometric structure of the space as a
+Riemannian manifold. Data depth is an important tool in statistical data
+analysis measuring the <em>depth</em> of a point with respect to a data
+cloud or probability distribution. In this way, data depth provides a
+center-to-outward ordering of multivariate data observations,
+generalizing the notion of a rank for univariate observations.</p>
+<p>The proposed data depth measures can be used to characterize most
+central regions or detect outlying observations in samples of HPD
+matrices, such as collections of covariance or spectral density
+matrices. The depth functions also provide a practical framework to
+perform rank-based hypothesis testing for samples of HPD matrices by
+replacing the usual ranks by their depth-induced counterparts. Other
+applications of data depth include the construction of confidence
+regions, clustering, or classification for samples of HPD matrices.</p>
+<p>In this vignette we demonstrate the use of the functions
+<code>pdDepth()</code> and <code>pdRankTests()</code> to compute data
+depth values of HPD matrix-valued observations and perform rank-based
+hypothesis testing for samples of HPD matrices, where the space of HPD
+matrices can be equipped with several different metrics, such as the
+affine-invariant Riemannian metric as discussed in <span class="citation">(Chau, Ombao, and Sachs 2019)</span> or Chapter 4 of
+<span class="citation">(Chau 2018)</span>.</p>
 </div>
 <div id="data-depth-of-hpd-matrices-with-pddepth" class="section level2">
 <h2>Data depth of HPD matrices with <code>pdDepth()</code></h2>
-<p>First, we generate a pointwise random sample of <code>(2,2)</code>-dimensional HPD matrix-valued observations using the exponential map <code>Expm()</code>, with underlying intrinsic (i.e., Karcher or Fréchet) mean equal to the identity matrix <code>diag(2)</code>. Second, we generate a random sample of sequences (discretized curves) of <code>(2,2)</code>-dimensional HPD matrix-valued observations, with underlying intrinsic mean curve equal to an array of rescaled identity matrices. For instance, we can think of the first sample as a random collection of HPD covariance matrices, and the second sample as a random collection of HPD spectral matrix curves in the frequency domain.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="co">## Pointwise random sample</span></a>
-<a class="sourceLine" id="cb1-2" title="2"><span class="kw">library</span>(pdSpecEst); <span class="kw">set.seed</span>(<span class="dv">100</span>)</a>
-<a class="sourceLine" id="cb1-3" title="3">X1 &lt;-<span class="st"> </span><span class="kw">replicate</span>(<span class="dv">50</span>, <span class="kw">Expm</span>(<span class="kw">diag</span>(<span class="dv">2</span>), <span class="kw">H.coeff</span>(<span class="fl">0.5</span> <span class="op">*</span><span class="st"> </span><span class="kw">rnorm</span>(<span class="dv">4</span>), <span class="dt">inverse =</span> T))); <span class="kw">str</span>(X1)</a>
-<a class="sourceLine" id="cb1-4" title="4"><span class="co">#&gt;  cplx [1:2, 1:2, 1:50] 0.7794+0i -0.0314-0.0523i -0.0314+0.0523i ...</span></a>
-<a class="sourceLine" id="cb1-5" title="5"></a>
-<a class="sourceLine" id="cb1-6" title="6"><span class="co">## Curve random sample</span></a>
-<a class="sourceLine" id="cb1-7" title="7">X2 &lt;-<span class="st"> </span><span class="kw">replicate</span>(<span class="dv">50</span>, <span class="kw">sapply</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">5</span>, <span class="cf">function</span>(i) <span class="kw">Expm</span>(i <span class="op">*</span><span class="st"> </span><span class="kw">diag</span>(<span class="dv">2</span>), <span class="kw">H.coeff</span>(<span class="fl">0.5</span> <span class="op">*</span></a>
-<a class="sourceLine" id="cb1-8" title="8"><span class="st">                           </span><span class="kw">rnorm</span>(<span class="dv">4</span>), <span class="dt">inverse =</span> T) <span class="op">/</span><span class="st"> </span>i), <span class="dt">simplify =</span> <span class="st">&quot;array&quot;</span>)); <span class="kw">str</span>(X2)</a>
-<a class="sourceLine" id="cb1-9" title="9"><span class="co">#&gt;  cplx [1:2, 1:2, 1:5, 1:50] 1.074+0i 0.352+0.147i 0.352-0.147i ...</span></a></code></pre></div>
-<p>The function <code>H.coeff()</code> expands an Hermitian matrix with respect to an orthonormal basis of the space of Hermitian matrices equipped with the Frobenius (Euclidean) inner product <span class="math inline">\(\langle .,. \rangle_F\)</span>. By specifying the argument <code>inverse = T</code>, the function computes an inverse basis expansion, transforming a real-valued basis component vector back to an Hermitian matrix.</p>
-<p>The function <code>pdDepth()</code> computes the intrinsic data depth of a single HPD matrix (resp. curve of HPD matrices) <code>y</code> with respect to a sample of HPD matrices (resp. sample of curves of HPD matrices) <code>X</code>. The intrinsic data depth is calculated in the space of HPD matrices equipped with one of the following metrics: (i) affine-invariant Riemannian metric (<code>metric = &quot;Riemannian&quot;</code>), (ii) log-Euclidean metric, the Euclidean inner product between matrix logarithms (<code>metric = &quot;logEuclidean&quot;</code>), (iii) Cholesky metric, the Euclidean inner product between Cholesky decompositions (<code>metric = &quot;Cholesky&quot;</code>), (iv) Euclidean metric (<code>metric = &quot;Euclidean&quot;</code>) and (v) root-Euclidean metric, the Euclidean inner product between Hermitian square root matrices (<code>metric = &quot;rootEuclidean&quot;</code>). Note that the default choice (affine-invariant Riemannian) has several useful properties not shared by the other metrics. See <span class="citation">(Chau, Ombao, and Sachs 2019)</span> and Chapter 4 of <span class="citation">(Chau 2018)</span> for more details and additional properties of the available intrinsic depth functions.</p>
-<p><strong>Remark</strong>: an advantage of substituting, for instance, the Log-Euclidean metric is that the depth computation times may be significantly faster, in particular for large sample sizes. However, the data depths with respect to the Log-Euclidean metric are not <em>general linear congruence invariant</em> according to Chapter 4 of <span class="citation">(Chau 2018)</span>, and should therefore be used with caution.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" title="1"><span class="co">## Pointwise geodesic distance, zonoid and spatial depth</span></a>
-<a class="sourceLine" id="cb2-2" title="2">point.depth &lt;-<span class="st"> </span><span class="cf">function</span>(method) <span class="kw">pdDepth</span>(<span class="dt">y =</span> <span class="kw">diag</span>(<span class="dv">2</span>), <span class="dt">X =</span> X1, <span class="dt">method =</span> method)</a>
-<a class="sourceLine" id="cb2-3" title="3"><span class="kw">point.depth</span>(<span class="st">&quot;gdd&quot;</span>); <span class="kw">point.depth</span>(<span class="st">&quot;zonoid&quot;</span>); <span class="kw">point.depth</span>(<span class="st">&quot;spatial&quot;</span>)</a>
-<a class="sourceLine" id="cb2-4" title="4"><span class="co">#&gt; [1] 0.4326915</span></a>
-<a class="sourceLine" id="cb2-5" title="5"><span class="co">#&gt; [1] 0.7600822</span></a>
-<a class="sourceLine" id="cb2-6" title="6"><span class="co">#&gt; [1] 0.7932682</span></a>
-<a class="sourceLine" id="cb2-7" title="7"></a>
-<a class="sourceLine" id="cb2-8" title="8"><span class="co">## Integrated geodesic distance, zonoid and spatial depth</span></a>
-<a class="sourceLine" id="cb2-9" title="9">int.depth &lt;-<span class="st"> </span><span class="cf">function</span>(method){ <span class="kw">pdDepth</span>(<span class="dt">y =</span> <span class="kw">sapply</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">5</span>, <span class="cf">function</span>(i) i <span class="op">*</span><span class="st"> </span><span class="kw">diag</span>(<span class="dv">2</span>),</a>
-<a class="sourceLine" id="cb2-10" title="10">                                    <span class="dt">simplify =</span> <span class="st">&quot;array&quot;</span>), <span class="dt">X =</span> X2, <span class="dt">method =</span> method) }</a>
-<a class="sourceLine" id="cb2-11" title="11"><span class="kw">int.depth</span>(<span class="st">&quot;gdd&quot;</span>); <span class="kw">int.depth</span>(<span class="st">&quot;zonoid&quot;</span>); <span class="kw">int.depth</span>(<span class="st">&quot;spatial&quot;</span>)</a>
-<a class="sourceLine" id="cb2-12" title="12"><span class="co">#&gt; [1] 0.751167</span></a>
-<a class="sourceLine" id="cb2-13" title="13"><span class="co">#&gt; [1] 0.8631369</span></a>
-<a class="sourceLine" id="cb2-14" title="14"><span class="co">#&gt; [1] 0.8825155</span></a></code></pre></div>
-<p>By leaving the argument <code>y</code> in the function <code>pdDepth()</code> unspecified, the function computes the data depth of each individual object in the sample array <code>X</code> with respect to the sample <code>X</code> itself.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" title="1">(dd1 &lt;-<span class="st"> </span><span class="kw">pdDepth</span>(<span class="dt">X =</span> X1, <span class="dt">method =</span> <span class="st">&quot;gdd&quot;</span>)) <span class="co">## pointwise geodesic distance depth</span></a>
-<a class="sourceLine" id="cb3-2" title="2"><span class="co">#&gt;  [1] 0.4136872 0.4072360 0.4025387 0.4044413 0.2559378 0.3873209 0.3832640</span></a>
-<a class="sourceLine" id="cb3-3" title="3"><span class="co">#&gt;  [8] 0.3002407 0.4034977 0.3358114 0.2597040 0.3120139 0.1967228 0.1876342</span></a>
-<a class="sourceLine" id="cb3-4" title="4"><span class="co">#&gt; [15] 0.1922631 0.2483946 0.3696490 0.3386755 0.2068996 0.2058298 0.2020919</span></a>
-<a class="sourceLine" id="cb3-5" title="5"><span class="co">#&gt; [22] 0.3757002 0.2523476 0.2142259 0.2864097 0.3353675 0.3192103 0.3354539</span></a>
-<a class="sourceLine" id="cb3-6" title="6"><span class="co">#&gt; [29] 0.3210167 0.3004936 0.3990564 0.3107404 0.3665464 0.2987992 0.4306943</span></a>
-<a class="sourceLine" id="cb3-7" title="7"><span class="co">#&gt; [36] 0.2448184 0.3170413 0.2921210 0.4100427 0.4292756 0.4257262 0.3645616</span></a>
-<a class="sourceLine" id="cb3-8" title="8"><span class="co">#&gt; [43] 0.3668837 0.2471900 0.2340217 0.3391741 0.3632063 0.3623502 0.2293419</span></a>
-<a class="sourceLine" id="cb3-9" title="9"><span class="co">#&gt; [50] 0.2719987</span></a>
-<a class="sourceLine" id="cb3-10" title="10"></a>
-<a class="sourceLine" id="cb3-11" title="11">(dd2 &lt;-<span class="st"> </span><span class="kw">pdDepth</span>(<span class="dt">X =</span> X2, <span class="dt">method =</span> <span class="st">&quot;gdd&quot;</span>)) <span class="co">## integrated geodesic distance depth</span></a>
-<a class="sourceLine" id="cb3-12" title="12"><span class="co">#&gt;  [1] 0.7001805 0.6885243 0.5746611 0.7066090 0.6931021 0.6423633 0.6738678</span></a>
-<a class="sourceLine" id="cb3-13" title="13"><span class="co">#&gt;  [8] 0.6197673 0.5654389 0.7123940 0.6469901 0.7158848 0.6487223 0.6243373</span></a>
-<a class="sourceLine" id="cb3-14" title="14"><span class="co">#&gt; [15] 0.7075508 0.6356606 0.6654029 0.7162644 0.6380360 0.7091247 0.6595957</span></a>
-<a class="sourceLine" id="cb3-15" title="15"><span class="co">#&gt; [22] 0.6520224 0.6627836 0.6932087 0.6783008 0.6798760 0.6490358 0.7024616</span></a>
-<a class="sourceLine" id="cb3-16" title="16"><span class="co">#&gt; [29] 0.6324775 0.6889687 0.6728189 0.6927310 0.6464986 0.6492694 0.6591718</span></a>
-<a class="sourceLine" id="cb3-17" title="17"><span class="co">#&gt; [36] 0.6874394 0.6743475 0.6365783 0.6644634 0.7112869 0.6935939 0.7361826</span></a>
-<a class="sourceLine" id="cb3-18" title="18"><span class="co">#&gt; [43] 0.7209363 0.6161036 0.6952725 0.6470956 0.6250286 0.7059682 0.7125312</span></a>
-<a class="sourceLine" id="cb3-19" title="19"><span class="co">#&gt; [50] 0.7113942</span></a></code></pre></div>
-<p>A center-to-outward ordering of the individual objects in the sample of (curves of) HPD matrices is then obtained by computing the data depth induced ranks, with the most central observation (i.e., highest depth value) having smallest rank and the most outlying observation (i.e., lowest depth value) having largest rank.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" title="1">(dd1.ranks &lt;-<span class="st"> </span><span class="kw">rank</span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>dd1)) <span class="co">## pointwise depth ranks</span></a>
-<a class="sourceLine" id="cb4-2" title="2"><span class="co">#&gt;  [1]  4  6  9  7 37 11 12 31  8 22 36 28 48 50 49 39 14 21 45 46 47 13 38</span></a>
-<a class="sourceLine" id="cb4-3" title="3"><span class="co">#&gt; [24] 44 34 24 26 23 25 30 10 29 16 32  1 41 27 33  5  2  3 17 15 40 42 20</span></a>
-<a class="sourceLine" id="cb4-4" title="4"><span class="co">#&gt; [47] 18 19 43 35</span></a>
-<a class="sourceLine" id="cb4-5" title="5"></a>
-<a class="sourceLine" id="cb4-6" title="6">(dd2.ranks &lt;-<span class="st"> </span><span class="kw">rank</span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>dd2)) <span class="co">## integrated depth ranks</span></a>
-<a class="sourceLine" id="cb4-7" title="7"><span class="co">#&gt;  [1] 14 21 49 11 18 40 26 47 50  6 38  4 36 46 10 43 28  3 41  9 31 33 30</span></a>
-<a class="sourceLine" id="cb4-8" title="8"><span class="co">#&gt; [24] 17 24 23 35 13 44 20 27 19 39 34 32 22 25 42 29  8 16  1  2 48 15 37</span></a>
-<a class="sourceLine" id="cb4-9" title="9"><span class="co">#&gt; [47] 45 12  5  7</span></a>
-<a class="sourceLine" id="cb4-10" title="10"></a>
-<a class="sourceLine" id="cb4-11" title="11"><span class="co">## Explore sample X1</span></a>
-<a class="sourceLine" id="cb4-12" title="12"><span class="kw">head</span>(<span class="kw">order</span>(dd1.ranks)) <span class="co">## most central observations</span></a>
-<a class="sourceLine" id="cb4-13" title="13"><span class="co">#&gt; [1] 35 40 41  1 39  2</span></a>
-<a class="sourceLine" id="cb4-14" title="14"><span class="kw">rev</span>(<span class="kw">tail</span>(<span class="kw">order</span>(dd1.ranks))) <span class="co">## most outlying observations</span></a>
-<a class="sourceLine" id="cb4-15" title="15"><span class="co">#&gt; [1] 14 15 13 21 20 19</span></a>
-<a class="sourceLine" id="cb4-16" title="16">X1[ , , <span class="kw">which</span>(dd1.ranks <span class="op">==</span><span class="st"> </span><span class="dv">1</span>)] <span class="co">## most central HPD matrix</span></a>
-<a class="sourceLine" id="cb4-17" title="17"><span class="co">#&gt;                       [,1]                  [,2]</span></a>
-<a class="sourceLine" id="cb4-18" title="18"><span class="co">#&gt; [1,]  0.9407902+0.0000000i -0.0154483+0.1752587i</span></a>
-<a class="sourceLine" id="cb4-19" title="19"><span class="co">#&gt; [2,] -0.0154483-0.1752587i  1.2710700+0.0000000i</span></a>
-<a class="sourceLine" id="cb4-20" title="20">X1[ , , <span class="kw">which</span>(dd1.ranks <span class="op">==</span><span class="st"> </span><span class="dv">50</span>)] <span class="co">## most outlying HPD matrix</span></a>
-<a class="sourceLine" id="cb4-21" title="21"><span class="co">#&gt;                     [,1]                [,2]</span></a>
-<a class="sourceLine" id="cb4-22" title="22"><span class="co">#&gt; [1,]  1.847918+0.000000i -1.288255+1.075924i</span></a>
-<a class="sourceLine" id="cb4-23" title="23"><span class="co">#&gt; [2,] -1.288255-1.075924i  2.490724+0.000000i</span></a></code></pre></div>
-<p>We can compare the most central HPD matrix above with the intrinsic median of the observations under the affine-invariant metric obtained with <code>pdMedian()</code>. Note that the intrinsic sample median maximizes the geodesic distance depth in a given sample of HPD matrices. The point of maximum depth (i.e., deepest point) with respect to the intrinsic zonoid depth is the intrinsic sample mean, which can be obtained with <code>pdMean()</code>. For more details, see <span class="citation">(Chau, Ombao, and Sachs 2019)</span> or Chapter 4 of <span class="citation">(Chau 2018)</span>.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" title="1">(med.X1 &lt;-<span class="st"> </span><span class="kw">pdMedian</span>(X1)) <span class="co">## intrinsic sample median</span></a>
-<a class="sourceLine" id="cb5-2" title="2"><span class="co">#&gt;                         [,1]                    [,2]</span></a>
-<a class="sourceLine" id="cb5-3" title="3"><span class="co">#&gt; [1,]  0.90753401+0.00000000i -0.03426934+0.03226425i</span></a>
-<a class="sourceLine" id="cb5-4" title="4"><span class="co">#&gt; [2,] -0.03426934-0.03226425i  1.15446038-0.00000000i</span></a>
-<a class="sourceLine" id="cb5-5" title="5"></a>
-<a class="sourceLine" id="cb5-6" title="6"></a>
-<a class="sourceLine" id="cb5-7" title="7"><span class="kw">pdDepth</span>(<span class="dt">y =</span> med.X1, <span class="dt">X =</span> X1, <span class="dt">method =</span> <span class="st">&quot;gdd&quot;</span>) <span class="co">## maximum out-of-sample depth</span></a>
-<a class="sourceLine" id="cb5-8" title="8"><span class="co">#&gt; [1] 0.4409941</span></a>
-<a class="sourceLine" id="cb5-9" title="9"></a>
-<a class="sourceLine" id="cb5-10" title="10"><span class="kw">max</span>(dd1) <span class="co">## maximum in-sample depth</span></a>
-<a class="sourceLine" id="cb5-11" title="11"><span class="co">#&gt; [1] 0.4306943</span></a></code></pre></div>
+<p>First, we generate a pointwise random sample of
+<code>(2,2)</code>-dimensional HPD matrix-valued observations using the
+exponential map <code>Expm()</code>, with underlying intrinsic (i.e.,
+Karcher or Fréchet) mean equal to the identity matrix
+<code>diag(2)</code>. Second, we generate a random sample of sequences
+(discretized curves) of <code>(2,2)</code>-dimensional HPD matrix-valued
+observations, with underlying intrinsic mean curve equal to an array of
+rescaled identity matrices. For instance, we can think of the first
+sample as a random collection of HPD covariance matrices, and the second
+sample as a random collection of HPD spectral matrix curves in the
+frequency domain.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="do">## Pointwise random sample</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">library</span>(pdSpecEst); <span class="fu">set.seed</span>(<span class="dv">100</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>X1 <span class="ot">&lt;-</span> <span class="fu">replicate</span>(<span class="dv">50</span>, <span class="fu">Expm</span>(<span class="fu">diag</span>(<span class="dv">2</span>), <span class="fu">H.coeff</span>(<span class="fl">0.5</span> <span class="sc">*</span> <span class="fu">rnorm</span>(<span class="dv">4</span>), <span class="at">inverse =</span> T))); <span class="fu">str</span>(X1)</span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="co">#&gt;  cplx [1:2, 1:2, 1:50] 0.7794+0i -0.0314-0.0523i -0.0314+0.0523i ...</span></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="do">## Curve random sample</span></span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>X2 <span class="ot">&lt;-</span> <span class="fu">replicate</span>(<span class="dv">50</span>, <span class="fu">sapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, <span class="cf">function</span>(i) <span class="fu">Expm</span>(i <span class="sc">*</span> <span class="fu">diag</span>(<span class="dv">2</span>), <span class="fu">H.coeff</span>(<span class="fl">0.5</span> <span class="sc">*</span></span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a>                           <span class="fu">rnorm</span>(<span class="dv">4</span>), <span class="at">inverse =</span> T) <span class="sc">/</span> i), <span class="at">simplify =</span> <span class="st">&quot;array&quot;</span>)); <span class="fu">str</span>(X2)</span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a><span class="co">#&gt;  cplx [1:2, 1:2, 1:5, 1:50] 1.074+2.78e-17i 0.352+1.47e-01i 0.352-1.47e-01i ...</span></span></code></pre></div>
+<p>The function <code>H.coeff()</code> expands an Hermitian matrix with
+respect to an orthonormal basis of the space of Hermitian matrices
+equipped with the Frobenius (Euclidean) inner product <span class="math inline">\(\langle .,. \rangle_F\)</span>. By specifying the
+argument <code>inverse = T</code>, the function computes an inverse
+basis expansion, transforming a real-valued basis component vector back
+to an Hermitian matrix.</p>
+<p>The function <code>pdDepth()</code> computes the intrinsic data depth
+of a single HPD matrix (resp. curve of HPD matrices) <code>y</code> with
+respect to a sample of HPD matrices (resp. sample of curves of HPD
+matrices) <code>X</code>. The intrinsic data depth is calculated in the
+space of HPD matrices equipped with one of the following metrics: (i)
+affine-invariant Riemannian metric (<code>metric = &quot;Riemannian&quot;</code>),
+(ii) log-Euclidean metric, the Euclidean inner product between matrix
+logarithms (<code>metric = &quot;logEuclidean&quot;</code>), (iii) Cholesky
+metric, the Euclidean inner product between Cholesky decompositions
+(<code>metric = &quot;Cholesky&quot;</code>), (iv) Euclidean metric
+(<code>metric = &quot;Euclidean&quot;</code>) and (v) root-Euclidean metric, the
+Euclidean inner product between Hermitian square root matrices
+(<code>metric = &quot;rootEuclidean&quot;</code>). Note that the default choice
+(affine-invariant Riemannian) has several useful properties not shared
+by the other metrics. See <span class="citation">(Chau, Ombao, and Sachs
+2019)</span> and Chapter 4 of <span class="citation">(Chau 2018)</span>
+for more details and additional properties of the available intrinsic
+depth functions.</p>
+<p><strong>Remark</strong>: an advantage of substituting, for instance,
+the Log-Euclidean metric is that the depth computation times may be
+significantly faster, in particular for large sample sizes. However, the
+data depths with respect to the Log-Euclidean metric are not <em>general
+linear congruence invariant</em> according to Chapter 4 of <span class="citation">(Chau 2018)</span>, and should therefore be used with
+caution.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="do">## Pointwise geodesic distance, zonoid and spatial depth</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>point.depth <span class="ot">&lt;-</span> <span class="cf">function</span>(method) <span class="fu">pdDepth</span>(<span class="at">y =</span> <span class="fu">diag</span>(<span class="dv">2</span>), <span class="at">X =</span> X1, <span class="at">method =</span> method)</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="fu">point.depth</span>(<span class="st">&quot;gdd&quot;</span>); <span class="fu">point.depth</span>(<span class="st">&quot;zonoid&quot;</span>); <span class="fu">point.depth</span>(<span class="st">&quot;spatial&quot;</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co">#&gt; [1] 0.4326915</span></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="co">#&gt; [1] 0.7600822</span></span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="co">#&gt; [1] 0.7932682</span></span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="do">## Integrated geodesic distance, zonoid and spatial depth</span></span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>int.depth <span class="ot">&lt;-</span> <span class="cf">function</span>(method){ <span class="fu">pdDepth</span>(<span class="at">y =</span> <span class="fu">sapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, <span class="cf">function</span>(i) i <span class="sc">*</span> <span class="fu">diag</span>(<span class="dv">2</span>),</span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a>                                    <span class="at">simplify =</span> <span class="st">&quot;array&quot;</span>), <span class="at">X =</span> X2, <span class="at">method =</span> method) }</span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a><span class="fu">int.depth</span>(<span class="st">&quot;gdd&quot;</span>); <span class="fu">int.depth</span>(<span class="st">&quot;zonoid&quot;</span>); <span class="fu">int.depth</span>(<span class="st">&quot;spatial&quot;</span>)</span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a><span class="co">#&gt; [1] 0.751167</span></span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a><span class="co">#&gt; [1] 0.8631369</span></span>
+<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a><span class="co">#&gt; [1] 0.8825155</span></span></code></pre></div>
+<p>By leaving the argument <code>y</code> in the function
+<code>pdDepth()</code> unspecified, the function computes the data depth
+of each individual object in the sample array <code>X</code> with
+respect to the sample <code>X</code> itself.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>(dd1 <span class="ot">&lt;-</span> <span class="fu">pdDepth</span>(<span class="at">X =</span> X1, <span class="at">method =</span> <span class="st">&quot;gdd&quot;</span>)) <span class="do">## pointwise geodesic distance depth</span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="co">#&gt;  [1] 0.4136872 0.4072360 0.4025387 0.4044413 0.2559378 0.3873209 0.3832640</span></span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="co">#&gt;  [8] 0.3002407 0.4034977 0.3358114 0.2597040 0.3120139 0.1967228 0.1876342</span></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="co">#&gt; [15] 0.1922631 0.2483946 0.3696490 0.3386755 0.2068996 0.2058298 0.2020919</span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="co">#&gt; [22] 0.3757002 0.2523476 0.2142259 0.2864097 0.3353675 0.3192103 0.3354539</span></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="co">#&gt; [29] 0.3210167 0.3004936 0.3990564 0.3107404 0.3665464 0.2987992 0.4306943</span></span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="co">#&gt; [36] 0.2448184 0.3170413 0.2921210 0.4100427 0.4292756 0.4257262 0.3645616</span></span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="co">#&gt; [43] 0.3668837 0.2471900 0.2340217 0.3391741 0.3632063 0.3623502 0.2293419</span></span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a><span class="co">#&gt; [50] 0.2719987</span></span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a></span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a>(dd2 <span class="ot">&lt;-</span> <span class="fu">pdDepth</span>(<span class="at">X =</span> X2, <span class="at">method =</span> <span class="st">&quot;gdd&quot;</span>)) <span class="do">## integrated geodesic distance depth</span></span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a><span class="co">#&gt;  [1] 0.7001805 0.6885243 0.5746611 0.7066090 0.6931021 0.6423633 0.6738678</span></span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a><span class="co">#&gt;  [8] 0.6197673 0.5654389 0.7123940 0.6469901 0.7158848 0.6487223 0.6243373</span></span>
+<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a><span class="co">#&gt; [15] 0.7075508 0.6356606 0.6654029 0.7162644 0.6380360 0.7091247 0.6595957</span></span>
+<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a><span class="co">#&gt; [22] 0.6520224 0.6627836 0.6932087 0.6783008 0.6798760 0.6490358 0.7024616</span></span>
+<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a><span class="co">#&gt; [29] 0.6324775 0.6889687 0.6728189 0.6927310 0.6464986 0.6492694 0.6591718</span></span>
+<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a><span class="co">#&gt; [36] 0.6874394 0.6743475 0.6365783 0.6644634 0.7112869 0.6935939 0.7361826</span></span>
+<span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a><span class="co">#&gt; [43] 0.7209363 0.6161036 0.6952725 0.6470956 0.6250286 0.7059682 0.7125312</span></span>
+<span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a><span class="co">#&gt; [50] 0.7113942</span></span></code></pre></div>
+<p>A center-to-outward ordering of the individual objects in the sample
+of (curves of) HPD matrices is then obtained by computing the data depth
+induced ranks, with the most central observation (i.e., highest depth
+value) having smallest rank and the most outlying observation (i.e.,
+lowest depth value) having largest rank.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>(dd1.ranks <span class="ot">&lt;-</span> <span class="fu">rank</span>(<span class="dv">1</span> <span class="sc">-</span> dd1)) <span class="do">## pointwise depth ranks</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="co">#&gt;  [1]  4  6  9  7 37 11 12 31  8 22 36 28 48 50 49 39 14 21 45 46 47 13 38 44 34</span></span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="co">#&gt; [26] 24 26 23 25 30 10 29 16 32  1 41 27 33  5  2  3 17 15 40 42 20 18 19 43 35</span></span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>(dd2.ranks <span class="ot">&lt;-</span> <span class="fu">rank</span>(<span class="dv">1</span> <span class="sc">-</span> dd2)) <span class="do">## integrated depth ranks</span></span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="co">#&gt;  [1] 14 21 49 11 18 40 26 47 50  6 38  4 36 46 10 43 28  3 41  9 31 33 30 17 24</span></span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="co">#&gt; [26] 23 35 13 44 20 27 19 39 34 32 22 25 42 29  8 16  1  2 48 15 37 45 12  5  7</span></span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a></span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="do">## Explore sample X1</span></span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="fu">head</span>(<span class="fu">order</span>(dd1.ranks)) <span class="do">## most central observations</span></span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a><span class="co">#&gt; [1] 35 40 41  1 39  2</span></span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a><span class="fu">rev</span>(<span class="fu">tail</span>(<span class="fu">order</span>(dd1.ranks))) <span class="do">## most outlying observations</span></span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a><span class="co">#&gt; [1] 14 15 13 21 20 19</span></span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a>X1[ , , <span class="fu">which</span>(dd1.ranks <span class="sc">==</span> <span class="dv">1</span>)] <span class="do">## most central HPD matrix</span></span>
+<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a><span class="co">#&gt;                          [,1]                  [,2]</span></span>
+<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a><span class="co">#&gt; [1,]  0.9407902+1.040834e-17i -0.0154483+0.1752587i</span></span>
+<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a><span class="co">#&gt; [2,] -0.0154483-1.752587e-01i  1.2710700+0.0000000i</span></span>
+<span id="cb4-18"><a href="#cb4-18" tabindex="-1"></a>X1[ , , <span class="fu">which</span>(dd1.ranks <span class="sc">==</span> <span class="dv">50</span>)] <span class="do">## most outlying HPD matrix</span></span>
+<span id="cb4-19"><a href="#cb4-19" tabindex="-1"></a><span class="co">#&gt;                     [,1]                [,2]</span></span>
+<span id="cb4-20"><a href="#cb4-20" tabindex="-1"></a><span class="co">#&gt; [1,]  1.847918+0.000000i -1.288255+1.075924i</span></span>
+<span id="cb4-21"><a href="#cb4-21" tabindex="-1"></a><span class="co">#&gt; [2,] -1.288255-1.075924i  2.490724+0.000000i</span></span></code></pre></div>
+<p>We can compare the most central HPD matrix above with the intrinsic
+median of the observations under the affine-invariant metric obtained
+with <code>pdMedian()</code>. Note that the intrinsic sample median
+maximizes the geodesic distance depth in a given sample of HPD matrices.
+The point of maximum depth (i.e., deepest point) with respect to the
+intrinsic zonoid depth is the intrinsic sample mean, which can be
+obtained with <code>pdMean()</code>. For more details, see <span class="citation">(Chau, Ombao, and Sachs 2019)</span> or Chapter 4 of
+<span class="citation">(Chau 2018)</span>.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>(med.X1 <span class="ot">&lt;-</span> <span class="fu">pdMedian</span>(X1)) <span class="do">## intrinsic sample median</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="co">#&gt;                           [,1]                      [,2]</span></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="co">#&gt; [1,]  0.90753401-2.523636e-17i -0.03426934+3.226425e-02i</span></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="co">#&gt; [2,] -0.03426934-3.226425e-02i  1.15446038+1.303128e-19i</span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a></span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="fu">pdDepth</span>(<span class="at">y =</span> med.X1, <span class="at">X =</span> X1, <span class="at">method =</span> <span class="st">&quot;gdd&quot;</span>) <span class="do">## maximum out-of-sample depth</span></span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="co">#&gt; [1] 0.4409941</span></span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a></span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="fu">max</span>(dd1) <span class="do">## maximum in-sample depth</span></span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="co">#&gt; [1] 0.4306943</span></span></code></pre></div>
 </div>
 <div id="rank-based-tests-for-hpd-matrices-with-pdranktests" class="section level2">
-<h2>Rank-based tests for HPD matrices with <code>pdRankTests()</code></h2>
-<p>The null hypotheses of the available rank-based hypothesis tests in the function <code>pdRankTests()</code> are specified by the argument <code>test</code> and can be one of the following:</p>
+<h2>Rank-based tests for HPD matrices with
+<code>pdRankTests()</code></h2>
+<p>The null hypotheses of the available rank-based hypothesis tests in
+the function <code>pdRankTests()</code> are specified by the argument
+<code>test</code> and can be one of the following:</p>
 <ul>
-<li><code>&quot;rank.sum&quot;</code>: homogeneity of distributions of two independent samples of HPD matrices (resp. sequences of HPD matrices).</li>
-<li><code>&quot;krusk.wall&quot;</code>: homogeneity of distributions of more than two independent samples of HPD matrices (resp. sequences of HPD matrices).</li>
-<li><code>&quot;signed-rank&quot;</code>: homogeneity of distributions of independent paired or matched samples of HPD matrices.</li>
-<li><code>&quot;bartels&quot;</code>: exchangeability (i.e. randomness) within a single independent sample of HPD matrices (resp. sequences of HPD matrices).</li>
+<li><code>&quot;rank.sum&quot;</code>: homogeneity of distributions of two
+independent samples of HPD matrices (resp. sequences of HPD
+matrices).</li>
+<li><code>&quot;krusk.wall&quot;</code>: homogeneity of distributions of more than
+two independent samples of HPD matrices (resp. sequences of HPD
+matrices).</li>
+<li><code>&quot;signed-rank&quot;</code>: homogeneity of distributions of
+independent paired or matched samples of HPD matrices.</li>
+<li><code>&quot;bartels&quot;</code>: exchangeability (i.e. randomness) within a
+single independent sample of HPD matrices (resp. sequences of HPD
+matrices).</li>
 </ul>
-<p>Below, we construct several simulated examples for which: (i) the null hypotheses listed above are satisfied; and (ii) the null hypotheses listed above are not satisfied. Analogous to the previous section, we generate pointwise random samples (resp. random samples of sequences) of <code>(2,2)</code>-dimensional HPD matrix-valued observations, with underlying geometric mean equal to the identity matrix (resp. sequence of scaled identity matrices).</p>
-<p>Let us first consider simulated examples of the intrinsic Wilcoxon rank-sum test (<code>test = &quot;rank.sum&quot;</code>) and intrinsic Kruskal-Wallis test (<code>test = &quot;krusk.wall&quot;</code>).</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" title="1"><span class="co">## Generate data (null true)</span></a>
-<a class="sourceLine" id="cb6-2" title="2">data1 &lt;-<span class="st"> </span><span class="kw">array</span>(<span class="kw">c</span>(X1, <span class="kw">replicate</span>(<span class="dv">50</span>, <span class="kw">Expm</span>(<span class="kw">diag</span>(<span class="dv">2</span>), <span class="kw">H.coeff</span>(<span class="fl">0.5</span> <span class="op">*</span><span class="st"> </span><span class="kw">rnorm</span>(<span class="dv">4</span>), <span class="dt">inverse =</span> T)))), <span class="dt">dim =</span> <span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">100</span>)) <span class="co">## pointwise HPD sample</span></a>
-<a class="sourceLine" id="cb6-3" title="3">data2 &lt;-<span class="st"> </span><span class="kw">array</span>(<span class="kw">c</span>(X2, <span class="kw">replicate</span>(<span class="dv">50</span>, <span class="kw">sapply</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">5</span>, <span class="cf">function</span>(i) <span class="kw">Expm</span>(i <span class="op">*</span><span class="st"> </span><span class="kw">diag</span>(<span class="dv">2</span>), <span class="kw">H.coeff</span>(<span class="fl">0.5</span> <span class="op">*</span><span class="st"> </span><span class="kw">rnorm</span>(<span class="dv">4</span>), <span class="dt">inverse =</span> T) <span class="op">/</span><span class="st"> </span>i), <span class="dt">simplify =</span> <span class="st">&quot;array&quot;</span>))), <span class="dt">dim =</span> <span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">5</span>, <span class="dv">100</span>)) <span class="co">## HPD curve sample</span></a>
-<a class="sourceLine" id="cb6-4" title="4"></a>
-<a class="sourceLine" id="cb6-5" title="5"><span class="co">## Generate data (null false)</span></a>
-<a class="sourceLine" id="cb6-6" title="6">data1a &lt;-<span class="st"> </span><span class="kw">array</span>(<span class="kw">c</span>(X1, <span class="kw">replicate</span>(<span class="dv">50</span>, <span class="kw">Expm</span>(<span class="kw">diag</span>(<span class="dv">2</span>), <span class="kw">H.coeff</span>(<span class="kw">rnorm</span>(<span class="dv">4</span>), <span class="dt">inverse =</span> T)))), <span class="dt">dim =</span> <span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">100</span>)) <span class="co">## pointwise HPD scale change</span></a>
-<a class="sourceLine" id="cb6-7" title="7">data2a &lt;-<span class="st"> </span><span class="kw">array</span>(<span class="kw">c</span>(X2, <span class="kw">replicate</span>(<span class="dv">50</span>, <span class="kw">sapply</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">5</span>, <span class="cf">function</span>(i) <span class="kw">Expm</span>(i <span class="op">*</span><span class="st"> </span><span class="kw">diag</span>(<span class="dv">2</span>), <span class="kw">H.coeff</span>(<span class="kw">rnorm</span>(<span class="dv">4</span>), <span class="dt">inverse =</span> T) <span class="op">/</span><span class="st"> </span>i), <span class="dt">simplify =</span> <span class="st">&quot;arra&quot;</span>))), <span class="dt">dim =</span> <span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">5</span>, <span class="dv">100</span>)) <span class="co">## HPD curve scale change</span></a>
-<a class="sourceLine" id="cb6-8" title="8"></a>
-<a class="sourceLine" id="cb6-9" title="9"><span class="co">## Rank-sum test</span></a>
-<a class="sourceLine" id="cb6-10" title="10"><span class="kw">pdRankTests</span>(data1, <span class="dt">sample_sizes =</span> <span class="kw">c</span>(<span class="dv">50</span>, <span class="dv">50</span>), <span class="st">&quot;rank.sum&quot;</span>)[<span class="dv">1</span><span class="op">:</span><span class="dv">4</span>] <span class="co">## null true (pointwise)</span></a>
-<a class="sourceLine" id="cb6-11" title="11"><span class="co">#&gt; $test</span></a>
-<a class="sourceLine" id="cb6-12" title="12"><span class="co">#&gt; [1] &quot;Intrinsic Wilcoxon rank-sum&quot;</span></a>
-<a class="sourceLine" id="cb6-13" title="13"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb6-14" title="14"><span class="co">#&gt; $p.value</span></a>
-<a class="sourceLine" id="cb6-15" title="15"><span class="co">#&gt; [1] 0.1037495</span></a>
-<a class="sourceLine" id="cb6-16" title="16"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb6-17" title="17"><span class="co">#&gt; $statistic</span></a>
-<a class="sourceLine" id="cb6-18" title="18"><span class="co">#&gt; [1] 1.626941</span></a>
-<a class="sourceLine" id="cb6-19" title="19"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb6-20" title="20"><span class="co">#&gt; $null.distr</span></a>
-<a class="sourceLine" id="cb6-21" title="21"><span class="co">#&gt; [1] &quot;Standard normal distribution&quot;</span></a>
-<a class="sourceLine" id="cb6-22" title="22"></a>
-<a class="sourceLine" id="cb6-23" title="23"><span class="kw">pdRankTests</span>(data2, <span class="dt">sample_sizes =</span> <span class="kw">c</span>(<span class="dv">50</span>, <span class="dv">50</span>), <span class="st">&quot;rank.sum&quot;</span>)[<span class="dv">2</span>] <span class="co">## null true (curve)</span></a>
-<a class="sourceLine" id="cb6-24" title="24"><span class="co">#&gt; $p.value</span></a>
-<a class="sourceLine" id="cb6-25" title="25"><span class="co">#&gt; [1] 0.9834998</span></a>
-<a class="sourceLine" id="cb6-26" title="26"></a>
-<a class="sourceLine" id="cb6-27" title="27"><span class="kw">pdRankTests</span>(data1a, <span class="dt">sample_sizes =</span> <span class="kw">c</span>(<span class="dv">50</span>, <span class="dv">50</span>), <span class="st">&quot;rank.sum&quot;</span>)[<span class="dv">2</span>] <span class="co">## null false (pointwise)</span></a>
-<a class="sourceLine" id="cb6-28" title="28"><span class="co">#&gt; $p.value</span></a>
-<a class="sourceLine" id="cb6-29" title="29"><span class="co">#&gt; [1] 6.958285e-11</span></a>
-<a class="sourceLine" id="cb6-30" title="30"></a>
-<a class="sourceLine" id="cb6-31" title="31"><span class="kw">pdRankTests</span>(data2a, <span class="dt">sample_sizes =</span> <span class="kw">c</span>(<span class="dv">50</span>, <span class="dv">50</span>), <span class="st">&quot;rank.sum&quot;</span>)[<span class="dv">2</span>] <span class="co">## null false (curve)</span></a>
-<a class="sourceLine" id="cb6-32" title="32"><span class="co">#&gt; $p.value</span></a>
-<a class="sourceLine" id="cb6-33" title="33"><span class="co">#&gt; [1] 1.020181e-15</span></a>
-<a class="sourceLine" id="cb6-34" title="34"></a>
-<a class="sourceLine" id="cb6-35" title="35"><span class="co">## Kruskal-Wallis test</span></a>
-<a class="sourceLine" id="cb6-36" title="36"><span class="kw">pdRankTests</span>(data1, <span class="dt">sample_sizes =</span> <span class="kw">c</span>(<span class="dv">50</span>, <span class="dv">25</span>, <span class="dv">25</span>), <span class="st">&quot;krusk.wall&quot;</span>)[<span class="dv">1</span><span class="op">:</span><span class="dv">4</span>] <span class="co">## null true (pointwise)</span></a>
-<a class="sourceLine" id="cb6-37" title="37"><span class="co">#&gt; $test</span></a>
-<a class="sourceLine" id="cb6-38" title="38"><span class="co">#&gt; [1] &quot;Intrinsic Kruskal-Wallis&quot;</span></a>
-<a class="sourceLine" id="cb6-39" title="39"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb6-40" title="40"><span class="co">#&gt; $p.value</span></a>
-<a class="sourceLine" id="cb6-41" title="41"><span class="co">#&gt; [1] 0.1443239</span></a>
-<a class="sourceLine" id="cb6-42" title="42"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb6-43" title="43"><span class="co">#&gt; $statistic</span></a>
-<a class="sourceLine" id="cb6-44" title="44"><span class="co">#&gt; [1] 3.87139</span></a>
-<a class="sourceLine" id="cb6-45" title="45"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb6-46" title="46"><span class="co">#&gt; $null.distr</span></a>
-<a class="sourceLine" id="cb6-47" title="47"><span class="co">#&gt; [1] &quot;Chi-squared distribution (df = 2)&quot;</span></a>
-<a class="sourceLine" id="cb6-48" title="48"></a>
-<a class="sourceLine" id="cb6-49" title="49"><span class="kw">pdRankTests</span>(data2, <span class="dt">sample_sizes =</span> <span class="kw">c</span>(<span class="dv">50</span>, <span class="dv">25</span>, <span class="dv">25</span>), <span class="st">&quot;krusk.wall&quot;</span>)[<span class="dv">2</span>] <span class="co">## null true (curve)</span></a>
-<a class="sourceLine" id="cb6-50" title="50"><span class="co">#&gt; $p.value</span></a>
-<a class="sourceLine" id="cb6-51" title="51"><span class="co">#&gt; [1] 0.1526552</span></a>
-<a class="sourceLine" id="cb6-52" title="52"></a>
-<a class="sourceLine" id="cb6-53" title="53"><span class="kw">pdRankTests</span>(data1a, <span class="dt">sample_sizes =</span> <span class="kw">c</span>(<span class="dv">50</span>, <span class="dv">25</span>, <span class="dv">25</span>), <span class="st">&quot;krusk.wall&quot;</span>)[<span class="dv">2</span>] <span class="co">## null false (pointwise)</span></a>
-<a class="sourceLine" id="cb6-54" title="54"><span class="co">#&gt; $p.value</span></a>
-<a class="sourceLine" id="cb6-55" title="55"><span class="co">#&gt; [1] 5.495634e-10</span></a>
-<a class="sourceLine" id="cb6-56" title="56"></a>
-<a class="sourceLine" id="cb6-57" title="57"><span class="kw">pdRankTests</span>(data2a, <span class="dt">sample_sizes =</span> <span class="kw">c</span>(<span class="dv">50</span>, <span class="dv">25</span>, <span class="dv">25</span>), <span class="st">&quot;krusk.wall&quot;</span>)[<span class="dv">2</span>] <span class="co">## null false (curve)</span></a>
-<a class="sourceLine" id="cb6-58" title="58"><span class="co">#&gt; $p.value</span></a>
-<a class="sourceLine" id="cb6-59" title="59"><span class="co">#&gt; [1] 1.033775e-14</span></a></code></pre></div>
-<p>To apply the manifold Wilcoxon signed-rank test (<code>test = &quot;signed-rank&quot;</code>), we generate paired observations for independent trials (or subjects) by introducing trial-specific random effects, such that the paired observations in each trial share a trial-specific geometric mean. Note that for such data the intrinsic Wilcoxon rank-sum test is no longer valid due to the introduced sample dependence.</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" title="1"><span class="co">## Trial-specific means</span></a>
-<a class="sourceLine" id="cb7-2" title="2">mu &lt;-<span class="st"> </span><span class="kw">replicate</span>(<span class="dv">50</span>, <span class="kw">Expm</span>(<span class="kw">diag</span>(<span class="dv">2</span>), <span class="kw">H.coeff</span>(<span class="fl">0.1</span> <span class="op">*</span><span class="st"> </span><span class="kw">rnorm</span>(<span class="dv">4</span>), <span class="dt">inverse =</span> T)))</a>
-<a class="sourceLine" id="cb7-3" title="3"></a>
-<a class="sourceLine" id="cb7-4" title="4"><span class="co">## Generate paired samples X,Y</span></a>
-<a class="sourceLine" id="cb7-5" title="5">make_sample &lt;-<span class="st"> </span><span class="cf">function</span>(null) <span class="kw">sapply</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">50</span>, <span class="cf">function</span>(i) <span class="kw">Expm</span>(mu[, , i], pdSpecEst<span class="op">:::</span><span class="kw">T_coeff_inv</span>(<span class="kw">ifelse</span>(null, <span class="dv">1</span>, <span class="fl">0.5</span>) <span class="op">*</span><span class="st"> </span><span class="kw">rexp</span>(<span class="dv">4</span>) <span class="op">-</span><span class="st"> </span><span class="dv">1</span>, mu[, , i])), <span class="dt">simplify =</span> <span class="st">&quot;array&quot;</span>)</a>
-<a class="sourceLine" id="cb7-6" title="6"></a>
-<a class="sourceLine" id="cb7-7" title="7">X3 &lt;-<span class="st"> </span><span class="kw">make_sample</span>(<span class="dt">null =</span> T) <span class="co">## refernce sample </span></a>
-<a class="sourceLine" id="cb7-8" title="8">Y3 &lt;-<span class="st"> </span><span class="kw">make_sample</span>(<span class="dt">null =</span> T) <span class="co">## null true</span></a>
-<a class="sourceLine" id="cb7-9" title="9">Y3a &lt;-<span class="st"> </span><span class="kw">make_sample</span>(<span class="dt">null =</span> F) <span class="co">## null false (scale change)</span></a>
-<a class="sourceLine" id="cb7-10" title="10"></a>
-<a class="sourceLine" id="cb7-11" title="11"><span class="co">## Signed-rank test</span></a>
-<a class="sourceLine" id="cb7-12" title="12"><span class="kw">pdRankTests</span>(<span class="kw">array</span>(<span class="kw">c</span>(X3, Y3), <span class="dt">dim =</span> <span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">100</span>)), <span class="dt">test =</span> <span class="st">&quot;signed.rank&quot;</span>)[<span class="dv">1</span><span class="op">:</span><span class="dv">4</span>] <span class="co">## null true</span></a>
-<a class="sourceLine" id="cb7-13" title="13"><span class="co">#&gt; $test</span></a>
-<a class="sourceLine" id="cb7-14" title="14"><span class="co">#&gt; [1] &quot;Intrinsic Wilcoxon signed-rank&quot;</span></a>
-<a class="sourceLine" id="cb7-15" title="15"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb7-16" title="16"><span class="co">#&gt; $p.value</span></a>
-<a class="sourceLine" id="cb7-17" title="17"><span class="co">#&gt; [1] 0.2025809</span></a>
-<a class="sourceLine" id="cb7-18" title="18"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb7-19" title="19"><span class="co">#&gt; $statistic</span></a>
-<a class="sourceLine" id="cb7-20" title="20"><span class="co">#&gt;   V </span></a>
-<a class="sourceLine" id="cb7-21" title="21"><span class="co">#&gt; 505 </span></a>
-<a class="sourceLine" id="cb7-22" title="22"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb7-23" title="23"><span class="co">#&gt; $null.distr</span></a>
-<a class="sourceLine" id="cb7-24" title="24"><span class="co">#&gt; [1] &quot;Wilcoxon signed rank test with continuity correction&quot;</span></a>
-<a class="sourceLine" id="cb7-25" title="25"></a>
-<a class="sourceLine" id="cb7-26" title="26"><span class="kw">pdRankTests</span>(<span class="kw">array</span>(<span class="kw">c</span>(X3, Y3a), <span class="dt">dim =</span> <span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">100</span>)), <span class="dt">test =</span> <span class="st">&quot;signed.rank&quot;</span>)[<span class="dv">2</span>] <span class="co">## null false</span></a>
-<a class="sourceLine" id="cb7-27" title="27"><span class="co">#&gt; $p.value</span></a>
-<a class="sourceLine" id="cb7-28" title="28"><span class="co">#&gt; [1] 0.001444632</span></a></code></pre></div>
-<p>The intrinsic signed-rank test also provides a valid procedure to test for equivalence of spectral matrices of two (independent) multivariate stationary time series based on the HPD periodogram matrices obtained via <code>pdPgram()</code>. In contrast to other available tests in the literature, this asymptotic test does not require consistent spectral estimators or resampling of test statistics, and therefore remains computationally efficient for higher-dimensional spectral matrices or a large number of sampled Fourier frequencies.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" title="1"><span class="co">## Signed-rank test for equivalence of spectra</span></a>
-<a class="sourceLine" id="cb8-2" title="2"><span class="co">## vARMA(1,1) process: Example 11.4.1 in (Brockwell and Davis, 1991)</span></a>
-<a class="sourceLine" id="cb8-3" title="3">Phi &lt;-<span class="st"> </span><span class="kw">array</span>(<span class="kw">c</span>(<span class="fl">0.7</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="fl">0.6</span>, <span class="kw">rep</span>(<span class="dv">0</span>, <span class="dv">4</span>)), <span class="dt">dim =</span> <span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">2</span>))</a>
-<a class="sourceLine" id="cb8-4" title="4">Theta &lt;-<span class="st"> </span><span class="kw">array</span>(<span class="kw">c</span>(<span class="fl">0.5</span>, <span class="fl">-0.7</span>, <span class="fl">0.6</span>, <span class="fl">0.8</span>, <span class="kw">rep</span>(<span class="dv">0</span>, <span class="dv">4</span>)), <span class="dt">dim =</span> <span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">2</span>))</a>
-<a class="sourceLine" id="cb8-5" title="5">Sigma &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="kw">c</span>(<span class="dv">1</span>, <span class="fl">0.71</span>, <span class="fl">0.71</span>, <span class="dv">2</span>), <span class="dt">nrow =</span> <span class="dv">2</span>)</a>
-<a class="sourceLine" id="cb8-6" title="6">pgram &lt;-<span class="st"> </span><span class="cf">function</span>(Sigma) <span class="kw">pdPgram</span>(<span class="kw">rARMA</span>(<span class="dv">2</span><span class="op">^</span><span class="dv">10</span>, <span class="dv">2</span>, Phi, Theta, Sigma)<span class="op">$</span>X)<span class="op">$</span>P <span class="co">## HPD periodogram</span></a>
-<a class="sourceLine" id="cb8-7" title="7"></a>
-<a class="sourceLine" id="cb8-8" title="8"><span class="co">## Null is true</span></a>
-<a class="sourceLine" id="cb8-9" title="9"><span class="kw">pdRankTests</span>(<span class="kw">array</span>(<span class="kw">c</span>(<span class="kw">pgram</span>(Sigma), <span class="kw">pgram</span>(Sigma)), <span class="dt">dim =</span> <span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">2</span><span class="op">^</span><span class="dv">10</span>)), <span class="dt">test =</span> <span class="st">&quot;signed.rank&quot;</span>)[<span class="dv">2</span>]</a>
-<a class="sourceLine" id="cb8-10" title="10"><span class="co">#&gt; $p.value</span></a>
-<a class="sourceLine" id="cb8-11" title="11"><span class="co">#&gt; [1] 0.4047506</span></a>
-<a class="sourceLine" id="cb8-12" title="12"></a>
-<a class="sourceLine" id="cb8-13" title="13"><span class="co">## Null is false</span></a>
-<a class="sourceLine" id="cb8-14" title="14"><span class="kw">pdRankTests</span>(<span class="kw">array</span>(<span class="kw">c</span>(<span class="kw">pgram</span>(Sigma), <span class="kw">pgram</span>(<span class="fl">0.9</span> <span class="op">*</span><span class="st"> </span>Sigma)), <span class="dt">dim =</span> <span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">2</span><span class="op">^</span><span class="dv">10</span>)), <span class="dt">test =</span> <span class="st">&quot;signed.rank&quot;</span>)[<span class="dv">2</span>]</a>
-<a class="sourceLine" id="cb8-15" title="15"><span class="co">#&gt; $p.value</span></a>
-<a class="sourceLine" id="cb8-16" title="16"><span class="co">#&gt; [1] 0.003768685</span></a></code></pre></div>
-<p>To conclude, we demonstrate the intrinsic Bartels-von Neumman test (<code>test = &quot;bartels&quot;</code>) by generating an independent non-identically distributed sample of HPD matrices with a trend in the scale of the distribution across observations. In this case, the null hypothesis of randomness breaks down.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" title="1"><span class="co">## Null is true</span></a>
-<a class="sourceLine" id="cb9-2" title="2">data3 &lt;-<span class="st"> </span><span class="kw">replicate</span>(<span class="dv">200</span>, <span class="kw">Expm</span>(<span class="kw">diag</span>(<span class="dv">2</span>), <span class="kw">H.coeff</span>(<span class="kw">rnorm</span>(<span class="dv">4</span>), <span class="dt">inverse =</span> T))) <span class="co">## iid HPd sample</span></a>
-<a class="sourceLine" id="cb9-3" title="3">data4 &lt;-<span class="st"> </span><span class="kw">replicate</span>(<span class="dv">100</span>, <span class="kw">sapply</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">5</span>, <span class="cf">function</span>(i) <span class="kw">Expm</span>(i <span class="op">*</span><span class="st"> </span><span class="kw">diag</span>(<span class="dv">2</span>), <span class="kw">H.coeff</span>(<span class="kw">rnorm</span>(<span class="dv">4</span>), <span class="dt">inverse =</span> T) <span class="op">/</span><span class="st"> </span>i), <span class="dt">simplify =</span> <span class="st">&quot;array&quot;</span>)) <span class="co">## iid HPD curve</span></a>
-<a class="sourceLine" id="cb9-4" title="4"></a>
-<a class="sourceLine" id="cb9-5" title="5"><span class="co">## Null is false</span></a>
-<a class="sourceLine" id="cb9-6" title="6">data3a &lt;-<span class="st"> </span><span class="kw">sapply</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">200</span>, <span class="cf">function</span>(j) <span class="kw">Expm</span>(<span class="kw">diag</span>(<span class="dv">2</span>), <span class="kw">H.coeff</span>(((<span class="dv">200</span> <span class="op">-</span><span class="st"> </span>j) <span class="op">/</span><span class="st"> </span><span class="dv">200</span> <span class="op">+</span><span class="st"> </span>j <span class="op">*</span><span class="st"> </span><span class="dv">2</span> <span class="op">/</span><span class="st"> </span><span class="dv">200</span>) <span class="op">*</span><span class="st"> </span><span class="kw">rnorm</span>(<span class="dv">4</span>), <span class="dt">inverse =</span> T)), <span class="dt">simplify =</span> <span class="st">&quot;array&quot;</span>) <span class="co">## pointwise trend in scale</span></a>
-<a class="sourceLine" id="cb9-7" title="7">data4a &lt;-<span class="st"> </span><span class="kw">sapply</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">100</span>, <span class="cf">function</span>(j) <span class="kw">sapply</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">5</span>, <span class="cf">function</span>(i) <span class="kw">Expm</span>(i <span class="op">*</span><span class="st"> </span><span class="kw">diag</span>(<span class="dv">2</span>), <span class="kw">H.coeff</span>(((<span class="dv">100</span> <span class="op">-</span><span class="st"> </span>j) <span class="op">/</span><span class="st"> </span><span class="dv">100</span> <span class="op">+</span><span class="st"> </span>j <span class="op">*</span><span class="st"> </span><span class="dv">2</span> <span class="op">/</span><span class="st"> </span><span class="dv">100</span>) <span class="op">*</span><span class="st"> </span><span class="kw">rnorm</span>(<span class="dv">4</span>), <span class="dt">inverse =</span> T) <span class="op">/</span><span class="st"> </span>i), <span class="dt">simplify =</span> <span class="st">&quot;array&quot;</span>), <span class="dt">simplify =</span> <span class="st">&quot;array&quot;</span>) <span class="co">## curve trend in scale</span></a>
-<a class="sourceLine" id="cb9-8" title="8"></a>
-<a class="sourceLine" id="cb9-9" title="9"><span class="co">## Bartels-von Neumann test</span></a>
-<a class="sourceLine" id="cb9-10" title="10"><span class="kw">pdRankTests</span>(data3, <span class="dt">test =</span> <span class="st">&quot;bartels&quot;</span>)[<span class="dv">1</span><span class="op">:</span><span class="dv">4</span>] <span class="co">## null true (pointwise)</span></a>
-<a class="sourceLine" id="cb9-11" title="11"><span class="co">#&gt; $test</span></a>
-<a class="sourceLine" id="cb9-12" title="12"><span class="co">#&gt; [1] &quot;Intrinsic Bartels-von Neumann&quot;</span></a>
-<a class="sourceLine" id="cb9-13" title="13"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb9-14" title="14"><span class="co">#&gt; $p.value</span></a>
-<a class="sourceLine" id="cb9-15" title="15"><span class="co">#&gt; [1] 0.2641266</span></a>
-<a class="sourceLine" id="cb9-16" title="16"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb9-17" title="17"><span class="co">#&gt; $statistic</span></a>
-<a class="sourceLine" id="cb9-18" title="18"><span class="co">#&gt; [1] 1.116691</span></a>
-<a class="sourceLine" id="cb9-19" title="19"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb9-20" title="20"><span class="co">#&gt; $null.distr</span></a>
-<a class="sourceLine" id="cb9-21" title="21"><span class="co">#&gt; [1] &quot;Standard normal distribution&quot;</span></a>
-<a class="sourceLine" id="cb9-22" title="22"></a>
-<a class="sourceLine" id="cb9-23" title="23"><span class="kw">pdRankTests</span>(data4, <span class="dt">test =</span> <span class="st">&quot;bartels&quot;</span>)[<span class="dv">2</span>] <span class="co">## null true (curve)</span></a>
-<a class="sourceLine" id="cb9-24" title="24"><span class="co">#&gt; $p.value</span></a>
-<a class="sourceLine" id="cb9-25" title="25"><span class="co">#&gt; [1] 0.7612759</span></a>
-<a class="sourceLine" id="cb9-26" title="26"></a>
-<a class="sourceLine" id="cb9-27" title="27"><span class="kw">pdRankTests</span>(data3a, <span class="dt">test =</span> <span class="st">&quot;bartels&quot;</span>)[<span class="dv">2</span>] <span class="co">## null false (pointwise)</span></a>
-<a class="sourceLine" id="cb9-28" title="28"><span class="co">#&gt; $p.value</span></a>
-<a class="sourceLine" id="cb9-29" title="29"><span class="co">#&gt; [1] 1.612058e-05</span></a>
-<a class="sourceLine" id="cb9-30" title="30"></a>
-<a class="sourceLine" id="cb9-31" title="31"><span class="kw">pdRankTests</span>(data4a, <span class="dt">test =</span> <span class="st">&quot;bartels&quot;</span>)[<span class="dv">2</span>] <span class="co">## null false (curve)</span></a>
-<a class="sourceLine" id="cb9-32" title="32"><span class="co">#&gt; $p.value</span></a>
-<a class="sourceLine" id="cb9-33" title="33"><span class="co">#&gt; [1] 0.000732231</span></a></code></pre></div>
+<p>Below, we construct several simulated examples for which: (i) the
+null hypotheses listed above are satisfied; and (ii) the null hypotheses
+listed above are not satisfied. Analogous to the previous section, we
+generate pointwise random samples (resp. random samples of sequences) of
+<code>(2,2)</code>-dimensional HPD matrix-valued observations, with
+underlying geometric mean equal to the identity matrix (resp. sequence
+of scaled identity matrices).</p>
+<p>Let us first consider simulated examples of the intrinsic Wilcoxon
+rank-sum test (<code>test = &quot;rank.sum&quot;</code>) and intrinsic
+Kruskal-Wallis test (<code>test = &quot;krusk.wall&quot;</code>).</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="do">## Generate data (null true)</span></span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>data1 <span class="ot">&lt;-</span> <span class="fu">array</span>(<span class="fu">c</span>(X1, <span class="fu">replicate</span>(<span class="dv">50</span>, <span class="fu">Expm</span>(<span class="fu">diag</span>(<span class="dv">2</span>), <span class="fu">H.coeff</span>(<span class="fl">0.5</span> <span class="sc">*</span> <span class="fu">rnorm</span>(<span class="dv">4</span>), <span class="at">inverse =</span> T)))), <span class="at">dim =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">100</span>)) <span class="do">## pointwise HPD sample</span></span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>data2 <span class="ot">&lt;-</span> <span class="fu">array</span>(<span class="fu">c</span>(X2, <span class="fu">replicate</span>(<span class="dv">50</span>, <span class="fu">sapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, <span class="cf">function</span>(i) <span class="fu">Expm</span>(i <span class="sc">*</span> <span class="fu">diag</span>(<span class="dv">2</span>), <span class="fu">H.coeff</span>(<span class="fl">0.5</span> <span class="sc">*</span> <span class="fu">rnorm</span>(<span class="dv">4</span>), <span class="at">inverse =</span> T) <span class="sc">/</span> i), <span class="at">simplify =</span> <span class="st">&quot;array&quot;</span>))), <span class="at">dim =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">5</span>, <span class="dv">100</span>)) <span class="do">## HPD curve sample</span></span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="do">## Generate data (null false)</span></span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a>data1a <span class="ot">&lt;-</span> <span class="fu">array</span>(<span class="fu">c</span>(X1, <span class="fu">replicate</span>(<span class="dv">50</span>, <span class="fu">Expm</span>(<span class="fu">diag</span>(<span class="dv">2</span>), <span class="fu">H.coeff</span>(<span class="fu">rnorm</span>(<span class="dv">4</span>), <span class="at">inverse =</span> T)))), <span class="at">dim =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">100</span>)) <span class="do">## pointwise HPD scale change</span></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a>data2a <span class="ot">&lt;-</span> <span class="fu">array</span>(<span class="fu">c</span>(X2, <span class="fu">replicate</span>(<span class="dv">50</span>, <span class="fu">sapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, <span class="cf">function</span>(i) <span class="fu">Expm</span>(i <span class="sc">*</span> <span class="fu">diag</span>(<span class="dv">2</span>), <span class="fu">H.coeff</span>(<span class="fu">rnorm</span>(<span class="dv">4</span>), <span class="at">inverse =</span> T) <span class="sc">/</span> i), <span class="at">simplify =</span> <span class="st">&quot;arra&quot;</span>))), <span class="at">dim =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">5</span>, <span class="dv">100</span>)) <span class="do">## HPD curve scale change</span></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a></span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="do">## Rank-sum test</span></span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="fu">pdRankTests</span>(data1, <span class="at">sample_sizes =</span> <span class="fu">c</span>(<span class="dv">50</span>, <span class="dv">50</span>), <span class="st">&quot;rank.sum&quot;</span>)[<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>] <span class="do">## null true (pointwise)</span></span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="co">#&gt; $test</span></span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="co">#&gt; [1] &quot;Intrinsic Wilcoxon rank-sum&quot;</span></span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a><span class="co">#&gt; $p.value</span></span>
+<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a><span class="co">#&gt; [1] 0.1037495</span></span>
+<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a><span class="co">#&gt; $statistic</span></span>
+<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a><span class="co">#&gt; [1] 1.626941</span></span>
+<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-20"><a href="#cb6-20" tabindex="-1"></a><span class="co">#&gt; $null.distr</span></span>
+<span id="cb6-21"><a href="#cb6-21" tabindex="-1"></a><span class="co">#&gt; [1] &quot;Standard normal distribution&quot;</span></span>
+<span id="cb6-22"><a href="#cb6-22" tabindex="-1"></a></span>
+<span id="cb6-23"><a href="#cb6-23" tabindex="-1"></a><span class="fu">pdRankTests</span>(data2, <span class="at">sample_sizes =</span> <span class="fu">c</span>(<span class="dv">50</span>, <span class="dv">50</span>), <span class="st">&quot;rank.sum&quot;</span>)[<span class="dv">2</span>] <span class="do">## null true (curve)</span></span>
+<span id="cb6-24"><a href="#cb6-24" tabindex="-1"></a><span class="co">#&gt; $p.value</span></span>
+<span id="cb6-25"><a href="#cb6-25" tabindex="-1"></a><span class="co">#&gt; [1] 0.9834998</span></span>
+<span id="cb6-26"><a href="#cb6-26" tabindex="-1"></a></span>
+<span id="cb6-27"><a href="#cb6-27" tabindex="-1"></a><span class="fu">pdRankTests</span>(data1a, <span class="at">sample_sizes =</span> <span class="fu">c</span>(<span class="dv">50</span>, <span class="dv">50</span>), <span class="st">&quot;rank.sum&quot;</span>)[<span class="dv">2</span>] <span class="do">## null false (pointwise)</span></span>
+<span id="cb6-28"><a href="#cb6-28" tabindex="-1"></a><span class="co">#&gt; $p.value</span></span>
+<span id="cb6-29"><a href="#cb6-29" tabindex="-1"></a><span class="co">#&gt; [1] 6.958285e-11</span></span>
+<span id="cb6-30"><a href="#cb6-30" tabindex="-1"></a></span>
+<span id="cb6-31"><a href="#cb6-31" tabindex="-1"></a><span class="fu">pdRankTests</span>(data2a, <span class="at">sample_sizes =</span> <span class="fu">c</span>(<span class="dv">50</span>, <span class="dv">50</span>), <span class="st">&quot;rank.sum&quot;</span>)[<span class="dv">2</span>] <span class="do">## null false (curve)</span></span>
+<span id="cb6-32"><a href="#cb6-32" tabindex="-1"></a><span class="co">#&gt; $p.value</span></span>
+<span id="cb6-33"><a href="#cb6-33" tabindex="-1"></a><span class="co">#&gt; [1] 1.020181e-15</span></span>
+<span id="cb6-34"><a href="#cb6-34" tabindex="-1"></a></span>
+<span id="cb6-35"><a href="#cb6-35" tabindex="-1"></a><span class="do">## Kruskal-Wallis test</span></span>
+<span id="cb6-36"><a href="#cb6-36" tabindex="-1"></a><span class="fu">pdRankTests</span>(data1, <span class="at">sample_sizes =</span> <span class="fu">c</span>(<span class="dv">50</span>, <span class="dv">25</span>, <span class="dv">25</span>), <span class="st">&quot;krusk.wall&quot;</span>)[<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>] <span class="do">## null true (pointwise)</span></span>
+<span id="cb6-37"><a href="#cb6-37" tabindex="-1"></a><span class="co">#&gt; $test</span></span>
+<span id="cb6-38"><a href="#cb6-38" tabindex="-1"></a><span class="co">#&gt; [1] &quot;Intrinsic Kruskal-Wallis&quot;</span></span>
+<span id="cb6-39"><a href="#cb6-39" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-40"><a href="#cb6-40" tabindex="-1"></a><span class="co">#&gt; $p.value</span></span>
+<span id="cb6-41"><a href="#cb6-41" tabindex="-1"></a><span class="co">#&gt; [1] 0.1443239</span></span>
+<span id="cb6-42"><a href="#cb6-42" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-43"><a href="#cb6-43" tabindex="-1"></a><span class="co">#&gt; $statistic</span></span>
+<span id="cb6-44"><a href="#cb6-44" tabindex="-1"></a><span class="co">#&gt; [1] 3.87139</span></span>
+<span id="cb6-45"><a href="#cb6-45" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-46"><a href="#cb6-46" tabindex="-1"></a><span class="co">#&gt; $null.distr</span></span>
+<span id="cb6-47"><a href="#cb6-47" tabindex="-1"></a><span class="co">#&gt; [1] &quot;Chi-squared distribution (df = 2)&quot;</span></span>
+<span id="cb6-48"><a href="#cb6-48" tabindex="-1"></a></span>
+<span id="cb6-49"><a href="#cb6-49" tabindex="-1"></a><span class="fu">pdRankTests</span>(data2, <span class="at">sample_sizes =</span> <span class="fu">c</span>(<span class="dv">50</span>, <span class="dv">25</span>, <span class="dv">25</span>), <span class="st">&quot;krusk.wall&quot;</span>)[<span class="dv">2</span>] <span class="do">## null true (curve)</span></span>
+<span id="cb6-50"><a href="#cb6-50" tabindex="-1"></a><span class="co">#&gt; $p.value</span></span>
+<span id="cb6-51"><a href="#cb6-51" tabindex="-1"></a><span class="co">#&gt; [1] 0.1526552</span></span>
+<span id="cb6-52"><a href="#cb6-52" tabindex="-1"></a></span>
+<span id="cb6-53"><a href="#cb6-53" tabindex="-1"></a><span class="fu">pdRankTests</span>(data1a, <span class="at">sample_sizes =</span> <span class="fu">c</span>(<span class="dv">50</span>, <span class="dv">25</span>, <span class="dv">25</span>), <span class="st">&quot;krusk.wall&quot;</span>)[<span class="dv">2</span>] <span class="do">## null false (pointwise)</span></span>
+<span id="cb6-54"><a href="#cb6-54" tabindex="-1"></a><span class="co">#&gt; $p.value</span></span>
+<span id="cb6-55"><a href="#cb6-55" tabindex="-1"></a><span class="co">#&gt; [1] 5.495634e-10</span></span>
+<span id="cb6-56"><a href="#cb6-56" tabindex="-1"></a></span>
+<span id="cb6-57"><a href="#cb6-57" tabindex="-1"></a><span class="fu">pdRankTests</span>(data2a, <span class="at">sample_sizes =</span> <span class="fu">c</span>(<span class="dv">50</span>, <span class="dv">25</span>, <span class="dv">25</span>), <span class="st">&quot;krusk.wall&quot;</span>)[<span class="dv">2</span>] <span class="do">## null false (curve)</span></span>
+<span id="cb6-58"><a href="#cb6-58" tabindex="-1"></a><span class="co">#&gt; $p.value</span></span>
+<span id="cb6-59"><a href="#cb6-59" tabindex="-1"></a><span class="co">#&gt; [1] 1.033775e-14</span></span></code></pre></div>
+<p>To apply the manifold Wilcoxon signed-rank test
+(<code>test = &quot;signed-rank&quot;</code>), we generate paired observations for
+independent trials (or subjects) by introducing trial-specific random
+effects, such that the paired observations in each trial share a
+trial-specific geometric mean. Note that for such data the intrinsic
+Wilcoxon rank-sum test is no longer valid due to the introduced sample
+dependence.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="do">## Trial-specific means</span></span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>mu <span class="ot">&lt;-</span> <span class="fu">replicate</span>(<span class="dv">50</span>, <span class="fu">Expm</span>(<span class="fu">diag</span>(<span class="dv">2</span>), <span class="fu">H.coeff</span>(<span class="fl">0.1</span> <span class="sc">*</span> <span class="fu">rnorm</span>(<span class="dv">4</span>), <span class="at">inverse =</span> T)))</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="do">## Generate paired samples X,Y</span></span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>make_sample <span class="ot">&lt;-</span> <span class="cf">function</span>(null) <span class="fu">sapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">50</span>, <span class="cf">function</span>(i) <span class="fu">Expm</span>(mu[, , i], pdSpecEst<span class="sc">:::</span><span class="fu">T_coeff_inv</span>(<span class="fu">ifelse</span>(null, <span class="dv">1</span>, <span class="fl">0.5</span>) <span class="sc">*</span> <span class="fu">rexp</span>(<span class="dv">4</span>) <span class="sc">-</span> <span class="dv">1</span>, mu[, , i])), <span class="at">simplify =</span> <span class="st">&quot;array&quot;</span>)</span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a></span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>X3 <span class="ot">&lt;-</span> <span class="fu">make_sample</span>(<span class="at">null =</span> T) <span class="do">## refernce sample </span></span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a>Y3 <span class="ot">&lt;-</span> <span class="fu">make_sample</span>(<span class="at">null =</span> T) <span class="do">## null true</span></span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a>Y3a <span class="ot">&lt;-</span> <span class="fu">make_sample</span>(<span class="at">null =</span> F) <span class="do">## null false (scale change)</span></span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a></span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a><span class="do">## Signed-rank test</span></span>
+<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a><span class="fu">pdRankTests</span>(<span class="fu">array</span>(<span class="fu">c</span>(X3, Y3), <span class="at">dim =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">100</span>)), <span class="at">test =</span> <span class="st">&quot;signed.rank&quot;</span>)[<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>] <span class="do">## null true</span></span>
+<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a><span class="co">#&gt; $test</span></span>
+<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a><span class="co">#&gt; [1] &quot;Intrinsic Wilcoxon signed-rank&quot;</span></span>
+<span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb7-16"><a href="#cb7-16" tabindex="-1"></a><span class="co">#&gt; $p.value</span></span>
+<span id="cb7-17"><a href="#cb7-17" tabindex="-1"></a><span class="co">#&gt; [1] 0.2025809</span></span>
+<span id="cb7-18"><a href="#cb7-18" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb7-19"><a href="#cb7-19" tabindex="-1"></a><span class="co">#&gt; $statistic</span></span>
+<span id="cb7-20"><a href="#cb7-20" tabindex="-1"></a><span class="co">#&gt;   V </span></span>
+<span id="cb7-21"><a href="#cb7-21" tabindex="-1"></a><span class="co">#&gt; 505 </span></span>
+<span id="cb7-22"><a href="#cb7-22" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb7-23"><a href="#cb7-23" tabindex="-1"></a><span class="co">#&gt; $null.distr</span></span>
+<span id="cb7-24"><a href="#cb7-24" tabindex="-1"></a><span class="co">#&gt; [1] &quot;Wilcoxon signed rank test with continuity correction&quot;</span></span>
+<span id="cb7-25"><a href="#cb7-25" tabindex="-1"></a></span>
+<span id="cb7-26"><a href="#cb7-26" tabindex="-1"></a><span class="fu">pdRankTests</span>(<span class="fu">array</span>(<span class="fu">c</span>(X3, Y3a), <span class="at">dim =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">100</span>)), <span class="at">test =</span> <span class="st">&quot;signed.rank&quot;</span>)[<span class="dv">2</span>] <span class="do">## null false</span></span>
+<span id="cb7-27"><a href="#cb7-27" tabindex="-1"></a><span class="co">#&gt; $p.value</span></span>
+<span id="cb7-28"><a href="#cb7-28" tabindex="-1"></a><span class="co">#&gt; [1] 0.001444632</span></span></code></pre></div>
+<p>The intrinsic signed-rank test also provides a valid procedure to
+test for equivalence of spectral matrices of two (independent)
+multivariate stationary time series based on the HPD periodogram
+matrices obtained via <code>pdPgram()</code>. In contrast to other
+available tests in the literature, this asymptotic test does not require
+consistent spectral estimators or resampling of test statistics, and
+therefore remains computationally efficient for higher-dimensional
+spectral matrices or a large number of sampled Fourier frequencies.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="do">## Signed-rank test for equivalence of spectra</span></span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="do">## vARMA(1,1) process: Example 11.4.1 in (Brockwell and Davis, 1991)</span></span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>Phi <span class="ot">&lt;-</span> <span class="fu">array</span>(<span class="fu">c</span>(<span class="fl">0.7</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="fl">0.6</span>, <span class="fu">rep</span>(<span class="dv">0</span>, <span class="dv">4</span>)), <span class="at">dim =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">2</span>))</span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>Theta <span class="ot">&lt;-</span> <span class="fu">array</span>(<span class="fu">c</span>(<span class="fl">0.5</span>, <span class="sc">-</span><span class="fl">0.7</span>, <span class="fl">0.6</span>, <span class="fl">0.8</span>, <span class="fu">rep</span>(<span class="dv">0</span>, <span class="dv">4</span>)), <span class="at">dim =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">2</span>))</span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>Sigma <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(<span class="dv">1</span>, <span class="fl">0.71</span>, <span class="fl">0.71</span>, <span class="dv">2</span>), <span class="at">nrow =</span> <span class="dv">2</span>)</span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a>pgram <span class="ot">&lt;-</span> <span class="cf">function</span>(Sigma) <span class="fu">pdPgram</span>(<span class="fu">rARMA</span>(<span class="dv">2</span><span class="sc">^</span><span class="dv">10</span>, <span class="dv">2</span>, Phi, Theta, Sigma)<span class="sc">$</span>X)<span class="sc">$</span>P <span class="do">## HPD periodogram</span></span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a></span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a><span class="do">## Null is true</span></span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a><span class="fu">pdRankTests</span>(<span class="fu">array</span>(<span class="fu">c</span>(<span class="fu">pgram</span>(Sigma), <span class="fu">pgram</span>(Sigma)), <span class="at">dim =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">2</span><span class="sc">^</span><span class="dv">10</span>)), <span class="at">test =</span> <span class="st">&quot;signed.rank&quot;</span>)[<span class="dv">2</span>]</span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a><span class="co">#&gt; $p.value</span></span>
+<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a><span class="co">#&gt; [1] 0.4047506</span></span>
+<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a></span>
+<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a><span class="do">## Null is false</span></span>
+<span id="cb8-14"><a href="#cb8-14" tabindex="-1"></a><span class="fu">pdRankTests</span>(<span class="fu">array</span>(<span class="fu">c</span>(<span class="fu">pgram</span>(Sigma), <span class="fu">pgram</span>(<span class="fl">0.9</span> <span class="sc">*</span> Sigma)), <span class="at">dim =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">2</span><span class="sc">^</span><span class="dv">10</span>)), <span class="at">test =</span> <span class="st">&quot;signed.rank&quot;</span>)[<span class="dv">2</span>]</span>
+<span id="cb8-15"><a href="#cb8-15" tabindex="-1"></a><span class="co">#&gt; $p.value</span></span>
+<span id="cb8-16"><a href="#cb8-16" tabindex="-1"></a><span class="co">#&gt; [1] 0.003768685</span></span></code></pre></div>
+<p>To conclude, we demonstrate the intrinsic Bartels-von Neumman test
+(<code>test = &quot;bartels&quot;</code>) by generating an independent
+non-identically distributed sample of HPD matrices with a trend in the
+scale of the distribution across observations. In this case, the null
+hypothesis of randomness breaks down.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="do">## Null is true</span></span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>data3 <span class="ot">&lt;-</span> <span class="fu">replicate</span>(<span class="dv">200</span>, <span class="fu">Expm</span>(<span class="fu">diag</span>(<span class="dv">2</span>), <span class="fu">H.coeff</span>(<span class="fu">rnorm</span>(<span class="dv">4</span>), <span class="at">inverse =</span> T))) <span class="do">## iid HPd sample</span></span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>data4 <span class="ot">&lt;-</span> <span class="fu">replicate</span>(<span class="dv">100</span>, <span class="fu">sapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, <span class="cf">function</span>(i) <span class="fu">Expm</span>(i <span class="sc">*</span> <span class="fu">diag</span>(<span class="dv">2</span>), <span class="fu">H.coeff</span>(<span class="fu">rnorm</span>(<span class="dv">4</span>), <span class="at">inverse =</span> T) <span class="sc">/</span> i), <span class="at">simplify =</span> <span class="st">&quot;array&quot;</span>)) <span class="do">## iid HPD curve</span></span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a><span class="do">## Null is false</span></span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a>data3a <span class="ot">&lt;-</span> <span class="fu">sapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">200</span>, <span class="cf">function</span>(j) <span class="fu">Expm</span>(<span class="fu">diag</span>(<span class="dv">2</span>), <span class="fu">H.coeff</span>(((<span class="dv">200</span> <span class="sc">-</span> j) <span class="sc">/</span> <span class="dv">200</span> <span class="sc">+</span> j <span class="sc">*</span> <span class="dv">2</span> <span class="sc">/</span> <span class="dv">200</span>) <span class="sc">*</span> <span class="fu">rnorm</span>(<span class="dv">4</span>), <span class="at">inverse =</span> T)), <span class="at">simplify =</span> <span class="st">&quot;array&quot;</span>) <span class="do">## pointwise trend in scale</span></span>
+<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a>data4a <span class="ot">&lt;-</span> <span class="fu">sapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">100</span>, <span class="cf">function</span>(j) <span class="fu">sapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, <span class="cf">function</span>(i) <span class="fu">Expm</span>(i <span class="sc">*</span> <span class="fu">diag</span>(<span class="dv">2</span>), <span class="fu">H.coeff</span>(((<span class="dv">100</span> <span class="sc">-</span> j) <span class="sc">/</span> <span class="dv">100</span> <span class="sc">+</span> j <span class="sc">*</span> <span class="dv">2</span> <span class="sc">/</span> <span class="dv">100</span>) <span class="sc">*</span> <span class="fu">rnorm</span>(<span class="dv">4</span>), <span class="at">inverse =</span> T) <span class="sc">/</span> i), <span class="at">simplify =</span> <span class="st">&quot;array&quot;</span>), <span class="at">simplify =</span> <span class="st">&quot;array&quot;</span>) <span class="do">## curve trend in scale</span></span>
+<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a></span>
+<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a><span class="do">## Bartels-von Neumann test</span></span>
+<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a><span class="fu">pdRankTests</span>(data3, <span class="at">test =</span> <span class="st">&quot;bartels&quot;</span>)[<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>] <span class="do">## null true (pointwise)</span></span>
+<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a><span class="co">#&gt; $test</span></span>
+<span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a><span class="co">#&gt; [1] &quot;Intrinsic Bartels-von Neumann&quot;</span></span>
+<span id="cb9-13"><a href="#cb9-13" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb9-14"><a href="#cb9-14" tabindex="-1"></a><span class="co">#&gt; $p.value</span></span>
+<span id="cb9-15"><a href="#cb9-15" tabindex="-1"></a><span class="co">#&gt; [1] 0.2641266</span></span>
+<span id="cb9-16"><a href="#cb9-16" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb9-17"><a href="#cb9-17" tabindex="-1"></a><span class="co">#&gt; $statistic</span></span>
+<span id="cb9-18"><a href="#cb9-18" tabindex="-1"></a><span class="co">#&gt; [1] 1.116691</span></span>
+<span id="cb9-19"><a href="#cb9-19" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb9-20"><a href="#cb9-20" tabindex="-1"></a><span class="co">#&gt; $null.distr</span></span>
+<span id="cb9-21"><a href="#cb9-21" tabindex="-1"></a><span class="co">#&gt; [1] &quot;Standard normal distribution&quot;</span></span>
+<span id="cb9-22"><a href="#cb9-22" tabindex="-1"></a></span>
+<span id="cb9-23"><a href="#cb9-23" tabindex="-1"></a><span class="fu">pdRankTests</span>(data4, <span class="at">test =</span> <span class="st">&quot;bartels&quot;</span>)[<span class="dv">2</span>] <span class="do">## null true (curve)</span></span>
+<span id="cb9-24"><a href="#cb9-24" tabindex="-1"></a><span class="co">#&gt; $p.value</span></span>
+<span id="cb9-25"><a href="#cb9-25" tabindex="-1"></a><span class="co">#&gt; [1] 0.7612759</span></span>
+<span id="cb9-26"><a href="#cb9-26" tabindex="-1"></a></span>
+<span id="cb9-27"><a href="#cb9-27" tabindex="-1"></a><span class="fu">pdRankTests</span>(data3a, <span class="at">test =</span> <span class="st">&quot;bartels&quot;</span>)[<span class="dv">2</span>] <span class="do">## null false (pointwise)</span></span>
+<span id="cb9-28"><a href="#cb9-28" tabindex="-1"></a><span class="co">#&gt; $p.value</span></span>
+<span id="cb9-29"><a href="#cb9-29" tabindex="-1"></a><span class="co">#&gt; [1] 1.612058e-05</span></span>
+<span id="cb9-30"><a href="#cb9-30" tabindex="-1"></a></span>
+<span id="cb9-31"><a href="#cb9-31" tabindex="-1"></a><span class="fu">pdRankTests</span>(data4a, <span class="at">test =</span> <span class="st">&quot;bartels&quot;</span>)[<span class="dv">2</span>] <span class="do">## null false (curve)</span></span>
+<span id="cb9-32"><a href="#cb9-32" tabindex="-1"></a><span class="co">#&gt; $p.value</span></span>
+<span id="cb9-33"><a href="#cb9-33" tabindex="-1"></a><span class="co">#&gt; [1] 0.000732231</span></span></code></pre></div>
 </div>
 <div id="references" class="section level2 unnumbered">
-<h2>References</h2>
-<div id="refs" class="references">
-<div id="ref-C18">
-<p>Chau, J. 2018. “Advances in Spectral Analysis for Multivariate, Nonstationary and Replicated Time Series.” PhD thesis, Universite catholique de Louvain.</p>
+<h2 class="unnumbered">References</h2>
+<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
+<div id="ref-C18" class="csl-entry">
+Chau, J. 2018. <span>“Advances in Spectral Analysis for Multivariate,
+Nonstationary and Replicated Time Series.”</span> PhD thesis, Universite
+catholique de Louvain.
 </div>
-<div id="ref-COvS17">
-<p>Chau, J., H. Ombao, and R. von Sachs. 2019. “Intrinsic Data Depth for Hermitian Positive Definite Matrices.” <em>Journal of Computational and Graphical Statistics</em> 28 (2): 427–39. <a href="https://doi.org/https://doi.org/10.1080/10618600.2018.1537926">https://doi.org/https://doi.org/10.1080/10618600.2018.1537926</a>.</p>
+<div id="ref-COvS17" class="csl-entry">
+Chau, J., H. Ombao, and R. von Sachs. 2019. <span>“Intrinsic Data Depth
+for <span>H</span>ermitian Positive Definite Matrices.”</span>
+<em>Journal of Computational and Graphical Statistics</em> 28 (2):
+427–39. https://doi.org/<a href="https://doi.org/10.1080/10618600.2018.1537926">https://doi.org/10.1080/10618600.2018.1537926</a>.
 </div>
 </div>
 </div>

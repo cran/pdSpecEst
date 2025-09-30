@@ -205,7 +205,7 @@ f.hat <- pdPgram(bumps$ts, B = 75); str(f.hat, digits.d = 1)
 
 <br>
 
-```{r, echo = F, fig.width=0.7*a4width, fig.height=0.38*a4height, fig.cap ="Figure 1: Generating HPD spectral matrix `bumps$f` in black and noisy mulitaper HPD periodogram `bumps$P` in red. The diagonal components have zero imaginary part and the missing off-diagonal components are uniquely determined by complex conjugation of the displayed off-diagonal components."}
+```{r, echo = F, fig.width=0.7*a4width, fig.height=0.38*a4height, fig.cap ="Figure 1: Generating HPD spectral matrix `bumps$f` in black and noisy multitaper HPD periodogram `bumps$P` in red. The diagonal components have zero imaginary part and the missing off-diagonal components are uniquely determined by complex conjugation of the displayed off-diagonal components."}
 grid <- as.matrix(unname(expand.grid(1:3, 1:3)))
 par(mfrow=c(3, 3), mar = c(3.5,1,1.5,1))
 invisible(apply(grid, 1, function(i) plotspec(i, data = bumps$f, data1 = bumps$P)))
@@ -215,7 +215,7 @@ invisible(apply(grid, 1, function(i) plotspec(i, data = bumps$f, data1 = bumps$P
 
 Figure 2 displays the multitaper HPD spectral estimator based on the same generated time series of length $T = 1024$ using $B = 75$ DPSS tapers and time-bandwidth parameter $n_w = 3$. Observe that a standard multitaper spectral estimator has difficulties adapting to the varying degrees of smoothness in the target spectrum as the estimation procedure is based on a single global smoothness parameter $B$, i.e., the number of tapers.<br><br>
 
-```{r, echo = F, fig.width=0.7*a4width, fig.height=0.38*a4height, fig.cap = "Figure 2: Generating HPD spectral matrix `bumps$f` in black and mulitaper HPD spectral estimator `f.hat$P` in red. The diagonal components have zero imaginary part and the missing off-diagonal components are uniquely determined by complex conjugation of the displayed off-diagonal components."}
+```{r, echo = F, fig.width=0.7*a4width, fig.height=0.38*a4height, fig.cap = "Figure 2: Generating HPD spectral matrix `bumps$f` in black and multitaper HPD spectral estimator `f.hat$P` in red. The diagonal components have zero imaginary part and the missing off-diagonal components are uniquely determined by complex conjugation of the displayed off-diagonal components."}
 grid <- as.matrix(unname(expand.grid(1:3, 1:3)))
 par(mfrow=c(3, 3), mar = c(3.5,1,1.5,1))
 invisible(apply(grid, 1, function(i) plotspec(i, data = bumps$f, data1 = f.hat$P, est = T)))
@@ -226,7 +226,17 @@ invisible(apply(grid, 1, function(i) plotspec(i, data = bumps$f, data1 = f.hat$P
 Although standard nonparametric spectral estimation methods, such as multitapering, are suitable to estimate smooth Fourier spectra with globally smooth component curves across frequency
 in each individual matrix component, they are not able to capture localized features, such
 as local peaks in the spectral matrix at certain frequencies or frequency bands, or varying
-degrees of smoothness across components of the spectral matrix. [@CvS17] develops intrinsic wavelet transforms for curves or surfaces in the space of HPD matrices, with applications to denoising, dimension reduction or compression, and more. The intrinsic wavelet transforms are computationally fast and denoising through nonlinear wavelet shrinkage captures localized features, such as peaks or throughs, in the matrix-valued curves or surfaces, always guaranteeing an estimate in the space of HPD matrices. Moreover, and in contrast to existing approaches, wavelet-based spectral estimation in the space of HPD matrices equipped with a specific invariant Riemannian metric is *equivariant* under a change or basis (i.e., change of coordinate system) of the given time series. For more details, see [@CvS17] or [@C18].
+degrees of smoothness across components of the spectral matrix. [@CvS17]
+develops intrinsic wavelet transforms for curves or surfaces in the space of HPD
+matrices, with applications to denoising, dimension reduction or compression,
+and more. The intrinsic wavelet transforms are computationally fast and
+denoising through nonlinear wavelet shrinkage captures localized features, such
+as peaks or troughs, in the matrix-valued curves or surfaces, always
+guaranteeing an estimate in the space of HPD matrices. Moreover, and in contrast
+to existing approaches, wavelet-based spectral estimation in the space of HPD
+matrices equipped with a specific invariant Riemannian metric is *equivariant*
+under a change or basis (i.e., change of coordinate system) of the given time
+series. For more details, see [@CvS17] or [@C18].
 
 ## Wavelet-based spectral matrix estimation with `pdSpecEst1D()`
 
@@ -289,7 +299,15 @@ It is also possible to perform linear thresholding of wavelet scales using `pdSp
 
 ### Estimation results
 
-In Figure 5, we displaye the Frobenius norms of the Hermitian matrix-valued whitened AI wavelet coefficients of the denoised HPD spectral matrix estimator across scale-locations $(j, k)$, and in Figure 6, we plot the wavelet-denoised HPD spectral estimator obtained from `f.hat$f` together with the generating spectral matrix `bumps$f` in the same fashion as in Figure 2 above. The spectral matrix estimator captures both the smooth spectral matrix behavior in the second half of the frequency domain and the localized peaks in the low-frequency range, while always guaranteeing positive definiteness of the estimator.<br><br>
+In Figure 5, we display the Frobenius norms of the Hermitian matrix-valued
+whitened AI wavelet coefficients of the denoised HPD spectral matrix estimator
+across scale-locations $(j, k)$, and in Figure 6, we plot the wavelet-denoised
+HPD spectral estimator obtained from
+`f.hat$f` together with the generating spectral matrix `bumps$f` in the same
+fashion as in Figure 2 above. The spectral matrix estimator captures both the
+smooth spectral matrix behavior in the second half of the frequency domain and
+the localized peaks in the low-frequency range, while always guaranteeing
+positive definiteness of the estimator.<br><br>
 
 ```{r, echo = F, fig.width=0.8*a4width, fig.height=0.23*a4height, fig.cap = "Figure 5: Frobenius norms of the nonlinear (tree-structured) thresholded whitened AI wavelet coefficients of the noisy HPD periodograms based on an intrinsic AI wavelet transform of order $N = 5$, under the default affine-invariant metric."}
 plotCoeff(f.hat$D.white, title = "Frobenius norm of denoised (whitened) AI wavelet coefficients", bias = 1.5)

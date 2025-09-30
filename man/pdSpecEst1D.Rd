@@ -4,8 +4,14 @@
 \alias{pdSpecEst1D}
 \title{Intrinsic wavelet HPD spectral estimation}
 \usage{
-pdSpecEst1D(P, order = 5, metric = "Riemannian", alpha = 1,
-  return_val = "f", ...)
+pdSpecEst1D(
+  P,
+  order = 5,
+  metric = "Riemannian",
+  alpha = 1,
+  return_val = "f",
+  ...
+)
 }
 \arguments{
 \item{P}{a (\eqn{d,d,m})-dimensional array of HPD matrices, corresponding to a sequence of \eqn{(d,d)}-dimensional HPD matrices

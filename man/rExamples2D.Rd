@@ -4,9 +4,15 @@
 \alias{rExamples2D}
 \title{Several example surfaces of HPD matrices}
 \usage{
-rExamples2D(n, d = 2, example = c("smiley", "tvar", "facets", "peak"),
-  replicates = 1, noise = "riem-gaussian", noise.level = 1,
-  df.wishart = NULL)
+rExamples2D(
+  n,
+  d = 2,
+  example = c("smiley", "tvar", "facets", "peak"),
+  replicates = 1,
+  noise = "riem-gaussian",
+  noise.level = 1,
+  df.wishart = NULL
+)
 }
 \arguments{
 \item{n}{integer vector \code{c(n1, n2)} specifying the number of sampled matrices to be generated on a rectangular surface.}

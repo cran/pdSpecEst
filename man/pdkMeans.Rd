@@ -4,8 +4,15 @@
 \alias{pdkMeans}
 \title{K-means clustering for HPD matrices}
 \usage{
-pdkMeans(X, K, metric = "Riemannian", m = 1, eps = 1e-05,
-  max_iter = 100, centroids)
+pdkMeans(
+  X,
+  K,
+  metric = "Riemannian",
+  m = 1,
+  eps = 1e-05,
+  max_iter = 100,
+  centroids
+)
 }
 \arguments{
 \item{X}{a (\eqn{d,d,S})-dimensional array of (\eqn{d,d})-dimensional HPD matrices for \eqn{S}
@@ -60,7 +67,7 @@ as detailed in e.g., \insertCite{B09}{pdSpecEst}[Chapter 6] or \insertCite{PFA05
 (iii) the Cholesky metric (\code{metric = 'Cholesky'}), the Euclidean inner product between Cholesky decompositions; (iv) the
 Euclidean metric (\code{metric = 'Euclidean'}); or (v) the root-Euclidean metric (\code{metric = 'rootEuclidean'}). The default
 choice of metric (affine-invariant Riemannian) satisfies several useful properties not shared by the other metrics, see e.g.,
-\cite{C18}{pdSpecEst} for more details. Note that this comes at the cost of increased computation time in comparison to one
+\insertCite{C18}{pdSpecEst} for more details. Note that this comes at the cost of increased computation time in comparison to one
 of the other metrics.
 }
 \examples{

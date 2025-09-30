@@ -4,8 +4,7 @@
 \alias{pdPgram2D}
 \title{Multitaper HPD time-varying periodogram matrix}
 \usage{
-pdPgram2D(X, B, tf.grid, method = c("dpss", "hermite"), nw = 3,
-  bias.corr = F)
+pdPgram2D(X, B, tf.grid, method = c("dpss", "hermite"), nw = 3, bias.corr = F)
 }
 \arguments{
 \item{X}{an (\eqn{n,d})-dimensional matrix corresponding to a multivariate time series,

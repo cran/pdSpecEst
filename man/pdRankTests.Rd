@@ -4,9 +4,13 @@
 \alias{pdRankTests}
 \title{Rank-based hypothesis tests for HPD matrices}
 \usage{
-pdRankTests(data, sample_sizes, test = c("rank.sum", "krusk.wall",
-  "signed.rank", "bartels"), depth = c("gdd", "zonoid", "spatial"),
-  metric = c("Riemannian", "logEuclidean"))
+pdRankTests(
+  data,
+  sample_sizes,
+  test = c("rank.sum", "krusk.wall", "signed.rank", "bartels"),
+  depth = c("gdd", "zonoid", "spatial"),
+  metric = c("Riemannian", "logEuclidean")
+)
 }
 \arguments{
 \item{data}{either a \eqn{(d,d,S)}-dimensional array corresponding to an array of pooled individual samples of \eqn{(d,d)}-dimensional

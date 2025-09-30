@@ -4,8 +4,15 @@
 \alias{InvWavTransf1D}
 \title{Inverse AI wavelet transform for curve of HPD matrices}
 \usage{
-InvWavTransf1D(D, M0, order = 5, jmax, periodic = FALSE,
-  metric = "Riemannian", ...)
+InvWavTransf1D(
+  D,
+  M0,
+  order = 5,
+  jmax,
+  periodic = FALSE,
+  metric = "Riemannian",
+  ...
+)
 }
 \arguments{
 \item{D}{a list of arrays containing the pyramid of wavelet coefficients, where each array contains the

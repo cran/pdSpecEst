@@ -4,8 +4,7 @@
 \alias{InvWavTransf2D}
 \title{Inverse AI wavelet transform for surface of HPD matrices}
 \usage{
-InvWavTransf2D(D, M0, order = c(3, 3), jmax, metric = "Riemannian",
-  ...)
+InvWavTransf2D(D, M0, order = c(3, 3), jmax, metric = "Riemannian", ...)
 }
 \arguments{
 \item{D}{a list of arrays containing the 2D pyramid of wavelet coefficients, where each array contains the

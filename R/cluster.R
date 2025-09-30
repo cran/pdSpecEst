@@ -16,7 +16,7 @@
 #' (iii) the Cholesky metric (\code{metric = 'Cholesky'}), the Euclidean inner product between Cholesky decompositions; (iv) the
 #' Euclidean metric (\code{metric = 'Euclidean'}); or (v) the root-Euclidean metric (\code{metric = 'rootEuclidean'}). The default
 #' choice of metric (affine-invariant Riemannian) satisfies several useful properties not shared by the other metrics, see e.g.,
-#' \cite{C18}{pdSpecEst} for more details. Note that this comes at the cost of increased computation time in comparison to one
+#' \insertCite{C18}{pdSpecEst} for more details. Note that this comes at the cost of increased computation time in comparison to one
 #' of the other metrics.
 #'
 #' @param X a (\eqn{d,d,S})-dimensional array of (\eqn{d,d})-dimensional HPD matrices for \eqn{S}
